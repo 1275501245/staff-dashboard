@@ -25,13 +25,14 @@
   .site-total { font-size: 12px; color: #c62828; font-weight: 500; }
   .table-wrap { background: white; border-radius: 12px; border: 1px solid #efefef; overflow: hidden; }
   table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  col.col-time { width: 70px; }
-  col.col-platform { width: 110px; }
   col.col-order { width: 100px; }
-  col.col-refund { width: 90px; }
-  col.col-staff { width: 110px; }
-  col.col-tag { width: 90px; }
-  col.col-expand { width: 36px; }
+  col.col-time { width: 65px; }
+  col.col-platform { width: 105px; }
+  col.col-amt { width: 90px; }
+  col.col-refund { width: 85px; }
+  col.col-staff { width: 100px; }
+  col.col-tag { width: 85px; }
+  col.col-expand { width: 32px; }
   th { font-size: 11px; color: #888; font-weight: 500; padding: 8px 12px; text-align: left; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
   td { padding: 9px 12px; border-bottom: 1px solid #f9f9f9; font-size: 13px; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   tr.data-row { cursor: pointer; }
@@ -45,6 +46,7 @@
   .platform-d { color: #00CCBC; font-size: 12px; font-weight: 600; }
   .platform-h { color: #FF6B35; font-size: 12px; font-weight: 600; }
   .refund-amt { font-weight: 500; color: #c62828; }
+  .order-id { font-size: 11px; color: #888; font-family: monospace; }
   .staff-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #f0f0f0; color: #555; display: inline-block; }
   .tag-high { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #ffebee; color: #b71c1c; font-weight: 500; }
   .tag-full { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #fff3e0; color: #e65100; font-weight: 500; }
@@ -125,14 +127,15 @@ async function fetchData() {
   const text = await res.text();
   const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
   return json.table.rows.map(r => ({
-    date: normalizeDate(r.c[0]?.v),
-    site: r.c[1]?.v || '',
-    time: normalizeTime(r.c[2]?.v),
-    platform: r.c[3]?.v || '',
-    orderTotal: parseFloat(r.c[4]?.v || 0),
-    refund: parseFloat(r.c[5]?.v || 0),
-    staff: r.c[6]?.v || '',
-    note: r.c[7]?.v || '',
+    orderId: r.c[0]?.v || '',
+    date: normalizeDate(r.c[1]?.v),
+    site: r.c[2]?.v || '',
+    time: normalizeTime(r.c[3]?.v),
+    platform: r.c[4]?.v || '',
+    orderTotal: parseFloat(r.c[5]?.v || 0),
+    refund: parseFloat(r.c[6]?.v || 0),
+    staff: r.c[7]?.v || '',
+    note: r.c[8]?.v || '',
   }));
 }
 
@@ -189,16 +192,16 @@ function render(data) {
         <div class="site-block">
           <div class="site-header"><span>${site} · ${fmtDate}</span><span class="site-total">£${siteTotal.toFixed(2)} · ${rows.length} orders</span></div>
           <div class="table-wrap"><table>
-            <colgroup><col class="col-time"><col class="col-platform"><col class="col-order"><col class="col-refund"><col class="col-staff"><col class="col-tag"><col class="col-expand"></colgroup>
-            <thead><tr><th>Time</th><th>Platform</th><th>Order</th><th>Refund</th><th>Staff</th><th>Tag</th><th></th></tr></thead>
+            <colgroup><col class="col-order"><col class="col-time"><col class="col-platform"><col class="col-amt"><col class="col-refund"><col class="col-staff"><col class="col-tag"><col class="col-expand"></colgroup>
+            <thead><tr><th>Order</th><th>Time</th><th>Platform</th><th>Order total</th><th>Refund</th><th>Staff</th><th>Tag</th><th></th></tr></thead>
             <tbody>${rows.map(r => {
               const rid = id++;
-              const isShort = r.note === 'High' || r.note === 'Full refund';
               const tagHTML = r.note === 'High' ? '<span class="tag-high">High</span>'
                 : r.note === 'Full refund' ? '<span class="tag-full">Full refund</span>'
                 : r.note ? '<span class="tag-detail">+ detail</span>' : '';
               return `
                 <tr class="data-row" id="row-${rid}" onclick="toggleDetail(${rid})">
+                  <td class="order-id">#${r.orderId}</td>
                   <td>${r.time}</td>
                   <td><span class="${r.platform==='Deliveroo'?'platform-d':'platform-h'}">${r.platform}</span></td>
                   <td>${r.orderTotal>0?'£'+r.orderTotal.toFixed(2):'—'}</td>
@@ -208,7 +211,7 @@ function render(data) {
                   <td class="expand-btn">▸</td>
                 </tr>
                 <tr class="detail-row hidden" id="detail-${rid}">
-                  <td colspan="7">${r.note
+                  <td colspan="8">${r.note
                     ? `<div class="detail-content">${r.note}</div>`
                     : `<div class="detail-empty">No additional details</div>`}
                   </td>
