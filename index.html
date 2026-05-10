@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; }
+  .container { max-width: 480px; margin: 0 auto; padding: 20px 16px 40px; }
+  .header { margin-bottom: 24px; }
+  .header h1 { font-size: 20px; font-weight: 600; }
+  .header p { font-size: 13px; color: #888; margin-top: 4px; }
+  .week-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .week-nav button { background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer; }
+  .week-nav span { flex: 1; text-align: center; font-size: 13px; font-weight: 500; }
+  .staff-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .staff-tab { padding: 6px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid #e0e0e0; background: white; }
+  .staff-tab.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+  .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid #efefef; }
+  .card-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .today-status { display: flex; align-items: center; gap: 10px; }
+  .status-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .status-ok { background: #e8f5e9; }
+  .status-bad { background: #ffebee; }
+  .status-none { background: #f5f5f5; }
+  .status-text h2 { font-size: 18px; font-weight: 600; }
+  .status-text p { font-size: 12px; color: #888; margin-top: 2px; }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat { background: #f9f9f9; border-radius: 12px; padding: 12px; }
+  .stat-val { font-size: 22px; font-weight: 600; }
+  .stat-lbl { font-size: 11px; color: #888; margin-top: 2px; }
+  .green { color: #2e7d32; }
+  .red { color: #c62828; }
+  .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .day-item { text-align: center; }
+  .day-name { font-size: 10px; color: #aaa; margin-bottom: 4px; }
+  .day-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 14px; }
+  .day-ok { background: #e8f5e9; color: #2e7d32; }
+  .day-bad { background: #ffebee; color: #c62828; }
+  .day-empty { background: #f5f5f5; color: #ccc; }
+  .progress-wrap { margin-top: 8px; }
+  .progress-bar { height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; margin-top: 6px; }
+  .progress-fill { height: 100%; background: #2e7d32; border-radius: 3px; transition: width 0.3s; }
+  .loading { text-align: center; padding: 60px 20px; color: #888; font-size: 14px; }
+  .error { text-align: center; padding: 40px 20px; color: #c62828; font-size: 14px; }
+  .penalty-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px; }
+  .penalty-row:last-child { border-bottom: none; }
+  .net-banner { border-radius: 12px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+  .net-pos { background: #e8f5e9; }
+  .net-neg { background: #ffebee; }
+  .net-label { font-size: 13px; font-weight: 500; }
+  .net-val { font-size: 20px; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Staff Dashboard</h1>
+    <p id="subtitle">Refund & Reward Tracker</p>
+  </div>
+
+  <div class="staff-tabs" id="staff-tabs"></div>
+  <div class="week-nav">
+    <button onclick="changeWeek(-1)">&#8249;</button>
+    <span id="week-label"></span>
+    <button onclick="changeWeek(1)">&#8250;</button>
+  </div>
+
+  <div id="content"><div class="loading">Loading...</div></div>
+</div>
+
+<script>
+const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
+const STAFF = ['Prabin','Harshitha','Kin','Ashh'];
+const SITE = { Prabin:'Shoreditch', Harshitha:'Shoreditch', Kin:'Battersea', Ashh:'Tower Bridge' };
+const SPLIT = { Prabin: 2/3, Harshitha: 1/3 };
+const HOURLY = 13.75;
+const FLOWER_TARGET = 7;
+const REWARD_HOURS = 2;
+const THRESHOLD = 0.02;
+const DAYS = ['Sat','Sun','Mon','Tue','Wed','Thu','Fri'];
+
+let currentOffset = 0;
+let selectedStaff = 'Prabin';
+let sheetData = [];
+
+function getWeekStart(offset = 0) {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = day >= 6 ? day - 6 : day + 1;
+  const sat = new Date(now);
+  sat.setDate(now.getDate() - diff + offset * 7);
+  sat.setHours(0, 0, 0, 0);
+  return sat;
+}
+
+function weekDates(weekStart) {
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(weekStart);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+}
+
+function dateKey(d) { return d.toISOString().slice(0, 10); }
+function fmtDate(d) { return d.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' }); }
+
+async function fetchData() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Data`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  const rows = json.table.rows;
+  return rows.map(r => ({
+    date: r.c[0].v,
+    sho_rev: parseFloat(r.c[1]?.v || 0),
+    sho_ref: parseFloat(r.c[2]?.v || 0),
+    bat_rev: parseFloat(r.c[3]?.v || 0),
+    bat_ref: parseFloat(r.c[4]?.v || 0),
+    tb_rev:  parseFloat(r.c[5]?.v || 0),
+    tb_ref:  parseFloat(r.c[6]?.v || 0),
+  }));
+}
+
+function getStaffData(name, dateStr, rows) {
+  const row = rows.find(r => r.date === dateStr);
+  if (!row) return null;
+  let revenue, refund;
+  const site = SITE[name];
+  if (site === 'Shoreditch') {
+    const split = SPLIT[name];
+    revenue = row.sho_rev * split;
+    refund = row.sho_ref * split;
+  } else if (site === 'Battersea') {
+    revenue = row.bat_rev; refund = row.bat_ref;
+  } else {
+    revenue = row.tb_rev; refund = row.tb_ref;
+  }
+  return { revenue, refund };
+}
+
+function calcWeek(name, dates, rows) {
+  let flowers = 0, penaltyAmt = 0, penaltyHrs = 0;
+  const days = dates.map(d => {
+    const data = getStaffData(name, dateKey(d), rows);
+    if (!data || data.revenue === 0) return { status: 'empty' };
+    const rate = data.refund / data.revenue;
+    const ok = rate < THRESHOLD;
+    if (ok) {
+      flowers++;
+    } else {
+      const excess = data.refund - data.revenue * THRESHOLD;
+      const pen = excess * 0.5;
+      penaltyAmt += pen;
+      penaltyHrs += pen / HOURLY;
+    }
+    return { status: ok ? 'ok' : 'bad', rate, refund: data.refund, revenue: data.revenue };
+  });
+  const rewardHrs = Math.floor(flowers / FLOWER_TARGET) * REWARD_HOURS;
+  const net = rewardHrs - penaltyHrs;
+  return { days, flowers, penaltyAmt, penaltyHrs, rewardHrs, net };
+}
+
+function renderTabs() {
+  const container = document.getElementById('staff-tabs');
+  container.innerHTML = STAFF.map(n =>
+    `<div class="staff-tab ${n === selectedStaff ? 'active' : ''}" onclick="selectStaff('${n}')">${n}</div>`
+  ).join('');
+}
+
+function renderContent() {
+  const weekStart = getWeekStart(currentOffset);
+  const dates = weekDates(weekStart);
+  const weekEnd = dates[6];
+  document.getElementById('week-label').textContent = `${fmtDate(weekStart)} – ${fmtDate(weekEnd)}`;
+
+  const name = selectedStaff;
+  const c = calcWeek(name, dates, sheetData);
+  const todayKey = dateKey(new Date());
+  const todayIdx = dates.findIndex(d => dateKey(d) === todayKey);
+  const todayStatus = todayIdx >= 0 ? c.days[todayIdx] : null;
+
+  let todayHTML = '';
+  if (todayStatus && todayStatus.status !== 'empty') {
+    const ok = todayStatus.status === 'ok';
+    const rateStr = (todayStatus.rate * 100).toFixed(1) + '%';
+    todayHTML = `
+      <div class="card">
+        <div class="card-title">Today</div>
+        <div class="today-status">
+          <div class="status-icon ${ok ? 'status-ok' : 'status-bad'}">${ok ? '✓' : '✕'}</div>
+          <div class="status-text">
+            <h2 style="color:${ok ? '#2e7d32' : '#c62828'}">${ok ? 'On target' : 'Above threshold'}</h2>
+            <p>Refund rate ${rateStr} · Refund £${todayStatus.refund.toFixed(2)}</p>
+          </div>
+        </div>
+        ${!ok ? `<div style="margin-top:10px;padding:8px 12px;background:#fff3f3;border-radius:8px;font-size:12px;color:#c62828;">
+          Penalty: £${((todayStatus.refund - todayStatus.revenue * THRESHOLD) * 0.5).toFixed(2)} → ${(((todayStatus.refund - todayStatus.revenue * THRESHOLD) * 0.5) / HOURLY).toFixed(2)}h deducted
+        </div>` : ''}
+      </div>`;
+  } else {
+    todayHTML = `<div class="card"><div class="card-title">Today</div><div style="color:#aaa;font-size:14px;padding:8px 0;">No data yet</div></div>`;
+  }
+
+  const progressPct = ((c.flowers % FLOWER_TARGET) / FLOWER_TARGET * 100).toFixed(0);
+  const netClass = c.net >= 0 ? 'net-pos' : 'net-neg';
+  const netColor = c.net >= 0 ? '#2e7d32' : '#c62828';
+
+  const daysHTML = dates.map((d, i) => {
+    const s = c.days[i];
+    let cls = 'day-empty', icon = '·';
+    if (s.status === 'ok') { cls = 'day-ok'; icon = '✓'; }
+    if (s.status === 'bad') { cls = 'day-bad'; icon = '✕'; }
+    return `<div class="day-item"><div class="day-name">${DAYS[i]}</div><div class="day-dot ${cls}">${icon}</div></div>`;
+  }).join('');
+
+  document.getElementById('content').innerHTML = `
+    ${todayHTML}
+    <div class="card">
+      <div class="card-title">This week · ${SITE[name]}</div>
+      <div class="days-grid" style="margin-bottom:12px;">${daysHTML}</div>
+      <div class="progress-wrap">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;">
+          <span>Flower progress: ${c.flowers % FLOWER_TARGET} / ${FLOWER_TARGET}</span>
+          <span>${c.flowers} total → +${c.rewardHrs.toFixed(1)}h earned</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${progressPct}%"></div></div>
+      </div>
+    </div>
+    <div class="stats-grid" style="margin-bottom:12px;">
+      <div class="stat"><div class="stat-val green">+${c.rewardHrs.toFixed(1)}h</div><div class="stat-lbl">Reward hours</div></div>
+      <div class="stat"><div class="stat-val red">-${c.penaltyHrs.toFixed(2)}h</div><div class="stat-lbl">Penalty hours</div></div>
+    </div>
+    <div class="net-banner ${netClass}">
+      <div class="net-label">Net this week</div>
+      <div class="net-val" style="color:${netColor}">${c.net >= 0 ? '+' : ''}${c.net.toFixed(2)}h</div>
+    </div>
+  `;
+}
+
+function selectStaff(name) {
+  selectedStaff = name;
+  renderTabs();
+  renderContent();
+}
+
+function changeWeek(dir) {
+  currentOffset += dir;
+  renderContent();
+}
+
+async function init() {
+  try {
+    sheetData = await fetchData();
+    renderTabs();
+    renderContent();
+  } catch (e) {
+    document.getElementById('content').innerHTML = `<div class="error">Failed to load data.<br>${e.message}</div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
