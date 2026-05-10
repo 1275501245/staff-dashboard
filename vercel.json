@@ -2,6 +2,7 @@
   "routes": [
     { "src": "/index", "dest": "/index.html" },
     { "src": "/details", "dest": "/details.html" },
+    { "src": "/policy", "dest": "/policy.html" },
     { "src": "/", "dest": "/index.html" }
   ]
 }
