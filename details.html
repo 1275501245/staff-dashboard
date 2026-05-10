@@ -39,7 +39,7 @@
   tr.data-row:hover td { background: #fafafa; }
   tr.detail-row td { padding: 0; border-bottom: 1px solid #f0f0f0; }
   tr.detail-row.hidden { display: none; }
-  .detail-content { padding: 10px 16px 12px; background: #f7f9ff; font-size: 12px; color: #333; line-height: 1.6; border-left: 3px solid #378ADD; }
+  .detail-content { padding: 10px 16px 12px; background: #f7f9ff; font-size: 12px; color: #333; line-height: 1.6; border-left: 3px solid #378ADD; white-space: pre-wrap; }
   .detail-empty { padding: 10px 16px 12px; background: #fafafa; font-size: 12px; color: #aaa; border-left: 3px solid #e0e0e0; }
   .expand-btn { font-size: 13px; color: #ccc; text-align: center; }
   tr.data-row.expanded .expand-btn { color: #555; }
@@ -50,7 +50,8 @@
   .staff-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #f0f0f0; color: #555; display: inline-block; }
   .tag-high { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #ffebee; color: #b71c1c; font-weight: 500; }
   .tag-full { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #fff3e0; color: #e65100; font-weight: 500; }
-  .tag-detail { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #e3f2fd; color: #1565c0; }
+  .tag-reason { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #e3f2fd; color: #1565c0; }
+  .tags { display: flex; gap: 4px; flex-wrap: wrap; }
   .red { color: #c62828; }
   .loading { text-align: center; padding: 60px; color: #888; }
   tr:last-child td { border-bottom: none; }
@@ -127,15 +128,16 @@ async function fetchData() {
   const text = await res.text();
   const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
   return json.table.rows.map(r => ({
-    orderId: r.c[0]?.v || '',
-    date: normalizeDate(r.c[1]?.v),
-    site: r.c[2]?.v || '',
-    time: normalizeTime(r.c[3]?.v),
-    platform: r.c[4]?.v || '',
+    orderId:    r.c[0]?.v || '',
+    date:       normalizeDate(r.c[1]?.v),
+    site:       r.c[2]?.v || '',
+    time:       normalizeTime(r.c[3]?.v),
+    platform:   r.c[4]?.v || '',
     orderTotal: parseFloat(r.c[5]?.v || 0),
-    refund: parseFloat(r.c[6]?.v || 0),
-    staff: r.c[7]?.v || '',
-    note: r.c[8]?.v || '',
+    refund:     parseFloat(r.c[6]?.v || 0),
+    staff:      r.c[7]?.v || '',
+    note:       r.c[8]?.v || '',
+    reason:     r.c[9]?.v || '',
   }));
 }
 
@@ -196,9 +198,12 @@ function render(data) {
             <thead><tr><th>Order</th><th>Time</th><th>Platform</th><th>Order total</th><th>Refund</th><th>Staff</th><th>Tag</th><th></th></tr></thead>
             <tbody>${rows.map(r => {
               const rid = id++;
-              const tagHTML = r.note === 'High' ? '<span class="tag-high">High</span>'
-                : r.note === 'Full refund' ? '<span class="tag-full">Full refund</span>'
-                : r.note ? '<span class="tag-detail">+ detail</span>' : '';
+              const tags = [];
+              if (r.note === 'High') tags.push('<span class="tag-high">High</span>');
+              else if (r.note === 'Full refund') tags.push('<span class="tag-full">Full refund</span>');
+              else if (r.note) tags.push(`<span class="tag-reason">${r.note}</span>`);
+              if (r.reason) tags.push('<span class="tag-reason">+ reason</span>');
+              const hasDetail = !!r.reason;
               return `
                 <tr class="data-row" id="row-${rid}" onclick="toggleDetail(${rid})">
                   <td class="order-id">#${r.orderId}</td>
@@ -207,13 +212,13 @@ function render(data) {
                   <td>${r.orderTotal>0?'£'+r.orderTotal.toFixed(2):'—'}</td>
                   <td class="refund-amt">£${r.refund.toFixed(2)}</td>
                   <td><span class="staff-badge">${r.staff}</span></td>
-                  <td>${tagHTML}</td>
+                  <td><div class="tags">${tags.join('')}</div></td>
                   <td class="expand-btn">▸</td>
                 </tr>
                 <tr class="detail-row hidden" id="detail-${rid}">
-                  <td colspan="8">${r.note
-                    ? `<div class="detail-content">${r.note}</div>`
-                    : `<div class="detail-empty">No additional details</div>`}
+                  <td colspan="8">${r.reason
+                    ? `<div class="detail-content">${r.reason}</div>`
+                    : `<div class="detail-empty">No reason added yet</div>`}
                   </td>
                 </tr>`;
             }).join('')}</tbody>
