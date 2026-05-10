@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refund Details</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; font-size: 14px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 20px 16px 40px; }
+  .header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .header h1 { font-size: 20px; font-weight: 600; }
+  .header p { font-size: 13px; color: #888; margin-top: 4px; }
+  .filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+  .filters select, .filters input { font-size: 13px; padding: 6px 10px; border: 1px solid #e0e0e0; border-radius: 8px; background: white; height: 34px; }
+  .filter-btn { padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid #e0e0e0; background: white; height: 34px; }
+  .filter-btn.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+  .summary-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 16px; }
+  .sum-card { background: white; border-radius: 12px; padding: 10px 14px; border: 1px solid #efefef; }
+  .sum-val { font-size: 18px; font-weight: 600; }
+  .sum-lbl { font-size: 11px; color: #888; margin-top: 2px; }
+  .site-block { margin-bottom: 20px; }
+  .site-header { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 8px; padding: 0 4px; display: flex; justify-content: space-between; }
+  .site-total { font-size: 12px; color: #888; font-weight: 400; }
+  .table-wrap { background: white; border-radius: 12px; border: 1px solid #efefef; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  th { font-size: 11px; color: #888; font-weight: 500; padding: 8px 12px; text-align: left; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
+  td { padding: 8px 12px; border-bottom: 1px solid #f9f9f9; font-size: 13px; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+  .platform-d { color: #00CCBC; font-size: 11px; font-weight: 500; }
+  .platform-h { color: #FF6B35; font-size: 11px; font-weight: 500; }
+  .refund-amt { font-weight: 500; color: #c62828; }
+  .refund-high { color: #c62828; font-weight: 600; }
+  .note-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #fff3f3; color: #c62828; }
+  .note-full { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #ffebee; color: #b71c1c; }
+  .staff-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #f0f0f0; color: #555; }
+  .date-group { font-size: 12px; color: #aaa; padding: 6px 12px; background: #fafafa; border-bottom: 1px solid #f0f0f0; font-weight: 500; }
+  .loading { text-align: center; padding: 60px; color: #888; }
+  .col-date { width: 90px; }
+  .col-time { width: 60px; }
+  .col-platform { width: 100px; }
+  .col-total { width: 90px; }
+  .col-refund { width: 80px; }
+  .col-staff { width: 100px; }
+  .col-note { width: 100px; }
+  .red { color: #c62828; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>Refund Details</h1>
+      <p id="last-updated">Loading...</p>
+    </div>
+  </div>
+
+  <div class="filters">
+    <select id="filter-site" onchange="applyFilters()">
+      <option value="">All sites</option>
+      <option value="Shoreditch">Shoreditch</option>
+      <option value="Battersea">Battersea</option>
+      <option value="Tower Bridge">Tower Bridge</option>
+    </select>
+    <select id="filter-staff" onchange="applyFilters()">
+      <option value="">All staff</option>
+      <option value="Prabin">Prabin</option>
+      <option value="Harshitha">Harshitha</option>
+      <option value="Kin">Kin</option>
+      <option value="Ashh">Ashh</option>
+      <option value="Surbhi">Surbhi</option>
+    </select>
+    <select id="filter-platform" onchange="applyFilters()">
+      <option value="">All platforms</option>
+      <option value="Deliveroo">Deliveroo</option>
+      <option value="HungryPanda">HungryPanda</option>
+    </select>
+    <input type="date" id="filter-date-from" onchange="applyFilters()" placeholder="From">
+    <input type="date" id="filter-date-to" onchange="applyFilters()" placeholder="To">
+    <button class="filter-btn" onclick="clearFilters()">Clear</button>
+  </div>
+
+  <div class="summary-bar" id="summary-bar"></div>
+  <div id="content"><div class="loading">Loading...</div></div>
+</div>
+
+<script>
+const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
+let allData = [];
+
+function normalizeDate(raw) {
+  if (!raw) return null;
+  if (typeof raw === 'string' && raw.startsWith('Date(')) {
+    const parts = raw.replace('Date(','').replace(')','').split(',');
+    const y = parseInt(parts[0]), m = parseInt(parts[1]), d = parseInt(parts[2]);
+    return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  }
+  if (typeof raw === 'string') return raw.slice(0,10);
+  return null;
+}
+
+async function fetchData() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Details`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  return json.table.rows.map(r => ({
+    date: normalizeDate(r.c[0]?.v),
+    site: r.c[1]?.v || '',
+    time: r.c[2]?.v || '',
+    platform: r.c[3]?.v || '',
+    orderTotal: parseFloat(r.c[4]?.v || 0),
+    refund: parseFloat(r.c[5]?.v || 0),
+    staff: r.c[6]?.v || '',
+    note: r.c[7]?.v || '',
+  }));
+}
+
+function applyFilters() {
+  const site = document.getElementById('filter-site').value;
+  const staff = document.getElementById('filter-staff').value;
+  const platform = document.getElementById('filter-platform').value;
+  const from = document.getElementById('filter-date-from').value;
+  const to = document.getElementById('filter-date-to').value;
+
+  let filtered = allData.filter(r => {
+    if (site && r.site !== site) return false;
+    if (staff && r.staff !== staff) return false;
+    if (platform && r.platform !== platform) return false;
+    if (from && r.date < from) return false;
+    if (to && r.date > to) return false;
+    return true;
+  });
+  render(filtered);
+}
+
+function clearFilters() {
+  document.getElementById('filter-site').value = '';
+  document.getElementById('filter-staff').value = '';
+  document.getElementById('filter-platform').value = '';
+  document.getElementById('filter-date-from').value = '';
+  document.getElementById('filter-date-to').value = '';
+  render(allData);
+}
+
+function render(data) {
+  const totalRefund = data.reduce((s, r) => s + r.refund, 0);
+  const totalOrders = data.length;
+  const sites = [...new Set(data.map(r => r.site))];
+
+  document.getElementById('summary-bar').innerHTML = `
+    <div class="sum-card"><div class="sum-val red">£${totalRefund.toFixed(2)}</div><div class="sum-lbl">Total refund</div></div>
+    <div class="sum-card"><div class="sum-val">${totalOrders}</div><div class="sum-lbl">Refund orders</div></div>
+    <div class="sum-card"><div class="sum-val">${[...new Set(data.map(r=>r.date))].length}</div><div class="sum-lbl">Days</div></div>
+    <div class="sum-card"><div class="sum-val">${[...new Set(data.map(r=>r.staff).filter(Boolean))].length}</div><div class="sum-lbl">Staff involved</div></div>
+  `;
+
+  // Group by date then site
+  const byDate = {};
+  data.forEach(r => {
+    if (!byDate[r.date]) byDate[r.date] = {};
+    if (!byDate[r.date][r.site]) byDate[r.date][r.site] = [];
+    byDate[r.date][r.site].push(r);
+  });
+
+  const dates = Object.keys(byDate).sort().reverse();
+  let html = '';
+
+  dates.forEach(date => {
+    const sitesInDate = Object.keys(byDate[date]).sort();
+    sitesInDate.forEach(site => {
+      const rows = byDate[date][site];
+      const siteTotal = rows.reduce((s,r) => s+r.refund, 0);
+      const fmtDate = new Date(date).toLocaleDateString('en-GB',{weekday:'short',month:'short',day:'numeric'});
+      html += `
+        <div class="site-block">
+          <div class="site-header">
+            <span>${site} · ${fmtDate}</span>
+            <span class="site-total red">£${siteTotal.toFixed(2)} · ${rows.length} orders</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th class="col-time">Time</th>
+                <th class="col-platform">Platform</th>
+                <th class="col-total">Order</th>
+                <th class="col-refund">Refund</th>
+                <th class="col-staff">Staff</th>
+                <th class="col-note">Note</th>
+              </tr></thead>
+              <tbody>
+                ${rows.map(r => `
+                  <tr>
+                    <td>${r.time}</td>
+                    <td><span class="${r.platform==='Deliveroo'?'platform-d':'platform-h'}">${r.platform}</span></td>
+                    <td>${r.orderTotal > 0 ? '£'+r.orderTotal.toFixed(2) : '—'}</td>
+                    <td class="refund-amt">£${r.refund.toFixed(2)}</td>
+                    <td><span class="staff-badge">${r.staff}</span></td>
+                    <td>${r.note ? `<span class="${r.note==='Full refund'?'note-full':'note-tag'}">${r.note}</span>` : ''}</td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+    });
+  });
+
+  document.getElementById('content').innerHTML = html || '<div class="loading" style="padding:40px;">No data found</div>';
+  document.getElementById('last-updated').textContent = `Last updated: ${new Date().toLocaleString('en-GB')}`;
+}
+
+async function init() {
+  try {
+    allData = await fetchData();
+    render(allData);
+  } catch(e) {
+    document.getElementById('content').innerHTML = `<div class="loading" style="color:#c62828;">Failed to load: ${e.message}</div>`;
+  }
+}
+init();
+</script>
+</body>
+</html>
