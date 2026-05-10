@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refund & Reward Policy</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; }
+  .nav { display: flex; gap: 6px; padding: 14px 16px 0; max-width: 600px; margin: 0 auto; }
+  .nav a { flex: 1; text-align: center; padding: 8px; border-radius: 10px; font-size: 13px; font-weight: 500; text-decoration: none; border: 1px solid #e0e0e0; background: white; color: #888; }
+  .nav a.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+  .container { max-width: 600px; margin: 0 auto; padding: 20px 16px 40px; }
+  .header { margin-bottom: 24px; }
+  .header h1 { font-size: 22px; font-weight: 700; }
+  .header .sub { font-size: 13px; color: #888; margin-top: 4px; }
+  .header .scope { font-size: 12px; color: #aaa; margin-top: 6px; padding-top: 10px; border-top: 1px solid #e8e8e8; }
+  .section { background: white; border-radius: 16px; border: 1px solid #efefef; margin-bottom: 14px; overflow: hidden; }
+  .section-head { padding: 14px 18px 12px; border-bottom: 1px solid #f5f5f5; }
+  .section-head h2 { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .badge-penalty { background: #ffebee; color: #c62828; font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 500; }
+  .badge-reward { background: #e8f5e9; color: #2e7d32; font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 500; }
+  .sub-zh { font-size: 11px; color: #aaa; margin-top: 2px; font-weight: 400; }
+  .rule { padding: 12px 18px; border-bottom: 1px solid #f9f9f9; }
+  .rule:last-child { border-bottom: none; }
+  .rule-en { font-size: 13px; font-weight: 500; color: #1a1a1a; line-height: 1.5; }
+  .rule-zh { font-size: 11px; color: #aaa; margin-top: 3px; line-height: 1.5; }
+  .footer { text-align: center; font-size: 11px; color: #ccc; margin-top: 20px; }
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="/index" >Progress</a>
+  <a href="/details" >Refunds</a>
+  <a href="/policy" class="active">Policy</a>
+</nav>
+<div class="container">
+  <div class="header">
+    <h1>Refund & Reward Policy</h1>
+    <div class="sub">Accuracy-based · 基于出餐准确率</div>
+    <div class="scope">New staff not working alone are not included in the calculation · 新员工不独立站岗的不纳入计算</div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2><span class="badge-penalty">Penalty</span> 罚款规则</h2>
+    </div>
+    <div class="rule">
+      <div class="rule-en">No penalty if refund rate stays under 2% of shift sales</div>
+      <div class="rule-zh">退单率低于当班营业额2%不触发罚款</div>
+    </div>
+    <div class="rule">
+      <div class="rule-en">If refund rate goes over 2%, the responsible staff from that shift will cover 50% of the excess refund amount</div>
+      <div class="rule-zh">超出2%的部分，由当班责任人赔偿超出金额的50%</div>
+    </div>
+    <div class="rule">
+      <div class="rule-en">If 2 staff are working the same shift, both staff will share 50% of the excess refund amount</div>
+      <div class="rule-zh">两人同时在站，共同承担超出部分的50%</div>
+    </div>
+    <div class="rule">
+      <div class="rule-en">Refunds are counted by individual shift only, not shared across different shifts</div>
+      <div class="rule-zh">按个人班次单独计算，不跨班次分摊</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2><span class="badge-reward">Reward</span> 奖励规则</h2>
+    </div>
+    <div class="rule">
+      <div class="rule-en">Each shift with refund rate under 2% gets 1 point</div>
+      <div class="rule-zh">每个退单率低于2%的班次积1分</div>
+    </div>
+    <div class="rule">
+      <div class="rule-en">Collect 7 points → get 2 hours bonus pay</div>
+      <div class="rule-zh">累积满7分 → 奖励2小时工时</div>
+    </div>
+    <div class="rule">
+      <div class="rule-en">If refund rate goes over 2%, no point for that shift, but existing points stay</div>
+      <div class="rule-zh">超标班次不积分，但已有积分保留</div>
+    </div>
+    <div class="rule">
+      <div class="rule-en">Points keep rolling over until redeemed</div>
+      <div class="rule-zh">积分持续累积直到兑换</div>
+    </div>
+  </div>
+
+  <div class="footer">Haidilao Mini Pot Operations · Rules announced 2026-05-10</div>
+</div>
+</body>
+</html>
