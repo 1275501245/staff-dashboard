@@ -7,12 +7,14 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; font-size: 14px; }
-  .container { max-width: 900px; margin: 0 auto; padding: 20px 16px 40px; }
+  .nav { display: flex; gap: 6px; padding: 14px 16px 0; max-width: 900px; margin: 0 auto; }
+  .nav a { flex: 1; text-align: center; padding: 8px; border-radius: 10px; font-size: 13px; font-weight: 500; text-decoration: none; border: 1px solid #e0e0e0; background: white; color: #888; }
+  .nav a.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+  .container { max-width: 900px; margin: 0 auto; padding: 16px 16px 40px; }
   h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
   .subtitle { font-size: 13px; color: #888; margin-bottom: 16px; }
   .filters { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-  .filters select { font-size: 13px; padding: 6px 10px; border: 1px solid #e0e0e0; border-radius: 8px; background: white; height: 34px; }
-  .filters input[type=date] { font-size: 13px; padding: 6px 10px; border: 1px solid #e0e0e0; border-radius: 8px; background: white; height: 34px; }
+  .filters select, .filters input[type=date] { font-size: 13px; padding: 6px 10px; border: 1px solid #e0e0e0; border-radius: 8px; background: white; height: 34px; }
   .filter-btn { padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid #e0e0e0; background: white; height: 34px; }
   .summary-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
   .sum-card { background: white; border-radius: 12px; padding: 10px 14px; border: 1px solid #efefef; }
@@ -21,28 +23,45 @@
   .site-block { margin-bottom: 20px; }
   .site-header { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 8px; padding: 0 2px; display: flex; justify-content: space-between; }
   .site-total { font-size: 12px; color: #c62828; font-weight: 500; }
-  .table-wrap { background: white; border-radius: 12px; border: 1px solid #efefef; overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; min-width: 500px; }
-  th { font-size: 11px; color: #888; font-weight: 500; padding: 8px 12px; text-align: left; border-bottom: 1px solid #f0f0f0; background: #fafafa; white-space: nowrap; }
-  td { padding: 8px 12px; border-bottom: 1px solid #f9f9f9; font-size: 13px; vertical-align: middle; white-space: nowrap; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: #fafafa; }
-  .platform-d { color: #00CCBC; font-size: 11px; font-weight: 600; }
-  .platform-h { color: #FF6B35; font-size: 11px; font-weight: 600; }
+  .table-wrap { background: white; border-radius: 12px; border: 1px solid #efefef; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  col.col-time { width: 70px; }
+  col.col-platform { width: 110px; }
+  col.col-order { width: 100px; }
+  col.col-refund { width: 90px; }
+  col.col-staff { width: 110px; }
+  col.col-tag { width: 90px; }
+  col.col-expand { width: 36px; }
+  th { font-size: 11px; color: #888; font-weight: 500; padding: 8px 12px; text-align: left; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
+  td { padding: 9px 12px; border-bottom: 1px solid #f9f9f9; font-size: 13px; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  tr.data-row { cursor: pointer; }
+  tr.data-row:hover td { background: #fafafa; }
+  tr.detail-row td { padding: 0; border-bottom: 1px solid #f0f0f0; }
+  tr.detail-row.hidden { display: none; }
+  .detail-content { padding: 10px 16px 12px; background: #f7f9ff; font-size: 12px; color: #333; line-height: 1.6; border-left: 3px solid #378ADD; }
+  .detail-empty { padding: 10px 16px 12px; background: #fafafa; font-size: 12px; color: #aaa; border-left: 3px solid #e0e0e0; }
+  .expand-btn { font-size: 13px; color: #ccc; text-align: center; }
+  tr.data-row.expanded .expand-btn { color: #555; }
+  .platform-d { color: #00CCBC; font-size: 12px; font-weight: 600; }
+  .platform-h { color: #FF6B35; font-size: 12px; font-weight: 600; }
   .refund-amt { font-weight: 500; color: #c62828; }
-  .staff-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #f0f0f0; color: #555; }
-  .note-high { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #ffebee; color: #b71c1c; font-weight: 500; }
-  .note-full { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #fff3e0; color: #e65100; font-weight: 500; }
-  .note-other { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f5f5f5; color: #555; }
+  .staff-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #f0f0f0; color: #555; display: inline-block; }
+  .tag-high { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #ffebee; color: #b71c1c; font-weight: 500; }
+  .tag-full { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #fff3e0; color: #e65100; font-weight: 500; }
+  .tag-detail { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #e3f2fd; color: #1565c0; }
   .red { color: #c62828; }
   .loading { text-align: center; padding: 60px; color: #888; }
+  tr:last-child td { border-bottom: none; }
 </style>
 </head>
 <body>
+<nav class="nav">
+  <a href="/index">Staff Progress</a>
+  <a href="/details" class="active">Refund Details</a>
+</nav>
 <div class="container">
   <h1>Refund Details</h1>
   <div class="subtitle" id="subtitle">Loading...</div>
-
   <div class="filters">
     <select id="filter-site" onchange="applyFilters()">
       <option value="">All sites</option>
@@ -67,7 +86,6 @@
     <input type="date" id="filter-to" onchange="applyFilters()">
     <button class="filter-btn" onclick="clearFilters()">Clear</button>
   </div>
-
   <div class="summary-bar" id="summary-bar"></div>
   <div id="content"><div class="loading">Loading...</div></div>
 </div>
@@ -88,19 +106,15 @@ function normalizeDate(raw) {
 
 function normalizeTime(raw) {
   if (!raw) return '';
-  // Google Sheets stores time as decimal fraction of a day
   if (typeof raw === 'number') {
     const totalMins = Math.round(raw * 24 * 60);
     const h = Math.floor(totalMins / 60) % 24;
     const m = totalMins % 60;
     return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
   }
-  // Already string like "13:23"
   if (typeof raw === 'string' && raw.startsWith('Date(')) {
     const p = raw.replace('Date(','').replace(')','').split(',');
-    const h = parseInt(p[3] || 0);
-    const m = parseInt(p[4] || 0);
-    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    return `${String(parseInt(p[3]||0)).padStart(2,'0')}:${String(parseInt(p[4]||0)).padStart(2,'0')}`;
   }
   return String(raw).slice(0,5);
 }
@@ -122,44 +136,39 @@ async function fetchData() {
   }));
 }
 
+function toggleDetail(id) {
+  const detail = document.getElementById('detail-'+id);
+  const row = document.getElementById('row-'+id);
+  if (!detail) return;
+  const hidden = detail.classList.contains('hidden');
+  detail.classList.toggle('hidden', !hidden);
+  row.classList.toggle('expanded', hidden);
+  row.querySelector('.expand-btn').textContent = hidden ? '▾' : '▸';
+}
+
 function applyFilters() {
   const site = document.getElementById('filter-site').value;
   const staff = document.getElementById('filter-staff').value;
   const platform = document.getElementById('filter-platform').value;
   const from = document.getElementById('filter-from').value;
   const to = document.getElementById('filter-to').value;
-  const filtered = allData.filter(r =>
-    (!site || r.site === site) &&
-    (!staff || r.staff === staff) &&
-    (!platform || r.platform === platform) &&
-    (!from || r.date >= from) &&
-    (!to || r.date <= to)
-  );
-  render(filtered);
+  render(allData.filter(r =>
+    (!site||r.site===site) && (!staff||r.staff===staff) &&
+    (!platform||r.platform===platform) && (!from||r.date>=from) && (!to||r.date<=to)
+  ));
 }
 
 function clearFilters() {
-  ['filter-site','filter-staff','filter-platform','filter-from','filter-to'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
+  ['filter-site','filter-staff','filter-platform','filter-from','filter-to'].forEach(id => document.getElementById(id).value='');
   render(allData);
 }
 
-function noteTag(note) {
-  if (!note) return '';
-  if (note === 'High') return `<span class="note-high">High</span>`;
-  if (note === 'Full refund') return `<span class="note-full">Full refund</span>`;
-  return `<span class="note-other">${note}</span>`;
-}
-
 function render(data) {
-  const totalRefund = data.reduce((s,r) => s+r.refund, 0);
-  const dates = [...new Set(data.map(r=>r.date))];
-
+  const totalRefund = data.reduce((s,r)=>s+r.refund,0);
   document.getElementById('summary-bar').innerHTML = `
     <div class="sum-card"><div class="sum-val red">£${totalRefund.toFixed(2)}</div><div class="sum-lbl">Total refund</div></div>
     <div class="sum-card"><div class="sum-val">${data.length}</div><div class="sum-lbl">Refund orders</div></div>
-    <div class="sum-card"><div class="sum-val">${dates.length}</div><div class="sum-lbl">Days</div></div>
+    <div class="sum-card"><div class="sum-val">${[...new Set(data.map(r=>r.date))].length}</div><div class="sum-lbl">Days</div></div>
     <div class="sum-card"><div class="sum-val">${[...new Set(data.map(r=>r.staff).filter(Boolean))].length}</div><div class="sum-lbl">Staff involved</div></div>
   `;
 
@@ -170,7 +179,7 @@ function render(data) {
     byDate[r.date][r.site].push(r);
   });
 
-  let html = '';
+  let html = '', id = 0;
   Object.keys(byDate).sort().reverse().forEach(date => {
     const fmtDate = new Date(date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',month:'short',day:'numeric'});
     Object.keys(byDate[date]).sort().forEach(site => {
@@ -178,33 +187,34 @@ function render(data) {
       const siteTotal = rows.reduce((s,r)=>s+r.refund,0);
       html += `
         <div class="site-block">
-          <div class="site-header">
-            <span>${site} · ${fmtDate}</span>
-            <span class="site-total">£${siteTotal.toFixed(2)} · ${rows.length} orders</span>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr>
-                <th>Time</th>
-                <th>Platform</th>
-                <th>Order total</th>
-                <th>Refund</th>
-                <th>Staff</th>
-                <th>Note</th>
-              </tr></thead>
-              <tbody>
-                ${rows.map(r=>`
-                  <tr>
-                    <td>${r.time}</td>
-                    <td><span class="${r.platform==='Deliveroo'?'platform-d':'platform-h'}">${r.platform}</span></td>
-                    <td>${r.orderTotal>0?'£'+r.orderTotal.toFixed(2):'—'}</td>
-                    <td class="refund-amt">£${r.refund.toFixed(2)}</td>
-                    <td><span class="staff-badge">${r.staff}</span></td>
-                    <td>${noteTag(r.note)}</td>
-                  </tr>`).join('')}
-              </tbody>
-            </table>
-          </div>
+          <div class="site-header"><span>${site} · ${fmtDate}</span><span class="site-total">£${siteTotal.toFixed(2)} · ${rows.length} orders</span></div>
+          <div class="table-wrap"><table>
+            <colgroup><col class="col-time"><col class="col-platform"><col class="col-order"><col class="col-refund"><col class="col-staff"><col class="col-tag"><col class="col-expand"></colgroup>
+            <thead><tr><th>Time</th><th>Platform</th><th>Order</th><th>Refund</th><th>Staff</th><th>Tag</th><th></th></tr></thead>
+            <tbody>${rows.map(r => {
+              const rid = id++;
+              const isShort = r.note === 'High' || r.note === 'Full refund';
+              const tagHTML = r.note === 'High' ? '<span class="tag-high">High</span>'
+                : r.note === 'Full refund' ? '<span class="tag-full">Full refund</span>'
+                : r.note ? '<span class="tag-detail">+ detail</span>' : '';
+              return `
+                <tr class="data-row" id="row-${rid}" onclick="toggleDetail(${rid})">
+                  <td>${r.time}</td>
+                  <td><span class="${r.platform==='Deliveroo'?'platform-d':'platform-h'}">${r.platform}</span></td>
+                  <td>${r.orderTotal>0?'£'+r.orderTotal.toFixed(2):'—'}</td>
+                  <td class="refund-amt">£${r.refund.toFixed(2)}</td>
+                  <td><span class="staff-badge">${r.staff}</span></td>
+                  <td>${tagHTML}</td>
+                  <td class="expand-btn">▸</td>
+                </tr>
+                <tr class="detail-row hidden" id="detail-${rid}">
+                  <td colspan="7">${r.note
+                    ? `<div class="detail-content">${r.note}</div>`
+                    : `<div class="detail-empty">No additional details</div>`}
+                  </td>
+                </tr>`;
+            }).join('')}</tbody>
+          </table></div>
         </div>`;
     });
   });
@@ -214,12 +224,8 @@ function render(data) {
 }
 
 async function init() {
-  try {
-    allData = await fetchData();
-    render(allData);
-  } catch(e) {
-    document.getElementById('content').innerHTML = `<div class="loading" style="color:#c62828;">Failed to load: ${e.message}</div>`;
-  }
+  try { allData = await fetchData(); render(allData); }
+  catch(e) { document.getElementById('content').innerHTML = `<div class="loading" style="color:#c62828;">Failed to load: ${e.message}</div>`; }
 }
 init();
 </script>
