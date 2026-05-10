@@ -21,33 +21,41 @@
   .sum-val { font-size: 18px; font-weight: 600; }
   .sum-lbl { font-size: 11px; color: #888; margin-top: 2px; }
   .site-block { margin-bottom: 20px; }
-  .site-header { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 8px; padding: 0 2px; display: flex; justify-content: space-between; }
+  .site-header { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 8px; padding: 0 2px; display: flex; justify-content: space-between; align-items: center; }
   .site-total { font-size: 12px; color: #c62828; font-weight: 500; }
   .table-wrap { background: white; border-radius: 12px; border: 1px solid #efefef; overflow: hidden; }
-  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 
-  /* Desktop columns */
-  col.col-order { width: 95px; }
-  col.col-time { width: 60px; }
-  col.col-platform { width: 100px; }
-  col.col-amt { width: 85px; }
-  col.col-refund { width: 80px; }
-  col.col-staff { width: 95px; }
-  col.col-tag { width: 80px; }
-  col.col-expand { width: 30px; }
+  /* Desktop table */
+  .desktop-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .desktop-table col.c1 { width: 95px; }
+  .desktop-table col.c2 { width: 62px; }
+  .desktop-table col.c3 { width: 105px; }
+  .desktop-table col.c4 { width: 88px; }
+  .desktop-table col.c5 { width: 82px; }
+  .desktop-table col.c6 { width: 100px; }
+  .desktop-table col.c7 { width: 85px; }
+  .desktop-table col.c8 { width: 32px; }
+
+  /* Mobile table */
+  .mobile-table { width: 100%; border-collapse: collapse; table-layout: fixed; display: none; }
+  .mobile-table col.m1 { width: 90px; }
+  .mobile-table col.m2 { width: 58px; }
+  .mobile-table col.m3 { width: 75px; }
+  .mobile-table col.m4 { width: 28px; }
 
   th { font-size: 11px; color: #888; font-weight: 500; padding: 8px 12px; text-align: left; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
-  td { padding: 9px 12px; border-bottom: 1px solid #f9f9f9; font-size: 13px; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  td { padding: 10px 12px; border-bottom: 1px solid #f9f9f9; font-size: 13px; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   tr.data-row { cursor: pointer; }
   tr.data-row:hover td { background: #fafafa; }
   tr.detail-row td { padding: 0; border-bottom: 1px solid #f0f0f0; }
   tr.detail-row.hidden { display: none; }
+  tr:last-child td { border-bottom: none; }
 
   .detail-box { padding: 12px 16px; background: #f7f9ff; border-left: 3px solid #378ADD; }
   .detail-meta { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
-  .detail-meta-item { font-size: 12px; color: #555; }
-  .detail-meta-item span { color: #888; margin-right: 4px; }
-  .detail-reason { font-size: 12px; color: #1a1a1a; line-height: 1.6; white-space: pre-wrap; }
+  .detail-meta-item { font-size: 12px; color: #333; }
+  .detail-meta-item .lbl { color: #999; margin-right: 4px; font-size: 11px; }
+  .detail-reason { font-size: 12px; color: #1a1a1a; line-height: 1.6; white-space: pre-wrap; padding-top: 8px; border-top: 1px solid #e8eef8; margin-top: 4px; }
   .detail-empty { padding: 10px 16px; background: #fafafa; border-left: 3px solid #e0e0e0; font-size: 12px; color: #aaa; }
 
   .expand-btn { font-size: 13px; color: #ccc; text-align: center; }
@@ -55,7 +63,7 @@
   .platform-d { color: #00CCBC; font-size: 12px; font-weight: 600; }
   .platform-h { color: #FF6B35; font-size: 12px; font-weight: 600; }
   .refund-amt { font-weight: 500; color: #c62828; }
-  .order-id { font-size: 11px; color: #888; font-family: monospace; }
+  .order-id { font-size: 11px; color: #666; font-family: monospace; }
   .staff-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #f0f0f0; color: #555; display: inline-block; }
   .tag-high { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #ffebee; color: #b71c1c; font-weight: 500; }
   .tag-full { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #fff3e0; color: #e65100; font-weight: 500; }
@@ -63,21 +71,11 @@
   .tags { display: flex; gap: 4px; flex-wrap: wrap; }
   .red { color: #c62828; }
   .loading { text-align: center; padding: 60px; color: #888; }
-  tr:last-child td { border-bottom: none; }
 
-  /* Mobile: hide some columns */
   @media (max-width: 600px) {
-    col.col-platform { width: 0; }
-    col.col-amt { width: 0; }
-    col.col-staff { width: 0; }
-    col.col-order { width: 80px; }
-    col.col-time { width: 55px; }
-    col.col-refund { width: 70px; }
-    col.col-tag { width: 75px; }
-    col.col-expand { width: 28px; }
-    .hide-mobile { display: none; }
+    .desktop-table { display: none; }
+    .mobile-table { display: table; }
     .summary-bar { grid-template-columns: repeat(2, 1fr); }
-    .filters select, .filters input[type=date] { font-size: 12px; }
   }
 </style>
 </head>
@@ -128,17 +126,14 @@ function normalizeDate(raw) {
     const p = raw.replace('Date(','').replace(')','').split(',');
     return `${p[0]}-${String(parseInt(p[1])+1).padStart(2,'0')}-${String(parseInt(p[2])).padStart(2,'0')}`;
   }
-  if (typeof raw === 'string') return raw.slice(0,10);
-  return null;
+  return typeof raw === 'string' ? raw.slice(0,10) : null;
 }
 
 function normalizeTime(raw) {
   if (!raw) return '';
   if (typeof raw === 'number') {
-    const totalMins = Math.round(raw * 24 * 60);
-    const h = Math.floor(totalMins / 60) % 24;
-    const m = totalMins % 60;
-    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    const t = Math.round(raw * 24 * 60);
+    return `${String(Math.floor(t/60)%24).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`;
   }
   if (typeof raw === 'string' && raw.startsWith('Date(')) {
     const p = raw.replace('Date(','').replace(')','').split(',');
@@ -167,13 +162,18 @@ async function fetchData() {
 }
 
 function toggleDetail(id) {
-  const detail = document.getElementById('detail-'+id);
-  const row = document.getElementById('row-'+id);
-  if (!detail) return;
-  const hidden = detail.classList.contains('hidden');
-  detail.classList.toggle('hidden', !hidden);
-  row.classList.toggle('expanded', hidden);
-  row.querySelector('.expand-btn').textContent = hidden ? '▾' : '▸';
+  const detail = document.getElementById('detail-d-'+id);
+  const detailM = document.getElementById('detail-m-'+id);
+  const rowD = document.getElementById('row-d-'+id);
+  const rowM = document.getElementById('row-m-'+id);
+  const hidden = detail ? detail.classList.contains('hidden') : detailM.classList.contains('hidden');
+  [detail, detailM].forEach(el => el && el.classList.toggle('hidden', !hidden));
+  [rowD, rowM].forEach(el => {
+    if (!el) return;
+    el.classList.toggle('expanded', hidden);
+    const btn = el.querySelector('.expand-btn');
+    if (btn) btn.textContent = hidden ? '▾' : '▸';
+  });
 }
 
 function applyFilters() {
@@ -191,6 +191,25 @@ function applyFilters() {
 function clearFilters() {
   ['filter-site','filter-staff','filter-platform','filter-from','filter-to'].forEach(id => document.getElementById(id).value='');
   render(allData);
+}
+
+function makeDetailContent(r) {
+  const tags = [];
+  if (r.note === 'High') tags.push('<span class="tag-high">High</span>');
+  else if (r.note === 'Full refund') tags.push('<span class="tag-full">Full refund</span>');
+  else if (r.note) tags.push(`<span class="tag-reason">${r.note}</span>`);
+
+  if (!r.reason && !r.note) return `<div class="detail-empty">No additional details</div>`;
+  return `<div class="detail-box">
+    <div class="detail-meta">
+      <div class="detail-meta-item"><span class="lbl">Staff</span>${r.staff}</div>
+      <div class="detail-meta-item"><span class="lbl">Platform</span><span class="${r.platform==='Deliveroo'?'platform-d':'platform-h'}">${r.platform}</span></div>
+      <div class="detail-meta-item"><span class="lbl">Order total</span>${r.orderTotal>0?'£'+r.orderTotal.toFixed(2):'—'}</div>
+      <div class="detail-meta-item"><span class="lbl">Refund</span><span class="refund-amt">£${r.refund.toFixed(2)}</span></div>
+      ${tags.length ? `<div class="detail-meta-item"><span class="lbl">Tag</span><div class="tags">${tags.join('')}</div></div>` : ''}
+    </div>
+    ${r.reason ? `<div class="detail-reason">${r.reason}</div>` : ''}
+  </div>`;
 }
 
 function render(data) {
@@ -215,57 +234,61 @@ function render(data) {
     Object.keys(byDate[date]).sort().forEach(site => {
       const rows = byDate[date][site];
       const siteTotal = rows.reduce((s,r)=>s+r.refund,0);
+
+      const desktopRows = rows.map(r => {
+        const rid = id++;
+        const tags = [];
+        if (r.note === 'High') tags.push('<span class="tag-high">High</span>');
+        else if (r.note === 'Full refund') tags.push('<span class="tag-full">Full refund</span>');
+        else if (r.note) tags.push(`<span class="tag-reason">${r.note}</span>`);
+        if (r.reason) tags.push('<span class="tag-reason">+ reason</span>');
+        return { rid, r, tags };
+      });
+
       html += `
         <div class="site-block">
           <div class="site-header"><span>${site} · ${fmtDate}</span><span class="site-total">£${siteTotal.toFixed(2)} · ${rows.length} orders</span></div>
-          <div class="table-wrap"><table>
-            <colgroup><col class="col-order"><col class="col-time"><col class="col-platform"><col class="col-amt"><col class="col-refund"><col class="col-staff"><col class="col-tag"><col class="col-expand"></colgroup>
-            <thead><tr>
-              <th>Order</th>
-              <th>Time</th>
-              <th class="hide-mobile">Platform</th>
-              <th class="hide-mobile">Order total</th>
-              <th>Refund</th>
-              <th class="hide-mobile">Staff</th>
-              <th>Tag</th>
-              <th></th>
-            </tr></thead>
-            <tbody>${rows.map(r => {
-              const rid = id++;
-              const tags = [];
-              if (r.note === 'High') tags.push('<span class="tag-high">High</span>');
-              else if (r.note === 'Full refund') tags.push('<span class="tag-full">Full refund</span>');
-              else if (r.note) tags.push(`<span class="tag-reason">${r.note}</span>`);
-              if (r.reason) tags.push('<span class="tag-reason">+ reason</span>');
+          <div class="table-wrap">
 
-              const detailContent = `
-                <div class="detail-box">
-                  <div class="detail-meta">
-                    <div class="detail-meta-item"><span>Staff</span>${r.staff}</div>
-                    <div class="detail-meta-item"><span>Platform</span>${r.platform}</div>
-                    <div class="detail-meta-item"><span>Order total</span>${r.orderTotal>0?'£'+r.orderTotal.toFixed(2):'—'}</div>
-                    <div class="detail-meta-item"><span>Refund</span>£${r.refund.toFixed(2)}</div>
-                    ${r.note?`<div class="detail-meta-item"><span>Tag</span>${r.note}</div>`:''}
-                  </div>
-                  ${r.reason?`<div class="detail-reason">${r.reason}</div>`:''}
-                </div>`;
-
-              return `
-                <tr class="data-row" id="row-${rid}" onclick="toggleDetail(${rid})">
+            <!-- Desktop table -->
+            <table class="desktop-table">
+              <colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"><col class="c5"><col class="c6"><col class="c7"><col class="c8"></colgroup>
+              <thead><tr><th>Order</th><th>Time</th><th>Platform</th><th>Order total</th><th>Refund</th><th>Staff</th><th>Tag</th><th></th></tr></thead>
+              <tbody>${desktopRows.map(({rid,r,tags}) => `
+                <tr class="data-row" id="row-d-${rid}" onclick="toggleDetail(${rid})">
                   <td class="order-id">#${r.orderId}</td>
                   <td>${r.time}</td>
-                  <td class="hide-mobile"><span class="${r.platform==='Deliveroo'?'platform-d':'platform-h'}">${r.platform}</span></td>
-                  <td class="hide-mobile">${r.orderTotal>0?'£'+r.orderTotal.toFixed(2):'—'}</td>
+                  <td><span class="${r.platform==='Deliveroo'?'platform-d':'platform-h'}">${r.platform}</span></td>
+                  <td>${r.orderTotal>0?'£'+r.orderTotal.toFixed(2):'—'}</td>
                   <td class="refund-amt">£${r.refund.toFixed(2)}</td>
-                  <td class="hide-mobile"><span class="staff-badge">${r.staff}</span></td>
+                  <td><span class="staff-badge">${r.staff}</span></td>
                   <td><div class="tags">${tags.join('')}</div></td>
                   <td class="expand-btn">▸</td>
                 </tr>
-                <tr class="detail-row hidden" id="detail-${rid}">
-                  <td colspan="8">${r.reason || r.note ? detailContent : `<div class="detail-empty">No additional details</div>`}</td>
-                </tr>`;
-            }).join('')}</tbody>
-          </table></div>
+                <tr class="detail-row hidden" id="detail-d-${rid}">
+                  <td colspan="8">${makeDetailContent(r)}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+
+            <!-- Mobile table -->
+            <table class="mobile-table">
+              <colgroup><col class="m1"><col class="m2"><col class="m3"><col class="m4"></colgroup>
+              <thead><tr><th>Order</th><th>Time</th><th>Refund</th><th></th></tr></thead>
+              <tbody>${desktopRows.map(({rid,r,tags}) => `
+                <tr class="data-row" id="row-m-${rid}" onclick="toggleDetail(${rid})">
+                  <td class="order-id">#${r.orderId}</td>
+                  <td>${r.time}</td>
+                  <td class="refund-amt">£${r.refund.toFixed(2)}</td>
+                  <td class="expand-btn">▸</td>
+                </tr>
+                <tr class="detail-row hidden" id="detail-m-${rid}">
+                  <td colspan="4">${makeDetailContent(r)}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+
+          </div>
         </div>`;
     });
   });
@@ -276,7 +299,7 @@ function render(data) {
 
 async function init() {
   try { allData = await fetchData(); render(allData); }
-  catch(e) { document.getElementById('content').innerHTML = `<div class="loading" style="color:#c62828;">Failed to load: ${e.message}</div>`; }
+  catch(e) { document.getElementById('content').innerHTML = `<div class="loading" style="color:#c62828;">Failed: ${e.message}</div>`; }
 }
 init();
 </script>
