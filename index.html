@@ -39,6 +39,7 @@
   .day-ok { background: #e8f5e9; color: #2e7d32; }
   .day-bad { background: #ffebee; color: #c62828; }
   .day-empty { background: #f5f5f5; color: #ccc; }
+  .day-off { background: #f5f5f5; color: #bbb; font-size: 11px; }
   .day-today { box-shadow: 0 0 0 2px #1a1a1a; }
   .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-bottom: 6px; }
   .progress-bar { height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; }
@@ -50,6 +51,7 @@
   .net-val { font-size: 22px; font-weight: 700; }
   .loading { text-align: center; padding: 60px 20px; color: #888; font-size: 14px; }
   .error { text-align: center; padding: 40px 20px; color: #c62828; font-size: 13px; line-height: 1.6; }
+  .site-tag { font-size: 11px; color: #888; margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -69,9 +71,7 @@
 
 <script>
 const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
-const STAFF = ['Prabin','Harshitha','Kin','Ashh'];
-const SITE = { Prabin:'Shoreditch', Harshitha:'Shoreditch', Kin:'Battersea', Ashh:'Tower Bridge' };
-const SPLIT = { Prabin: 2/3, Harshitha: 1/3 };
+const STAFF = ['Prabin','Harshitha','Kin','Ashh','Surbhi'];
 const HOURLY = 13.75;
 const FLOWER_TARGET = 7;
 const REWARD_HOURS = 2;
@@ -84,7 +84,7 @@ let sheetData = [];
 
 function getWeekStart(offset) {
   const now = new Date();
-  const day = now.getDay(); // 0=Sun,1=Mon,...,6=Sat
+  const day = now.getDay();
   const daysFromSat = day === 6 ? 0 : day + 1;
   const sat = new Date(now);
   sat.setDate(now.getDate() - daysFromSat + offset * 7);
@@ -113,15 +113,13 @@ function fmtDate(d) {
 
 function normalizeDate(raw) {
   if (!raw) return null;
-  // Handle "Date(2026,4,9)" format from Google Sheets
   if (typeof raw === 'string' && raw.startsWith('Date(')) {
     const parts = raw.replace('Date(','').replace(')','').split(',');
     const y = parseInt(parts[0]);
-    const m = parseInt(parts[1]); // 0-indexed
+    const m = parseInt(parts[1]);
     const d = parseInt(parts[2]);
     return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
   }
-  // Already string like "2026-05-09"
   if (typeof raw === 'string') return raw.slice(0, 10);
   return null;
 }
@@ -134,30 +132,15 @@ async function fetchData() {
   const rows = json.table.rows;
   return rows.map(r => ({
     date: normalizeDate(r.c[0]?.v),
-    sho_rev: parseFloat(r.c[1]?.v || 0),
-    sho_ref: parseFloat(r.c[2]?.v || 0),
-    bat_rev: parseFloat(r.c[3]?.v || 0),
-    bat_ref: parseFloat(r.c[4]?.v || 0),
-    tb_rev:  parseFloat(r.c[5]?.v || 0),
-    tb_ref:  parseFloat(r.c[6]?.v || 0),
+    staff: r.c[1]?.v || '',
+    site: r.c[2]?.v || '',
+    revenue: parseFloat(r.c[3]?.v || 0),
+    refund: parseFloat(r.c[4]?.v || 0),
   }));
 }
 
 function getStaffDay(name, dateStr) {
-  const row = sheetData.find(r => r.date === dateStr);
-  if (!row) return null;
-  const site = SITE[name];
-  let revenue, refund;
-  if (site === 'Shoreditch') {
-    revenue = row.sho_rev * SPLIT[name];
-    refund = row.sho_ref * SPLIT[name];
-  } else if (site === 'Battersea') {
-    revenue = row.bat_rev; refund = row.bat_ref;
-  } else {
-    revenue = row.tb_rev; refund = row.tb_ref;
-  }
-  if (revenue === 0) return null;
-  return { revenue, refund };
+  return sheetData.find(r => r.date === dateStr && r.staff === name) || null;
 }
 
 function calcWeek(name, dates) {
@@ -165,17 +148,18 @@ function calcWeek(name, dates) {
   const days = dates.map(d => {
     const data = getStaffDay(name, dateKey(d));
     if (!data) return { status: 'empty' };
+    if (data.revenue === 0) return { status: 'off' };
     const rate = data.refund / data.revenue;
     const ok = rate < THRESHOLD;
     if (ok) {
       flowers++;
     } else {
-      const excess = data.refund - data.revenue * THRESHOLD;
-      const pen = Math.max(0, excess) * 0.5;
+      const excess = Math.max(0, data.refund - data.revenue * THRESHOLD);
+      const pen = excess * 0.5;
       penaltyAmt += pen;
       penaltyHrs += pen / HOURLY;
     }
-    return { status: ok ? 'ok' : 'bad', rate, refund: data.refund, revenue: data.revenue };
+    return { status: ok ? 'ok' : 'bad', rate, refund: data.refund, revenue: data.revenue, site: data.site };
   });
   const rewardHrs = Math.floor(flowers / FLOWER_TARGET) * REWARD_HOURS;
   return { days, flowers, penaltyAmt, penaltyHrs, rewardHrs, net: rewardHrs - penaltyHrs };
@@ -199,14 +183,14 @@ function renderContent() {
   const todayDay = todayIdx >= 0 ? c.days[todayIdx] : null;
 
   let todayHTML = '';
-  if (todayDay && todayDay.status !== 'empty') {
+  if (todayDay && todayDay.status !== 'empty' && todayDay.status !== 'off') {
     const ok = todayDay.status === 'ok';
     const rateStr = (todayDay.rate * 100).toFixed(1) + '%';
     const penAmt = ok ? 0 : Math.max(0, todayDay.refund - todayDay.revenue * THRESHOLD) * 0.5;
     const penHrs = penAmt / HOURLY;
     todayHTML = `
       <div class="card">
-        <div class="card-title">Today</div>
+        <div class="card-title">Today · ${todayDay.site || ''}</div>
         <div class="today-status">
           <div class="status-icon ${ok ? 'status-ok' : 'status-bad'}">${ok ? '✓' : '✕'}</div>
           <div class="status-text">
@@ -216,6 +200,8 @@ function renderContent() {
         </div>
         ${!ok ? `<div class="penalty-note">Penalty: £${penAmt.toFixed(2)} → ${penHrs.toFixed(2)}h deducted</div>` : ''}
       </div>`;
+  } else if (todayDay && todayDay.status === 'off') {
+    todayHTML = `<div class="card"><div class="card-title">Today</div><p style="color:#aaa;font-size:14px;">Day off</p></div>`;
   } else {
     todayHTML = `<div class="card"><div class="card-title">Today</div><p style="color:#aaa;font-size:14px;">No data yet</p></div>`;
   }
@@ -230,6 +216,7 @@ function renderContent() {
     let cls = 'day-empty', icon = '·';
     if (s.status === 'ok') { cls = 'day-ok'; icon = '✓'; }
     if (s.status === 'bad') { cls = 'day-bad'; icon = '✕'; }
+    if (s.status === 'off') { cls = 'day-off'; icon = 'OFF'; }
     if (isToday) cls += ' day-today';
     return `<div class="day-item"><div class="day-name">${DAY_NAMES[i]}</div><div class="day-dot ${cls}">${icon}</div></div>`;
   }).join('');
@@ -237,7 +224,7 @@ function renderContent() {
   document.getElementById('content').innerHTML = `
     ${todayHTML}
     <div class="card">
-      <div class="card-title">This week · ${SITE[name]}</div>
+      <div class="card-title">This week</div>
       <div class="days-grid">${daysHTML}</div>
       <div class="progress-label">
         <span>Flower progress: ${c.flowers % FLOWER_TARGET} / ${FLOWER_TARGET}</span>
