@@ -1,9 +1,9 @@
 {
   "routes": [
+    { "src": "/", "dest": "/home.html" },
     { "src": "/index", "dest": "/index.html" },
     { "src": "/details", "dest": "/details.html" },
     { "src": "/policy", "dest": "/policy.html" },
-    { "src": "/sites", "dest": "/sites.html" },
-    { "src": "/", "dest": "/index.html" }
+    { "src": "/sites", "dest": "/sites.html" }
   ]
 }
