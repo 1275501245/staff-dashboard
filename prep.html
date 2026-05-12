@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prep List — Haidilao</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f2f2f7;color:#1a1a1a;min-height:100vh}
+.site-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;gap:12px}
+.site-screen-title{font-size:20px;font-weight:600;margin-bottom:4px}
+.site-screen-sub{font-size:13px;color:#888;margin-bottom:12px}
+.site-btn{width:100%;max-width:320px;padding:16px 20px;background:#fff;border:1px solid #e5e5e5;border-radius:14px;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all 0.15s;text-align:left}
+.site-btn:hover{border-color:#007aff;background:#f0f5ff}
+.site-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.site-dot.tb{background:#5DCAA5}.site-dot.sh{background:#7F77DD}.site-dot.ba{background:#EF9F27}
+.main{display:none;padding:16px;max-width:680px;margin:0 auto;padding-bottom:40px}
+.top-bar{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1px solid #e5e5e5;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.back-btn{background:none;border:none;cursor:pointer;font-size:13px;color:#007aff;padding:0;flex-shrink:0}
+.top-info{flex:1;min-width:0}
+.top-title{font-size:15px;font-weight:600}
+.top-sub{font-size:12px;color:#888;margin-top:1px}
+.prog-wrap{display:flex;align-items:center;gap:8px}
+.prog-track{width:80px;height:6px;background:#eee;border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;background:#16a34a;border-radius:4px;transition:width 0.3s}
+.prog-text{font-size:12px;color:#888;min-width:32px;text-align:right}
+.reset-btn{font-size:12px;color:#888;background:none;border:1px solid #e5e5e5;border-radius:8px;padding:4px 10px;cursor:pointer}
+.reset-btn:hover{background:#f5f5f5}
+.sync{font-size:11px;color:#aaa}
+.sync.syncing{color:#f59e0b}.sync.ok{color:#16a34a}.sync.err{color:#ef4444}
+.mod-prog{display:flex;align-items:center;gap:6px}
+.mod-track{width:52px;height:4px;background:#e5e5e5;border-radius:4px;overflow:hidden}
+.mod-fill{height:100%;border-radius:4px;background:#16a34a;transition:width 0.3s}
+.mod-text{font-size:11px;color:#aaa;min-width:26px;text-align:right}
+.section{background:#fff;border-radius:12px;margin-bottom:10px;border:1px solid #e5e5e5;overflow:hidden}
+.section-head{display:flex;align-items:center;padding:8px 14px;background:#fafafa;border-bottom:1px solid #f0f0f0;gap:8px}
+.section-name{font-size:12px;font-weight:600;color:#555;flex:1}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th{font-size:11px;font-weight:500;color:#999;text-align:left;padding:5px 14px;border-bottom:1px solid #f0f0f0;background:#fafafa}
+th:nth-child(1){width:28px;text-align:center}
+th:nth-child(3){width:90px;text-align:right}
+td{padding:8px 14px;border-bottom:1px solid #f5f5f5;font-size:13px;vertical-align:middle}
+td:nth-child(1){text-align:center}
+td:nth-child(3){text-align:right}
+tr:last-child td{border-bottom:none}
+tr.done-row td{opacity:0.38}
+tr.done-row .itext{text-decoration:line-through}
+.cb{width:20px;height:20px;border-radius:6px;border:1.5px solid #d0d0d0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;background:#fff;flex-shrink:0}
+.cb:hover{border-color:#16a34a;background:#f0fdf4}
+.cb.checked{background:#16a34a;border-color:#16a34a}
+.cb.checked::after{content:'';display:block;width:10px;height:7px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.qty{font-size:11px;color:#888;background:#f5f5f5;border:0.5px solid #e5e5e5;border-radius:20px;padding:2px 8px;white-space:nowrap}
+.qty.na{opacity:0.3}
+.csec{background:#fff;border-radius:12px;margin-bottom:10px;border:1px solid #e5e5e5;overflow:hidden}
+.csec-head{display:flex;align-items:center;padding:8px 14px;background:#fafafa;border-bottom:1px solid #f0f0f0;gap:8px}
+.csec-name{font-size:12px;font-weight:600;color:#555;flex:1}
+.grp{margin-bottom:6px;border-radius:10px;overflow:hidden;border:1px solid #eee}
+.grp:last-child{margin-bottom:0}
+.grp-head{padding:7px 12px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:8px}
+.grp-head.pu{background:#EEEDFE;color:#3C3489;border-bottom:1px solid #CECBF6}
+.grp-head.gr{background:#E1F5EE;color:#085041;border-bottom:1px solid #9FE1CB}
+.grp-head.bl{background:#E6F1FB;color:#0C447C;border-bottom:1px solid #B5D4F4}
+.grp-head.am{background:#FAEEDA;color:#633806;border-bottom:1px solid #FAC775}
+.grp-label{flex:1}
+.mini-prog{display:flex;align-items:center;gap:5px}
+.mini-track{width:44px;height:4px;background:rgba(0,0,0,0.1);border-radius:4px;overflow:hidden}
+.mini-fill{height:100%;border-radius:4px;transition:width 0.3s}
+.mini-fill.pu{background:#7F77DD}.mini-fill.gr{background:#1D9E75}.mini-fill.bl{background:#3B82C4}.mini-fill.am{background:#D97706}
+.mini-text{font-size:10px;opacity:0.7;min-width:22px;text-align:right}
+.irow{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid #f5f5f5;cursor:pointer;transition:background 0.1s}
+.irow:last-child{border-bottom:none}
+.irow:hover{background:#fafafa}
+.irow.done-row{opacity:0.38}
+.irow.done-row .itext{text-decoration:line-through}
+.itext{font-size:13px;flex:1}
+</style>
+</head>
+<body>
+<div class="site-screen" id="site-screen">
+  <div class="site-screen-title">Kitchen Prep List</div>
+  <div class="site-screen-sub">Select your site to begin</div>
+  <button class="site-btn" onclick="selectSite('tb','Tower Bridge')"><div class="site-dot tb"></div>Tower Bridge</button>
+  <button class="site-btn" onclick="selectSite('sh','Shoreditch')"><div class="site-dot sh"></div>Shoreditch</button>
+  <button class="site-btn" onclick="selectSite('ba','Battersea')"><div class="site-dot ba"></div>Battersea</button>
+</div>
+
+<div class="main" id="main">
+  <div class="top-bar">
+    <button class="back-btn" onclick="window.location.href='/home'">&#8592; Sites#8592; Home</button>
+    <div class="top-info">
+      <div class="top-title" id="site-title"></div>
+      <div class="top-sub" id="today-label"></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="prog-text" id="prog-text">0%</div>
+    </div>
+    <span class="sync" id="sync"></span>
+    <button class="reset-btn" onclick="resetAll()">Reset</button>
+  </div>
+
+  <!-- Rice & Soup -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-name">Rice & Soup</span>
+      <div class="mod-prog"><div class="mod-track"><div class="mod-fill" id="mf-rice" style="width:0%"></div></div><div class="mod-text" id="mp-rice">0%</div></div>
+    </div>
+    <table><thead><tr><th></th><th>Item</th><th>Min. Stock</th></tr></thead>
+    <tbody id="tb-rice">
+      <tr><td><div class="cb" onclick="toggleRow(this,'rice_check')"></div></td><td class="itext">Check rice (if half or less, make a new batch)</td><td><span class="qty">1.5 pot</span></td></tr>
+      <tr><td><div class="cb" onclick="toggleRow(this,'rice_sesame')"></div></td><td class="itext">Sesame Paste</td><td><span class="qty">2 pack</span></td></tr>
+      <tr><td><div class="cb" onclick="toggleRow(this,'rice_spicy')"></div></td><td class="itext">Spicy Soup</td><td><span class="qty">4 portion</span></td></tr>
+      <tr><td><div class="cb" onclick="toggleRow(this,'rice_tomato')"></div></td><td class="itext">Tomato Soup</td><td><span class="qty">4 portion</span></td></tr>
+      <tr><td><div class="cb" onclick="toggleRow(this,'rice_veg')"></div></td><td class="itext">Veg & Mushroom Soup</td><td><span class="qty">2 portion</span></td></tr>
+    </tbody></table>
+  </div>
+
+  <!-- Processing Needed -->
+  <div class="csec">
+    <div class="csec-head">
+      <span class="csec-name">Processing Needed — Priority Order</span>
+      <div class="mod-prog"><div class="mod-track"><div class="mod-fill" id="mf-proc" style="width:0%"></div></div><div class="mod-text" id="mp-proc">0%</div></div>
+    </div>
+    <div style="padding:8px">
+      <div id="grp-proc">
+        <div class="irow" onclick="toggleIrow(this,'proc_luncheon')"><div class="cb"></div><span class="itext">Luncheon Meat</span><span class="qty">10 box</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_potato')"><div class="cb"></div><span class="itext">Potato</span><span class="qty">10 pc</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_cabbage')"><div class="cb"></div><span class="itext">Chinese Cabbage</span><span class="qty">8 pc</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_bokchoi')"><div class="cb"></div><span class="itext">Bok Choi</span><span class="qty">½ box</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_lemon')"><div class="cb"></div><span class="itext">Cut lemons</span><span class="qty">4 pc</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_prawn')"><div class="cb"></div><span class="itext">Prawn Paste</span><span class="qty">4–10 pack</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_thai')"><div class="cb"></div><span class="itext">Thai Basil Pork (Portioned)</span><span class="qty">2 pack</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_pork')"><div class="cb"></div><span class="itext">Pork Belly (Portioned)</span><span class="qty">2 pack</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_garlic')"><div class="cb"></div><span class="itext">Garlic Pork (Portioned)</span><span class="qty">2 pack</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_noodle')"><div class="cb"></div><span class="itext">Separate Sweet Potato Noodles</span><span class="qty">10 pack</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_crab')"><div class="cb"></div><span class="itext">Remove plastic from crab sticks</span><span class="qty">2 pack</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_milk')"><div class="cb"></div><span class="itext">Condensed Milk (Portioned)</span><span class="qty">8–10 portion</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_chilli')"><div class="cb"></div><span class="itext">Chilli Powder (Portioned)</span><span class="qty">8–10 portion</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_duck')"><div class="cb"></div><span class="itext">Duck Blood</span><span class="qty">2 box</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_lettuce')"><div class="cb"></div><span class="itext">Lettuce</span><span class="qty">4–8 pc</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_drylettuce')"><div class="cb"></div><span class="itext">Dried Lettuce Stem</span><span class="qty na">N/A</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_spinach')"><div class="cb"></div><span class="itext">Spinach</span><span class="qty">4–8 pc</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_sprouts')"><div class="cb"></div><span class="itext">Bean Sprouts</span><span class="qty na">N/A</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_daisy')"><div class="cb"></div><span class="itext">Crown Daisy</span><span class="qty na">N/A</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_mushroom')"><div class="cb"></div><span class="itext">Oyster Mushrooms</span><span class="qty na">N/A</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_sweet')"><div class="cb"></div><span class="itext">Sweet Chilli Sauce (Portioned)</span><span class="qty">8–10 portion</span></div>
+        <div class="irow" onclick="toggleIrow(this,'proc_ketchup')"><div class="cb"></div><span class="itext">Ketchup (Portioned)</span><span class="qty">8–10 portion</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Direct Refill -->
+  <div class="csec">
+    <div class="csec-head"><span class="csec-name">Direct Refill / Restock / Defrost</span></div>
+    <div style="padding:8px;display:flex;flex-direction:column;gap:8px">
+
+      <div class="grp">
+        <div class="grp-head gr"><span class="grp-label">Food Items</span><div class="mini-prog"><div class="mini-track"><div class="mini-fill gr" id="mf-food" style="width:0%"></div></div><div class="mini-text" id="mp-food">0%</div></div></div>
+        <div id="grp-food">
+          <div class="irow" onclick="toggleIrow(this,'food_beef_mar')"><div class="cb"></div><span class="itext">Marinated Beef Slices</span><span class="qty">1 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_basa')"><div class="cb"></div><span class="itext">Basa Fish Fillet</span><span class="qty">1 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_beef_sl')"><div class="cb"></div><span class="itext">Sliced Beef</span><span class="qty">1 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_beefball')"><div class="cb"></div><span class="itext">Juicy Beef Balls</span><span class="qty">4–6 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_fishball')"><div class="cb"></div><span class="itext">Fish Balls</span><span class="qty">4–6 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_lotus')"><div class="cb"></div><span class="itext">Lotus Root Slices</span><span class="qty">4–6 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_bamboo')"><div class="cb"></div><span class="itext">Bamboo Shoots</span><span class="qty">1 box</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_ricecake')"><div class="cb"></div><span class="itext">Hot Pot Rice Cake</span><span class="qty">1 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_sausage')"><div class="cb"></div><span class="itext">Japanese Mini Sausages</span><span class="qty">1 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_dough')"><div class="cb"></div><span class="itext">Mini Dough Sticks</span><span class="qty">1 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_ftofu')"><div class="cb"></div><span class="itext">Frozen Tofu</span><span class="qty">2 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_tofupuff')"><div class="cb"></div><span class="itext">Fried Tofu Puffs</span><span class="qty">1 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_tofuroll')"><div class="cb"></div><span class="itext">Tofu Skin Rolls</span><span class="qty">4 box</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_tofuskin')"><div class="cb"></div><span class="itext">Dried Tofu Skin</span><span class="qty">4 box</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_egg')"><div class="cb"></div><span class="itext">Five-Spice Marinated Egg</span><span class="qty">1 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_chiba')"><div class="cb"></div><span class="itext">Chiba Tofu</span><span class="qty">2–4 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_fishtofu')"><div class="cb"></div><span class="itext">Fish Tofu</span><span class="qty">1 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_fishroe')"><div class="cb"></div><span class="itext">Fish Roe Tofu</span><span class="qty">1–2 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_fishcake')"><div class="cb"></div><span class="itext">Fish Cake / Chikuwa</span><span class="qty">1–2 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_porkball')"><div class="cb"></div><span class="itext">Pork Balls with Chicken Filling</span><span class="qty">1–2 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_aorta')"><div class="cb"></div><span class="itext">Beef Aorta</span><span class="qty na">N/A</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_intestine')"><div class="cb"></div><span class="itext">Braised Pork Intestines</span><span class="qty na">N/A</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_fchicken')"><div class="cb"></div><span class="itext">Fried Chicken</span><span class="qty">1 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_ricestick')"><div class="cb"></div><span class="itext">Traditional Stretchy Rice Cake</span><span class="qty">2–4 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_fennel')"><div class="cb"></div><span class="itext">Fennel Dough Sticks</span><span class="qty">1 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_buns')"><div class="cb"></div><span class="itext">Fried Mini Buns</span><span class="qty">2 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_springroll')"><div class="cb"></div><span class="itext">Fried Spring Rolls</span><span class="qty">1 box</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_crispypork')"><div class="cb"></div><span class="itext">Fried Crispy Pork</span><span class="qty">4–8 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'food_skewer')"><div class="cb"></div><span class="itext">Fried Chicken Skewer</span><span class="qty">2 pack</span></div>
+        </div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-head bl"><span class="grp-label">Packaging & Supplies</span><div class="mini-prog"><div class="mini-track"><div class="mini-fill bl" id="mf-pkg" style="width:0%"></div></div><div class="mini-text" id="mp-pkg">0%</div></div></div>
+        <div id="grp-pkg">
+          <div class="irow" onclick="toggleIrow(this,'pkg_hotpot')"><div class="cb"></div><span class="itext">Hot pot containers with lids</span><span class="qty">1–3 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'pkg_ricebowl')"><div class="cb"></div><span class="itext">Rice bowl containers with lids</span><span class="qty">1–3 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'pkg_rice')"><div class="cb"></div><span class="itext">Rice containers with lids</span><span class="qty">1–3 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'pkg_snackbox')"><div class="cb"></div><span class="itext">Snack bowl with lid</span><span class="qty">1–3 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'pkg_cling')"><div class="cb"></div><span class="itext">Cling film</span><span class="qty">2 unit</span></div>
+          <div class="irow" onclick="toggleIrow(this,'pkg_chopstick')"><div class="cb"></div><span class="itext">Chopsticks</span><span class="qty">2 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'pkg_paperbag')"><div class="cb"></div><span class="itext">Paper packing bag</span><span class="qty">1 box</span></div>
+          <div class="irow" onclick="toggleIrow(this,'pkg_whitebag')"><div class="cb"></div><span class="itext">White plastic bags</span><span class="qty">1 box</span></div>
+          <div class="irow" onclick="toggleIrow(this,'pkg_blue')"><div class="cb"></div><span class="itext">Blue paper</span><span class="qty">2 roll</span></div>
+          <div class="irow" onclick="toggleIrow(this,'pkg_napkin')"><div class="cb"></div><span class="itext">Napkins</span><span class="qty">1 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'pkg_chips')"><div class="cb"></div><span class="itext">Chips</span><span class="qty">1 box</span></div>
+          <div class="irow" onclick="toggleIrow(this,'pkg_sticker')"><div class="cb"></div><span class="itext">Sealing stickers</span><span class="qty">2 roll</span></div>
+          <div class="irow" onclick="toggleIrow(this,'pkg_printer')"><div class="cb"></div><span class="itext">Printer paper (machine)</span><span class="qty">1 box</span></div>
+          <div class="irow" onclick="toggleIrow(this,'pkg_sponge')"><div class="cb"></div><span class="itext">Washing sponge</span><span class="qty">1 pc</span></div>
+        </div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-head am"><span class="grp-label">Defrost</span><div class="mini-prog"><div class="mini-track"><div class="mini-fill am" id="mf-def" style="width:0%"></div></div><div class="mini-text" id="mp-def">0%</div></div></div>
+        <div id="grp-def">
+          <div class="irow" onclick="toggleIrow(this,'def_beef_mar')"><div class="cb"></div><span class="itext">Marinated Beef (take to defrost)</span><span class="qty">3 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'def_basa')"><div class="cb"></div><span class="itext">Basa Fish (take to defrost)</span><span class="qty">3 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'def_beef_sl')"><div class="cb"></div><span class="itext">Sliced Beef (take to defrost)</span><span class="qty">3 pack</span></div>
+          <div class="irow" onclick="toggleIrow(this,'def_green')"><div class="cb"></div><span class="itext">Green Balls (take to defrost)</span><span class="qty">4–6 pc</span></div>
+          <div class="irow" onclick="toggleIrow(this,'def_dumpling')"><div class="cb"></div><span class="itext">Rice Dumplings (take to defrost)</span><span class="qty">4–6 pc</span></div>
+          <div class="irow" onclick="toggleIrow(this,'def_prawn')"><div class="cb"></div><span class="itext">Prawn Paste (take to defrost)</span><span class="qty">4–10 pc</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Other Tasks -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-name">Other Tasks</span>
+      <div class="mod-prog"><div class="mod-track"><div class="mod-fill" id="mf-tasks" style="width:0%"></div></div><div class="mod-text" id="mp-tasks">0%</div></div>
+    </div>
+    <table><thead><tr><th></th><th>Item</th><th></th></tr></thead>
+    <tbody id="tb-tasks">
+      <tr><td><div class="cb" onclick="toggleRow(this,'task_labels')"></div></td><td class="itext">Do labels</td><td></td></tr>
+      <tr><td><div class="cb" onclick="toggleRow(this,'task_clean')"></div></td><td class="itext">Do cleaning</td><td></td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbw28EoWdsH1yOZGlyP012-7GSmNhB3msGzHKD6VFtwtulAzNoUSvaoLY3BOAM5Vx4WXfw/exec';
+let site='',siteLabel='',state={};
+const today=new Date().toISOString().split('T')[0];
+document.getElementById('today-label').textContent=new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+
+const MODS=[
+  {f:'mf-rice',p:'mp-rice',sel:'#tb-rice .cb',type:'cb'},
+  {f:'mf-proc',p:'mp-proc',sel:'#grp-proc .irow',type:'irow'},
+  {f:'mf-food',p:'mp-food',sel:'#grp-food .irow',type:'irow'},
+  {f:'mf-pkg',p:'mp-pkg',sel:'#grp-pkg .irow',type:'irow'},
+  {f:'mf-def',p:'mp-def',sel:'#grp-def .irow',type:'irow'},
+  {f:'mf-tasks',p:'mp-tasks',sel:'#tb-tasks .cb',type:'cb'},
+];
+
+function updateProgress(){
+  let ta=0,da=0;
+  MODS.forEach(m=>{
+    const els=document.querySelectorAll(m.sel);
+    const total=els.length;
+    const done=m.type==='cb'
+      ?document.querySelectorAll(m.sel.replace('.cb','.cb.checked')).length
+      :document.querySelectorAll(m.sel.replace('.irow','.irow.done-row')).length;
+    const pct=total?Math.round(done/total*100):0;
+    document.getElementById(m.f).style.width=pct+'%';
+    document.getElementById(m.p).textContent=pct+'%';
+    ta+=total;da+=done;
+  });
+  const overall=ta?Math.round(da/ta*100):0;
+  document.getElementById('prog-fill').style.width=overall+'%';
+  document.getElementById('prog-text').textContent=overall+'%';
+}
+
+function selectSite(code,label){
+  site=code;siteLabel=label;
+  document.getElementById('site-screen').style.display='none';
+  document.getElementById('main').style.display='block';
+  document.getElementById('site-title').textContent=label+' — Prep List';
+  loadState();
+}
+
+function goBack(){
+  document.getElementById('site-screen').style.display='flex';
+  document.getElementById('main').style.display='none';
+  state={};resetUI();
+}
+
+function resetUI(){
+  document.querySelectorAll('.cb').forEach(el=>{el.classList.remove('checked');if(el.closest('tr'))el.closest('tr').classList.remove('done-row');});
+  document.querySelectorAll('.irow').forEach(el=>{el.classList.remove('done-row');el.querySelector('.cb').classList.remove('checked');});
+  updateProgress();
+}
+
+function setSync(cls,txt){
+  const el=document.getElementById('sync');el.className='sync '+cls;el.textContent=txt;
+  if(cls==='ok')setTimeout(()=>{el.textContent='';el.className='sync';},2000);
+}
+
+async function saveItem(key,val){
+  setSync('syncing','Saving...');
+  try{await fetch(SCRIPT_URL+'?action=set&date='+today+'_'+site+'&item='+key+'&checked='+val,{method:'GET',mode:'no-cors'});setSync('ok','Saved ✓');}
+  catch(e){setSync('err','Error');}
+}
+
+async function loadState(){
+  setSync('syncing','Loading...');
+  try{
+    const r=await fetch(SCRIPT_URL+'?action=get&date='+today+'_'+site);
+    state=await r.json()||{};applyState();setSync('ok','Loaded ✓');
+  }catch(e){setSync('err','Offline');applyState();}
+}
+
+function applyState(){
+  document.querySelectorAll('#tb-rice .cb, #tb-tasks .cb').forEach(el=>{
+    const k=el.getAttribute('data-key');
+    if(k&&state[k]){el.classList.add('checked');el.closest('tr').classList.add('done-row');}
+  });
+  document.querySelectorAll('.irow').forEach(row=>{
+    const k=row.getAttribute('data-key');
+    if(k&&state[k]){row.classList.add('done-row');row.querySelector('.cb').classList.add('checked');}
+  });
+  updateProgress();
+}
+
+function toggleRow(el,key){
+  el.setAttribute('data-key',key);
+  el.classList.toggle('checked');
+  el.closest('tr').classList.toggle('done-row',el.classList.contains('checked'));
+  state[key]=el.classList.contains('checked');
+  updateProgress();saveItem(key,state[key]);
+}
+
+function toggleIrow(row,key){
+  row.setAttribute('data-key',key);
+  const cb=row.querySelector('.cb');
+  const isDone=!row.classList.contains('done-row');
+  row.classList.toggle('done-row',isDone);
+  cb.classList.toggle('checked',isDone);
+  state[key]=isDone;
+  updateProgress();saveItem(key,isDone);
+}
+
+function resetAll(){
+  if(!confirm('Reset all items for '+siteLabel+'?'))return;
+  state={};resetUI();
+  setSync('syncing','Resetting...');
+  fetch(SCRIPT_URL+'?action=reset&date='+today+'_'+site,{method:'GET',mode:'no-cors'})
+    .then(()=>setSync('ok','Reset ✓')).catch(()=>setSync('err','Error'));
+}
+
+updateProgress();
+</script>
+</body>
+</html>
