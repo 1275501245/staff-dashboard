@@ -4,6 +4,7 @@
     { "src": "/index", "dest": "/index.html" },
     { "src": "/details", "dest": "/details.html" },
     { "src": "/policy", "dest": "/policy.html" },
-    { "src": "/sites", "dest": "/sites.html" }
+    { "src": "/sites", "dest": "/sites.html" },
+    { "src": "/prep", "dest": "/prep.html" }
   ]
 }
