@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sites</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; font-size: 14px; }
+.nav { display: flex; gap: 6px; padding: 14px 16px 0; max-width: 680px; margin: 0 auto; }
+.nav a { flex: 1; text-align: center; padding: 8px; border-radius: 10px; font-size: 13px; font-weight: 500; text-decoration: none; border: 1px solid #e0e0e0; background: white; color: #888; }
+.nav a.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+.container { max-width: 680px; margin: 0 auto; padding: 16px 16px 40px; }
+h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.subtitle { font-size: 13px; color: #888; margin-bottom: 16px; }
+.site-card { background: white; border-radius: 16px; border: 1px solid #efefef; margin-bottom: 12px; overflow: hidden; }
+.site-header { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+.site-name { font-size: 16px; font-weight: 600; }
+.site-addr { font-size: 12px; color: #888; margin-top: 2px; }
+.active-badge { font-size: 11px; padding: 4px 12px; border-radius: 20px; background: #e8f5e9; color: #2e7d32; font-weight: 500; white-space: nowrap; }
+.site-body { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+.sec { padding: 12px 16px; }
+.sec + .sec { border-left: 1px solid #f5f5f5; }
+.sec-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.wifi-name { font-size: 13px; font-weight: 600; }
+.wifi-pass { font-size: 12px; color: #888; margin-top: 3px; }
+.code-row { font-size: 12px; color: #666; margin-bottom: 4px; display: flex; justify-content: space-between; gap: 8px; }
+.code-val { font-weight: 600; color: #1a1a1a; }
+.hours-row { display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-bottom: 4px; }
+.hours-row b { color: #1a1a1a; font-weight: 500; }
+.hours-total { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: #2e7d32; border-top: 1px solid #f0f0f0; padding-top: 6px; margin-top: 4px; }
+.loading { text-align: center; padding: 60px; color: #888; }
+@media (max-width: 500px) {
+  .site-body { grid-template-columns: 1fr; }
+  .sec + .sec { border-left: none; border-top: 1px solid #f5f5f5; }
+}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="/index">Progress</a>
+  <a href="/details">Refunds</a>
+  <a href="/policy">Policy</a>
+  <a href="/sites" class="active">Sites</a>
+</nav>
+<div class="container">
+  <h1>Sites</h1>
+  <div class="subtitle" id="subtitle">Loading...</div>
+  <div id="content"><div class="loading">Loading...</div></div>
+</div>
+<script>
+const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
+
+async function fetchSites() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Sites`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  return json.table.rows.map(r => ({
+    site: r.c[0]?.v || '',
+    address: r.c[1]?.v || '',
+    wifiName: r.c[2]?.v || '',
+    wifiPass: r.c[3]?.v || '',
+    codes: r.c[4]?.v || '',
+    open: r.c[5]?.v || '',
+    close: r.c[6]?.v || '',
+    prep: r.c[7]?.v || '',
+    closing: r.c[8]?.v || '',
+    break: r.c[9]?.v || '',
+    active: r.c[10]?.v || '',
+  }));
+}
+
+function formatTime(raw) {
+  if (!raw) return '';
+  if (typeof raw === 'string' && raw.startsWith('Date(')) {
+    const p = raw.replace('Date(','').replace(')','').split(',');
+    return `${String(parseInt(p[3]||0)).padStart(2,'0')}:${String(parseInt(p[4]||0)).padStart(2,'0')}`;
+  }
+  return String(raw).slice(0,5);
+}
+
+function parseCodes(raw) {
+  return raw.split('|').map(s => s.trim()).filter(Boolean).map(s => {
+    const idx = s.indexOf(':');
+    if (idx === -1) return `<div class="code-row"><span>${s}</span></div>`;
+    const label = s.slice(0, idx).trim();
+    const val = s.slice(idx+1).trim();
+    return `<div class="code-row"><span>${label}</span><span class="code-val">${val}</span></div>`;
+  }).join('');
+}
+
+function render(sites) {
+  document.getElementById('content').innerHTML = sites.map(s => `
+    <div class="site-card">
+      <div class="site-header">
+        <div>
+          <div class="site-name">${s.site}</div>
+          <div class="site-addr">${s.address}</div>
+        </div>
+        <div class="active-badge">${s.active}h active</div>
+      </div>
+      <div class="site-body">
+        <div class="sec">
+          <div class="sec-label">WiFi</div>
+          <div class="wifi-name">${s.wifiName}</div>
+          <div class="wifi-pass">${s.wifiPass}</div>
+        </div>
+        <div class="sec">
+          <div class="sec-label">Codes</div>
+          ${parseCodes(s.codes)}
+        </div>
+        <div class="sec">
+          <div class="sec-label">Hours</div>
+          <div class="hours-row"><span>Store open</span><b>${formatTime(s.open)} – ${formatTime(s.close)}</b></div>
+          <div class="hours-row"><span>Opening prep</span><b>${s.prep}h</b></div>
+          <div class="hours-row"><span>Closing</span><b>${s.closing}h</b></div>
+          <div class="hours-row"><span>Staff break</span><b>${s.break}h</b></div>
+          <div class="hours-total"><span>Active service</span><span>${s.active}h</span></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('subtitle').textContent = `Last updated: ${new Date().toLocaleString('en-GB')}`;
+}
+
+async function init() {
+  try { render(await fetchSites()); }
+  catch(e) { document.getElementById('content').innerHTML = `<div class="loading" style="color:#c62828;">Failed: ${e.message}</div>`; }
+}
+init();
+</script>
+</body>
+</html>
