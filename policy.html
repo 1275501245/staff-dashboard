@@ -3,89 +3,155 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Refund & Reward Policy</title>
+<title>Policy</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; }
-  .nav { display: flex; gap: 6px; padding: 14px 16px 0; max-width: 600px; margin: 0 auto; }
-  .nav a { flex: 1; text-align: center; padding: 8px; border-radius: 10px; font-size: 13px; font-weight: 500; text-decoration: none; border: 1px solid #e0e0e0; background: white; color: #888; }
-  .nav a.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
-  .container { max-width: 600px; margin: 0 auto; padding: 20px 16px 40px; }
-  .header { margin-bottom: 24px; }
-  .header h1 { font-size: 22px; font-weight: 700; }
-  .header .sub { font-size: 13px; color: #888; margin-top: 4px; }
-  .header .scope { font-size: 12px; color: #aaa; margin-top: 6px; padding-top: 10px; border-top: 1px solid #e8e8e8; }
-  .section { background: white; border-radius: 16px; border: 1px solid #efefef; margin-bottom: 14px; overflow: hidden; }
-  .section-head { padding: 14px 18px 12px; border-bottom: 1px solid #f5f5f5; }
-  .section-head h2 { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-  .badge-penalty { background: #ffebee; color: #c62828; font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 500; }
-  .badge-reward { background: #e8f5e9; color: #2e7d32; font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 500; }
-  .sub-zh { font-size: 11px; color: #aaa; margin-top: 2px; font-weight: 400; }
-  .rule { padding: 12px 18px; border-bottom: 1px solid #f9f9f9; }
-  .rule:last-child { border-bottom: none; }
-  .rule-en { font-size: 13px; font-weight: 500; color: #1a1a1a; line-height: 1.5; }
-  .rule-zh { font-size: 11px; color: #aaa; margin-top: 3px; line-height: 1.5; }
-  .footer { text-align: center; font-size: 11px; color: #ccc; margin-top: 20px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; }
+.container { max-width: 480px; margin: 0 auto; padding: 16px 16px 60px; }
+.top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.back-btn { font-size: 13px; color: #888; text-decoration: none; display: flex; align-items: center; gap: 4px; }
+.back-btn:before { content: '‹'; font-size: 18px; }
+.lang-toggle { display: flex; border: 1px solid #e0e0e0; border-radius: 20px; overflow: hidden; }
+.lang-btn { padding: 5px 12px; font-size: 12px; cursor: pointer; background: white; color: #888; border: none; }
+.lang-btn.active { background: #1a1a1a; color: white; }
+.page-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.page-sub { font-size: 12px; color: #aaa; margin-bottom: 20px; }
+.nav-list { background: white; border-radius: 16px; border: 1px solid #efefef; overflow: hidden; margin-bottom: 12px; }
+.nav-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
+.nav-item:last-child { border-bottom: none; }
+.nav-name { font-size: 14px; font-weight: 500; }
+.nav-arrow { font-size: 20px; color: #ccc; }
+.detail-view { display: none; }
+.detail-view.active { display: block; }
+.list-view { display: block; }
+.list-view.hidden { display: none; }
+.card { background: white; border-radius: 16px; border: 1px solid #efefef; overflow: hidden; margin-bottom: 10px; }
+.card-header { padding: 14px 16px; border-bottom: 1px solid #f5f5f5; }
+.card-title { font-size: 15px; font-weight: 600; }
+.card-title-cn { font-size: 13px; color: #888; margin-top: 3px; }
+.card-body { padding: 14px 16px; }
+.card-content { font-size: 13px; line-height: 1.7; color: #333; }
+.card-content-cn { font-size: 12px; line-height: 1.7; color: #888; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f5f5f5; }
+.section-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding: 0 2px; }
+.loading { text-align: center; padding: 40px; color: #aaa; font-size: 13px; }
 </style>
 </head>
 <body>
-<nav class="nav">
-  <a href="/index" >Progress</a>
-  <a href="/details" >Refunds</a>
-  <a href="/policy" class="active">Policy</a>
-</nav>
 <div class="container">
-  <div class="header">
-    <h1>Refund & Reward Policy</h1>
-    <div class="sub">Accuracy-based · 基于出餐准确率</div>
-    <div class="scope">New staff not working alone are not included in the calculation · 新员工不独立站岗的不纳入计算</div>
-  </div>
-
-  <div class="section">
-    <div class="section-head">
-      <h2><span class="badge-penalty">Penalty</span> 罚款规则</h2>
-    </div>
-    <div class="rule">
-      <div class="rule-en">No penalty if refund rate stays under 2% of shift sales</div>
-      <div class="rule-zh">退单率低于当班营业额2%不触发罚款</div>
-    </div>
-    <div class="rule">
-      <div class="rule-en">If refund rate goes over 2%, the responsible staff from that shift will cover 50% of the excess refund amount</div>
-      <div class="rule-zh">超出2%的部分，由当班责任人赔偿超出金额的50%</div>
-    </div>
-    <div class="rule">
-      <div class="rule-en">If 2 staff are working the same shift, both staff will share 50% of the excess refund amount</div>
-      <div class="rule-zh">两人同时在站，共同承担超出部分的50%</div>
-    </div>
-    <div class="rule">
-      <div class="rule-en">Refunds are counted by individual shift only, not shared across different shifts</div>
-      <div class="rule-zh">按个人班次单独计算，不跨班次分摊</div>
+  <div class="top-bar">
+    <a class="back-btn" href="/">Home</a>
+    <div class="lang-toggle">
+      <div class="lang-btn active" onclick="setLang('en', this)">EN</div>
+      <div class="lang-btn" onclick="setLang('cn', this)">中文</div>
     </div>
   </div>
 
-  <div class="section">
-    <div class="section-head">
-      <h2><span class="badge-reward">Reward</span> 奖励规则</h2>
-    </div>
-    <div class="rule">
-      <div class="rule-en">Each shift with refund rate under 2% gets 1 point</div>
-      <div class="rule-zh">每个退单率低于2%的班次积1分</div>
-    </div>
-    <div class="rule">
-      <div class="rule-en">Collect 7 points → get 2 hours bonus pay</div>
-      <div class="rule-zh">累积满7分 → 奖励2小时工时</div>
-    </div>
-    <div class="rule">
-      <div class="rule-en">If refund rate goes over 2%, no point for that shift, but existing points stay</div>
-      <div class="rule-zh">超标班次不积分，但已有积分保留</div>
-    </div>
-    <div class="rule">
-      <div class="rule-en">Points keep rolling over until redeemed</div>
-      <div class="rule-zh">积分持续累积直到兑换</div>
-    </div>
+  <div class="list-view" id="list-view">
+    <div class="page-title" id="list-title">Policy</div>
+    <div class="page-sub">Refund & Reward Rules</div>
+    <div id="list-content"><div class="loading">Loading...</div></div>
   </div>
 
-  <div class="footer">Haidilao Mini Pot Operations · Rules announced 2026-05-10</div>
+  <div class="detail-view" id="detail-view">
+    <div class="page-title" id="detail-title"></div>
+    <div class="page-sub" id="detail-sub"></div>
+    <div id="detail-content"></div>
+  </div>
 </div>
+
+<script>
+const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
+let allData = [];
+let lang = 'en';
+
+async function fetchPolicy() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Policy&headers=1`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  return json.table.rows.map(r => ({
+    category: r.c[0]?.v || '',
+    title: r.c[1]?.v || '',
+    title_cn: r.c[2]?.v || '',
+    content: r.c[3]?.v || '',
+    content_cn: r.c[4]?.v || '',
+    order: r.c[5]?.v || 0,
+  }));
+}
+
+function setLang(l, el) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const isDetail = document.getElementById('detail-view').classList.contains('active');
+  if (isDetail) {
+    const cat = document.getElementById('detail-title').dataset.cat;
+    showDetail(cat);
+  } else {
+    renderList();
+  }
+}
+
+function renderList() {
+  const byCategory = {};
+  allData.forEach(item => {
+    if (!byCategory[item.category]) byCategory[item.category] = [];
+    byCategory[item.category].push(item);
+  });
+  document.getElementById('list-content').innerHTML = Object.entries(byCategory).map(([cat, items]) => `
+    <div class="section-label">${cat}</div>
+    <div class="nav-list">
+      ${items.sort((a,b) => a.order - b.order).map(item => `
+        <div class="nav-item" onclick="showDetail('${cat}', '${item.title}')">
+          <div class="nav-name">${lang === 'en' ? item.title : item.title_cn}</div>
+          <div class="nav-arrow">›</div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function showDetail(cat, selectedTitle) {
+  const items = allData.filter(d => d.category === cat).sort((a,b) => a.order - b.order);
+  document.getElementById('list-view').classList.add('hidden');
+  const detailView = document.getElementById('detail-view');
+  detailView.classList.add('active');
+  const titleEl = document.getElementById('detail-title');
+  titleEl.textContent = cat;
+  titleEl.dataset.cat = cat;
+  document.getElementById('detail-sub').textContent = lang === 'en' ? 'Tap any rule to read' : '点击查看详情';
+  document.getElementById('detail-content').innerHTML = items.map(item => `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">${lang === 'en' ? item.title : item.title_cn}</div>
+        ${lang === 'both' || lang === 'en' ? `<div class="card-title-cn">${item.title_cn}</div>` : ''}
+      </div>
+      <div class="card-body">
+        <div class="card-content">${lang === 'en' ? item.content : item.content_cn}</div>
+        ${lang === 'en' ? `<div class="card-content-cn">${item.content_cn}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  document.querySelector('.back-btn').onclick = function(e) {
+    e.preventDefault();
+    detailView.classList.remove('active');
+    document.getElementById('list-view').classList.remove('hidden');
+    document.querySelector('.back-btn').onclick = null;
+    document.querySelector('.back-btn').href = '/';
+  };
+  document.querySelector('.back-btn').href = '#';
+}
+
+async function init() {
+  try {
+    allData = await fetchPolicy();
+    renderList();
+  } catch(e) {
+    document.getElementById('list-content').innerHTML = `<div class="loading">Failed: ${e.message}</div>`;
+  }
+}
+init();
+</script>
 </body>
 </html>
