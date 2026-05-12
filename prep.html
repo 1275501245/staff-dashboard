@@ -14,33 +14,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .site-btn:hover{border-color:#007aff;background:#f0f5ff}
 .site-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .site-dot.tb{background:#5DCAA5}.site-dot.sh{background:#7F77DD}.site-dot.ba{background:#EF9F27}
-.main{display:none;padding:16px;max-width:680px;margin:0 auto;padding-bottom:40px}
-.top-bar{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1px solid #e5e5e5;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.back-btn{background:none;border:none;cursor:pointer;font-size:13px;color:#007aff;padding:0;flex-shrink:0}
-.top-info{flex:1;min-width:0}
+
+.main{display:none;padding:12px;max-width:600px;margin:0 auto;padding-bottom:40px}
+
+/* Top bar - mobile optimised */
+.top-bar{background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:12px;border:1px solid #e5e5e5}
+.top-bar-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.back-btn{background:none;border:none;cursor:pointer;font-size:14px;color:#007aff;padding:0;display:flex;align-items:center;gap:4px}
+.top-actions{display:flex;align-items:center;gap:8px}
+.sync{font-size:11px;color:#aaa}
+.sync.syncing{color:#f59e0b}.sync.ok{color:#16a34a}.sync.err{color:#ef4444}
+.reset-btn{font-size:12px;color:#888;background:none;border:1px solid #e5e5e5;border-radius:8px;padding:4px 10px;cursor:pointer}
+.top-bar-row2{display:flex;align-items:center;justify-content:space-between}
 .top-title{font-size:15px;font-weight:600}
-.top-sub{font-size:12px;color:#888;margin-top:1px}
-.prog-wrap{display:flex;align-items:center;gap:8px}
+.top-sub{font-size:11px;color:#aaa;margin-top:1px}
+.prog-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .prog-track{width:80px;height:6px;background:#eee;border-radius:4px;overflow:hidden}
 .prog-fill{height:100%;background:#16a34a;border-radius:4px;transition:width 0.3s}
 .prog-text{font-size:12px;color:#888;min-width:32px;text-align:right}
-.reset-btn{font-size:12px;color:#888;background:none;border:1px solid #e5e5e5;border-radius:8px;padding:4px 10px;cursor:pointer}
-.reset-btn:hover{background:#f5f5f5}
-.sync{font-size:11px;color:#aaa}
-.sync.syncing{color:#f59e0b}.sync.ok{color:#16a34a}.sync.err{color:#ef4444}
+
 .mod-prog{display:flex;align-items:center;gap:6px}
 .mod-track{width:52px;height:4px;background:#e5e5e5;border-radius:4px;overflow:hidden}
 .mod-fill{height:100%;border-radius:4px;background:#16a34a;transition:width 0.3s}
 .mod-text{font-size:11px;color:#aaa;min-width:26px;text-align:right}
+
 .section{background:#fff;border-radius:12px;margin-bottom:10px;border:1px solid #e5e5e5;overflow:hidden}
 .section-head{display:flex;align-items:center;padding:8px 14px;background:#fafafa;border-bottom:1px solid #f0f0f0;gap:8px}
 .section-name{font-size:12px;font-weight:600;color:#555;flex:1}
 table{width:100%;border-collapse:collapse;table-layout:fixed}
 th{font-size:11px;font-weight:500;color:#999;text-align:left;padding:5px 14px;border-bottom:1px solid #f0f0f0;background:#fafafa}
-th:nth-child(1){width:28px;text-align:center}
-th:nth-child(3){width:90px;text-align:right}
-td{padding:8px 14px;border-bottom:1px solid #f5f5f5;font-size:13px;vertical-align:middle}
-td:nth-child(1){text-align:center}
+th:nth-child(1){width:32px;text-align:center}
+th:nth-child(3){width:80px;text-align:right}
+td{padding:8px 12px;border-bottom:1px solid #f5f5f5;font-size:13px;vertical-align:middle}
+td:nth-child(1){text-align:center;width:32px}
 td:nth-child(3){text-align:right}
 tr:last-child td{border-bottom:none}
 tr.done-row td{opacity:0.38}
@@ -49,8 +55,9 @@ tr.done-row .itext{text-decoration:line-through}
 .cb:hover{border-color:#16a34a;background:#f0fdf4}
 .cb.checked{background:#16a34a;border-color:#16a34a}
 .cb.checked::after{content:'';display:block;width:10px;height:7px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
-.qty{font-size:11px;color:#888;background:#f5f5f5;border:0.5px solid #e5e5e5;border-radius:20px;padding:2px 8px;white-space:nowrap}
+.qty{font-size:11px;color:#888;background:#f5f5f5;border:0.5px solid #e5e5e5;border-radius:20px;padding:2px 7px;white-space:nowrap}
 .qty.na{opacity:0.3}
+
 .csec{background:#fff;border-radius:12px;margin-bottom:10px;border:1px solid #e5e5e5;overflow:hidden}
 .csec-head{display:flex;align-items:center;padding:8px 14px;background:#fafafa;border-bottom:1px solid #f0f0f0;gap:8px}
 .csec-name{font-size:12px;font-weight:600;color:#555;flex:1}
@@ -67,7 +74,7 @@ tr.done-row .itext{text-decoration:line-through}
 .mini-fill{height:100%;border-radius:4px;transition:width 0.3s}
 .mini-fill.pu{background:#7F77DD}.mini-fill.gr{background:#1D9E75}.mini-fill.bl{background:#3B82C4}.mini-fill.am{background:#D97706}
 .mini-text{font-size:10px;opacity:0.7;min-width:22px;text-align:right}
-.irow{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid #f5f5f5;cursor:pointer;transition:background 0.1s}
+.irow{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f5f5f5;cursor:pointer;transition:background 0.1s}
 .irow:last-child{border-bottom:none}
 .irow:hover{background:#fafafa}
 .irow.done-row{opacity:0.38}
@@ -86,17 +93,23 @@ tr.done-row .itext{text-decoration:line-through}
 
 <div class="main" id="main">
   <div class="top-bar">
-    <button class="back-btn" onclick="window.location.href='/home'">&#8592; Sites#8592; Home</button>
-    <div class="top-info">
-      <div class="top-title" id="site-title"></div>
-      <div class="top-sub" id="today-label"></div>
+    <div class="top-bar-row1">
+      <button class="back-btn" onclick="goBack()">&#8592; Sites</button>
+      <div class="top-actions">
+        <span class="sync" id="sync"></span>
+        <button class="reset-btn" onclick="resetAll()">Reset</button>
+      </div>
     </div>
-    <div class="prog-wrap">
-      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
-      <div class="prog-text" id="prog-text">0%</div>
+    <div class="top-bar-row2">
+      <div>
+        <div class="top-title" id="site-title"></div>
+        <div class="top-sub" id="today-label"></div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="prog-text" id="prog-text">0%</div>
+      </div>
     </div>
-    <span class="sync" id="sync"></span>
-    <button class="reset-btn" onclick="resetAll()">Reset</button>
   </div>
 
   <!-- Rice & Soup -->
@@ -153,7 +166,6 @@ tr.done-row .itext{text-decoration:line-through}
   <div class="csec">
     <div class="csec-head"><span class="csec-name">Direct Refill / Restock / Defrost</span></div>
     <div style="padding:8px;display:flex;flex-direction:column;gap:8px">
-
       <div class="grp">
         <div class="grp-head gr"><span class="grp-label">Food Items</span><div class="mini-prog"><div class="mini-track"><div class="mini-fill gr" id="mf-food" style="width:0%"></div></div><div class="mini-text" id="mp-food">0%</div></div></div>
         <div id="grp-food">
@@ -188,7 +200,6 @@ tr.done-row .itext{text-decoration:line-through}
           <div class="irow" onclick="toggleIrow(this,'food_skewer')"><div class="cb"></div><span class="itext">Fried Chicken Skewer</span><span class="qty">2 pack</span></div>
         </div>
       </div>
-
       <div class="grp">
         <div class="grp-head bl"><span class="grp-label">Packaging & Supplies</span><div class="mini-prog"><div class="mini-track"><div class="mini-fill bl" id="mf-pkg" style="width:0%"></div></div><div class="mini-text" id="mp-pkg">0%</div></div></div>
         <div id="grp-pkg">
@@ -208,7 +219,6 @@ tr.done-row .itext{text-decoration:line-through}
           <div class="irow" onclick="toggleIrow(this,'pkg_sponge')"><div class="cb"></div><span class="itext">Washing sponge</span><span class="qty">1 pc</span></div>
         </div>
       </div>
-
       <div class="grp">
         <div class="grp-head am"><span class="grp-label">Defrost</span><div class="mini-prog"><div class="mini-track"><div class="mini-fill am" id="mf-def" style="width:0%"></div></div><div class="mini-text" id="mp-def">0%</div></div></div>
         <div id="grp-def">
@@ -220,7 +230,6 @@ tr.done-row .itext{text-decoration:line-through}
           <div class="irow" onclick="toggleIrow(this,'def_prawn')"><div class="cb"></div><span class="itext">Prawn Paste (take to defrost)</span><span class="qty">4–10 pc</span></div>
         </div>
       </div>
-
     </div>
   </div>
 
