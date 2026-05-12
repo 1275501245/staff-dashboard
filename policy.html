@@ -8,61 +8,39 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; }
 .container { max-width: 480px; margin: 0 auto; padding: 16px 16px 60px; }
-.top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-.back-btn { font-size: 13px; color: #888; text-decoration: none; display: flex; align-items: center; gap: 4px; }
-.back-btn:before { content: '‹'; font-size: 18px; }
-.lang-toggle { display: flex; border: 1px solid #e0e0e0; border-radius: 20px; overflow: hidden; }
-.lang-btn { padding: 5px 12px; font-size: 12px; cursor: pointer; background: white; color: #888; border: none; }
-.lang-btn.active { background: #1a1a1a; color: white; }
+.top-bar { display: flex; align-items: center; margin-bottom: 20px; }
+.back-btn { font-size: 13px; color: #888; cursor: pointer; text-decoration: none; }
 .page-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
 .page-sub { font-size: 12px; color: #aaa; margin-bottom: 20px; }
 .nav-list { background: white; border-radius: 16px; border: 1px solid #efefef; overflow: hidden; margin-bottom: 12px; }
 .nav-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
 .nav-item:last-child { border-bottom: none; }
-.nav-name { font-size: 14px; font-weight: 500; }
+.nav-left { display: flex; flex-direction: column; gap: 3px; }
+.nav-name { font-size: 14px; font-weight: 500; color: #1a1a1a; }
+.nav-desc { font-size: 12px; color: #aaa; }
 .nav-arrow { font-size: 20px; color: #ccc; }
-.detail-view { display: none; }
-.detail-view.active { display: block; }
-.list-view { display: block; }
-.list-view.hidden { display: none; }
-.card { background: white; border-radius: 16px; border: 1px solid #efefef; overflow: hidden; margin-bottom: 10px; }
-.card-header { padding: 14px 16px; border-bottom: 1px solid #f5f5f5; }
-.card-title { font-size: 15px; font-weight: 600; }
-.card-title-cn { font-size: 13px; color: #888; margin-top: 3px; }
-.card-body { padding: 14px 16px; }
-.card-content { font-size: 13px; line-height: 1.7; color: #333; }
-.card-content-cn { font-size: 12px; line-height: 1.7; color: #888; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f5f5f5; }
-.section-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding: 0 2px; }
+.view { display: none; }
+.view.active { display: block; }
+.rules-card { background: white; border-radius: 16px; border: 1px solid #efefef; overflow: hidden; margin-bottom: 12px; }
+.rule-row { padding: 14px 16px; border-bottom: 1px solid #f5f5f5; }
+.rule-row:last-child { border-bottom: none; }
+.rule-num { font-size: 10px; color: #ccc; margin-bottom: 4px; }
+.rule-en { font-size: 13px; color: #1a1a1a; line-height: 1.6; }
+.rule-cn { font-size: 12px; color: #888; margin-top: 3px; line-height: 1.6; }
+.section-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 8px 2px; }
 .loading { text-align: center; padding: 40px; color: #aaa; font-size: 13px; }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="top-bar">
-    <a class="back-btn" href="/">Home</a>
-    <div class="lang-toggle">
-      <div class="lang-btn active" onclick="setLang('en', this)">EN</div>
-      <div class="lang-btn" onclick="setLang('cn', this)">中文</div>
-    </div>
+    <a class="back-btn" id="back-btn" href="/">‹ Home</a>
   </div>
-
-  <div class="list-view" id="list-view">
-    <div class="page-title" id="list-title">Policy</div>
-    <div class="page-sub">Refund & Reward Rules</div>
-    <div id="list-content"><div class="loading">Loading...</div></div>
-  </div>
-
-  <div class="detail-view" id="detail-view">
-    <div class="page-title" id="detail-title"></div>
-    <div class="page-sub" id="detail-sub"></div>
-    <div id="detail-content"></div>
-  </div>
+  <div id="app"><div class="loading">Loading...</div></div>
 </div>
-
 <script>
 const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
 let allData = [];
-let lang = 'en';
 
 async function fetchPolicy() {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Policy&headers=1`;
@@ -71,84 +49,75 @@ async function fetchPolicy() {
   const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
   return json.table.rows.map(r => ({
     category: r.c[0]?.v || '',
-    title: r.c[1]?.v || '',
-    title_cn: r.c[2]?.v || '',
-    content: r.c[3]?.v || '',
-    content_cn: r.c[4]?.v || '',
-    order: r.c[5]?.v || 0,
+    section: r.c[1]?.v || '',
+    title: r.c[2]?.v || '',
+    title_cn: r.c[3]?.v || '',
+    content: r.c[4]?.v || '',
+    content_cn: r.c[5]?.v || '',
+    order: parseFloat(r.c[6]?.v || 0),
   }));
 }
 
-function setLang(l, el) {
-  lang = l;
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  const isDetail = document.getElementById('detail-view').classList.contains('active');
-  if (isDetail) {
-    const cat = document.getElementById('detail-title').dataset.cat;
-    showDetail(cat);
-  } else {
-    renderList();
-  }
-}
-
-function renderList() {
-  const byCategory = {};
-  allData.forEach(item => {
-    if (!byCategory[item.category]) byCategory[item.category] = [];
-    byCategory[item.category].push(item);
-  });
-  document.getElementById('list-content').innerHTML = Object.entries(byCategory).map(([cat, items]) => `
-    <div class="section-label">${cat}</div>
-    <div class="nav-list">
-      ${items.sort((a,b) => a.order - b.order).map(item => `
-        <div class="nav-item" onclick="showDetail('${cat}', '${item.title}')">
-          <div class="nav-name">${lang === 'en' ? item.title : item.title_cn}</div>
-          <div class="nav-arrow">›</div>
-        </div>
-      `).join('')}
-    </div>
-  `).join('');
-}
-
-function showDetail(cat, selectedTitle) {
-  const items = allData.filter(d => d.category === cat).sort((a,b) => a.order - b.order);
-  document.getElementById('list-view').classList.add('hidden');
-  const detailView = document.getElementById('detail-view');
-  detailView.classList.add('active');
-  const titleEl = document.getElementById('detail-title');
-  titleEl.textContent = cat;
-  titleEl.dataset.cat = cat;
-  document.getElementById('detail-sub').textContent = lang === 'en' ? 'Tap any rule to read' : '点击查看详情';
-  document.getElementById('detail-content').innerHTML = items.map(item => `
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">${lang === 'en' ? item.title : item.title_cn}</div>
-        ${lang === 'both' || lang === 'en' ? `<div class="card-title-cn">${item.title_cn}</div>` : ''}
-      </div>
-      <div class="card-body">
-        <div class="card-content">${lang === 'en' ? item.content : item.content_cn}</div>
-        ${lang === 'en' ? `<div class="card-content-cn">${item.content_cn}</div>` : ''}
+function renderHome() {
+  const categories = [...new Set(allData.map(d => d.category))];
+  document.getElementById('back-btn').textContent = '‹ Home';
+  document.getElementById('back-btn').href = '/';
+  document.getElementById('back-btn').onclick = null;
+  document.getElementById('app').innerHTML = `
+    <div class="view active">
+      <div class="page-title">Policy</div>
+      <div class="page-sub">Rules & guidelines</div>
+      <div class="nav-list">
+        ${categories.map(cat => {
+          const sections = [...new Set(allData.filter(d => d.category === cat).map(d => d.section))];
+          return `
+          <div class="nav-item" onclick="renderCat('${cat}')">
+            <div class="nav-left">
+              <div class="nav-name">${cat}</div>
+              <div class="nav-desc">${sections.join(' · ')}</div>
+            </div>
+            <div class="nav-arrow">›</div>
+          </div>`;
+        }).join('')}
       </div>
     </div>
-  `).join('');
+  `;
+}
 
-  document.querySelector('.back-btn').onclick = function(e) {
-    e.preventDefault();
-    detailView.classList.remove('active');
-    document.getElementById('list-view').classList.remove('hidden');
-    document.querySelector('.back-btn').onclick = null;
-    document.querySelector('.back-btn').href = '/';
-  };
-  document.querySelector('.back-btn').href = '#';
+function renderCat(cat) {
+  const items = allData.filter(d => d.category === cat);
+  const sections = [...new Set(items.map(d => d.section))];
+  document.getElementById('back-btn').textContent = '‹ Policy';
+  document.getElementById('back-btn').href = '#';
+  document.getElementById('back-btn').onclick = (e) => { e.preventDefault(); renderHome(); };
+  document.getElementById('app').innerHTML = `
+    <div class="view active">
+      <div class="page-title">${cat}</div>
+      <div class="page-sub">Rules & guidelines</div>
+      ${sections.map(sec => {
+        const secItems = items.filter(d => d.section === sec).sort((a,b) => a.order - b.order);
+        return `
+        <div class="section-label">${sec}</div>
+        <div class="rules-card">
+          ${secItems.map((item, i) => `
+            <div class="rule-row">
+              <div class="rule-num">${i+1}</div>
+              <div class="rule-en">${item.content}</div>
+              ${item.content_cn ? `<div class="rule-cn">${item.content_cn}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>`;
+      }).join('')}
+    </div>
+  `;
 }
 
 async function init() {
   try {
     allData = await fetchPolicy();
-    renderList();
+    renderHome();
   } catch(e) {
-    document.getElementById('list-content').innerHTML = `<div class="loading">Failed: ${e.message}</div>`;
+    document.getElementById('app').innerHTML = `<div class="loading">Failed: ${e.message}</div>`;
   }
 }
 init();
