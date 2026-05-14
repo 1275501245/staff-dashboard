@@ -1,10 +1,15 @@
 {
   "routes": [
     { "src": "/", "dest": "/home.html" },
+    { "src": "/home", "dest": "/home.html" },
     { "src": "/index", "dest": "/index.html" },
     { "src": "/details", "dest": "/details.html" },
     { "src": "/policy", "dest": "/policy.html" },
     { "src": "/sites", "dest": "/sites.html" },
-    { "src": "/prep", "dest": "/prep.html" }
+    { "src": "/prep", "dest": "/prep.html" },
+    { "src": "/arrival", "dest": "/arrival.html" },
+    { "src": "/stocktake", "dest": "/stocktake.html" },
+    { "src": "/stocktake-admin", "dest": "/stocktake-admin.html" },
+    { "src": "/suppliers", "dest": "/suppliers.html" }
   ]
 }
