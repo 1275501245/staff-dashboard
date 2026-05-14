@@ -176,11 +176,11 @@ function renderItems() {
         <div class="item-unit">${unit}</div>
       </div>
       <div class="qty-row">
-        <button class="qty-btn" onclick="adjustQty('${name}',-1)">−</button>
-        <input class="qty-slider" type="range" min="0" max="100" step="1" value="${qty}"
+        <button class="qty-btn" onclick="adjustQty('${name}',-0.5)">−</button>
+        <input class="qty-slider" type="range" min="0" max="50" step="0.5" value="${qty}"
           oninput="onSlider('${name}',this.value)">
         <div class="qty-val" id="qty-${name.replace(/\s+/g,'_')}">${qty}</div>
-        <button class="qty-btn" onclick="adjustQty('${name}',1)">+</button>
+        <button class="qty-btn" onclick="adjustQty('${name}',0.5)">+</button>
       </div>
     </div>`;
   }).join('');
@@ -189,17 +189,17 @@ function renderItems() {
 }
 
 function onSlider(name, val) {
-  quantities[name] = parseInt(val);
-  document.getElementById('qty-' + name.replace(/\s+/g,'_')).textContent = val;
+  quantities[name] = parseFloat(val);
+  document.getElementById('qty-' + name.replace(/\s+/g,'_')).textContent = parseFloat(val) % 1 === 0 ? parseInt(val) : parseFloat(val).toFixed(1);
 }
 
 function adjustQty(name, delta) {
-  const newVal = Math.max(0, Math.min(100, (quantities[name] || 0) + delta));
+  const newVal = Math.round((Math.max(0, Math.min(50, (quantities[name] || 0) + delta))) * 10) / 10;
   quantities[name] = newVal;
   const slider = document.querySelector(`input[oninput*="'${name}'"]`);
   if (slider) slider.value = newVal;
   const display = document.getElementById('qty-' + name.replace(/\s+/g,'_'));
-  if (display) display.textContent = newVal;
+  if (display) display.textContent = newVal % 1 === 0 ? newVal : newVal.toFixed(1);
 }
 
 function resetAll() {
