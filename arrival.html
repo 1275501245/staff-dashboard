@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Today's Arrivals</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; padding-bottom: 40px; }
+
+.header { background: #fff; border-bottom: 1px solid #efefef; padding: 16px; position: sticky; top: 0; z-index: 100; }
+.header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.back { width: 30px; height: 30px; border-radius: 50%; background: #f5f5f5; border: none; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #999; text-decoration: none; flex-shrink: 0; }
+.header-title { font-size: 16px; font-weight: 600; }
+.header-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+.date-row { display: flex; align-items: center; gap: 6px; }
+.date-nav { width: 32px; height: 32px; border: 1px solid #efefef; border-radius: 9px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 15px; color: #999; flex-shrink: 0; }
+.date-display { flex: 1; height: 32px; border: 1px solid #efefef; border-radius: 9px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: #1a1a1a; cursor: pointer; position: relative; }
+.date-display input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+.today-btn { height: 32px; padding: 0 12px; border: 1px solid #f0c0c5; border-radius: 9px; background: #fdf0f2; color: #c8102e; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; font-family: inherit; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px 16px; border-bottom: 1px solid #efefef; background: #fff; }
+.stat { background: #f5f5f5; border-radius: 10px; padding: 10px 8px; text-align: center; }
+.stat-n { font-size: 20px; font-weight: 600; color: #1a1a1a; line-height: 1; }
+.stat-l { font-size: 10px; color: #aaa; margin-top: 3px; }
+
+.body { padding: 12px 16px; display: flex; flex-direction: column; gap: 12px; }
+.state-box { text-align: center; padding: 50px 20px; color: #aaa; font-size: 13px; }
+.state-icon { font-size: 32px; margin-bottom: 10px; }
+.state-title { font-size: 14px; font-weight: 500; color: #999; margin-bottom: 6px; }
+
+.site-sec {}
+.site-hdr { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.site-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.site-name { font-size: 10px; font-weight: 600; color: #aaa; letter-spacing: 0.06em; text-transform: uppercase; }
+.site-count { margin-left: auto; font-size: 10px; color: #bbb; background: #fff; border: 1px solid #efefef; border-radius: 20px; padding: 2px 8px; }
+
+.supp-card { background: #fff; border: 1px solid #efefef; border-radius: 14px; overflow: hidden; margin-bottom: 8px; }
+.supp-hdr { display: flex; align-items: center; gap: 10px; padding: 12px 14px; cursor: pointer; user-select: none; }
+.supp-av { width: 34px; height: 34px; border-radius: 9px; background: #f0f4ff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #4a6cf7; flex-shrink: 0; }
+.supp-info { flex: 1; min-width: 0; }
+.supp-name { font-size: 14px; font-weight: 500; color: #1a1a1a; }
+.supp-meta { font-size: 11px; color: #bbb; margin-top: 1px; }
+.supp-eta { font-size: 11px; font-weight: 500; background: #fffbeb; color: #92640a; border-radius: 7px; padding: 3px 8px; white-space: nowrap; flex-shrink: 0; }
+.chev { font-size: 11px; color: #ccc; transition: transform 0.2s; flex-shrink: 0; }
+.supp-card.open .chev { transform: rotate(180deg); }
+
+.items-list { display: none; border-top: 1px solid #f5f5f5; }
+.supp-card.open .items-list { display: block; }
+.item-row { display: flex; align-items: center; padding: 10px 14px; border-bottom: 1px solid #f5f5f5; gap: 10px; }
+.item-row:last-child { border-bottom: none; }
+.item-name { font-size: 13px; color: #1a1a1a; flex: 1; }
+.item-qty { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+.item-unit { font-size: 11px; color: #aaa; margin-left: 2px; }
+.item-note { font-size: 11px; color: #bbb; display: block; margin-top: 1px; }
+
+.site-empty { background: #fff; border: 1px solid #efefef; border-radius: 14px; padding: 18px; text-align: center; color: #ccc; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <a class="back" href="/home">←</a>
+    <div>
+      <div class="header-title">Today's Arrivals</div>
+      <div class="header-sub" id="hdr-sub">Loading…</div>
+    </div>
+  </div>
+  <div class="date-row">
+    <div class="date-nav" onclick="shiftDate(-1)">‹</div>
+    <div class="date-display" id="date-display">
+      <span id="date-label"></span>
+      <input type="date" id="date-picker" onchange="onDateChange()">
+    </div>
+    <div class="date-nav" onclick="shiftDate(1)">›</div>
+    <button class="today-btn" onclick="goToday()">Today</button>
+  </div>
+</div>
+
+<div id="main"></div>
+
+<script>
+const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
+const SITES = ['Shoreditch', 'Battersea', 'Tower Bridge'];
+const SITE_COLORS = { 'Shoreditch': '#2563eb', 'Battersea': '#c8102e', 'Tower Bridge': '#059669' };
+const AV_COLORS = ['#4a6cf7','#e05c2a','#0f9d6e','#9333ea','#d97706','#0891b2'];
+
+function todayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function formatLabel(d) {
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dt = new Date(d + 'T00:00:00');
+  const prefix = d === todayStr() ? 'Today · ' : '';
+  return prefix + days[dt.getDay()] + ' ' + dt.getDate() + ' ' + months[dt.getMonth()];
+}
+
+function shiftDate(n) {
+  const p = document.getElementById('date-picker');
+  const d = new Date(p.value + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  p.value = d.toISOString().split('T')[0];
+  onDateChange();
+}
+
+function goToday() {
+  document.getElementById('date-picker').value = todayStr();
+  onDateChange();
+}
+
+function onDateChange() {
+  const v = document.getElementById('date-picker').value;
+  document.getElementById('date-label').textContent = formatLabel(v);
+  document.getElementById('hdr-sub').textContent = formatLabel(v);
+  loadData(v);
+}
+
+function toggleSupp(card) { card.classList.toggle('open'); }
+
+function normalizeDate(raw) {
+  if (!raw) return '';
+  if (typeof raw === 'string') {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+    const m = raw.match(/Date\((\d+),(\d+),(\d+)\)/);
+    if (m) return `${m[1]}-${String(+m[2]+1).padStart(2,'0')}-${String(+m[3]).padStart(2,'0')}`;
+  }
+  if (typeof raw === 'number') {
+    const d = new Date((raw - 25569) * 86400000);
+    return d.toISOString().split('T')[0];
+  }
+  return String(raw).slice(0,10);
+}
+
+async function fetchSheet(name) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}&headers=1`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  if (!json.table?.rows?.length) return [];
+  const cols = json.table.cols.map(c => c.label);
+  return json.table.rows.map(r => {
+    const obj = {};
+    cols.forEach((col, i) => { obj[col] = r.c[i]?.v ?? r.c[i]?.f ?? ''; });
+    return obj;
+  });
+}
+
+async function loadData(date) {
+  document.getElementById('main').innerHTML = `<div class="state-box"><div class="state-icon">📦</div><div class="state-title">Loading…</div></div>`;
+  let arrivals, suppliers;
+  try {
+    [arrivals, suppliers] = await Promise.all([fetchSheet('Arrivals'), fetchSheet('Suppliers')]);
+  } catch(e) {
+    document.getElementById('main').innerHTML = `<div class="state-box"><div class="state-icon">⚠️</div><div class="state-title">Failed to load</div><div>Make sure the Sheet is shared (Anyone with link → Viewer)</div></div>`;
+    return;
+  }
+
+  const rows = arrivals.filter(r => normalizeDate(r['Date']) === date);
+  const suppMap = {};
+  suppliers.forEach(s => { suppMap[s['SupplierName']] = s; });
+
+  const totalItems = rows.length;
+  const totalSupps = new Set(rows.map(r => r['SupplierName'])).size;
+  const totalSites = new Set(rows.map(r => r['Site'])).size;
+
+  if (!totalItems) {
+    document.getElementById('main').innerHTML = `<div class="state-box"><div class="state-icon">📭</div><div class="state-title">No arrivals</div><div>No deliveries recorded for ${formatLabel(date)}</div></div>`;
+    return;
+  }
+
+  // group: site → supplierName → rows
+  const grouped = {};
+  SITES.forEach(s => { grouped[s] = {}; });
+  rows.forEach(r => {
+    const site = r['Site'] || 'Unknown';
+    const supp = r['SupplierName'] || 'Unknown';
+    if (!grouped[site]) grouped[site] = {};
+    if (!grouped[site][supp]) grouped[site][supp] = { rows: [], info: suppMap[supp] || {} };
+    grouped[site][supp].rows.push(r);
+  });
+
+  let html = `<div class="stats">
+    <div class="stat"><div class="stat-n">${totalItems}</div><div class="stat-l">Line items</div></div>
+    <div class="stat"><div class="stat-n">${totalSupps}</div><div class="stat-l">Suppliers</div></div>
+    <div class="stat"><div class="stat-n">${totalSites}</div><div class="stat-l">Sites</div></div>
+  </div><div class="body">`;
+
+  SITES.forEach(site => {
+    const suppObj = grouped[site] || {};
+    const siteCount = Object.values(suppObj).reduce((a,s) => a + s.rows.length, 0);
+    const color = SITE_COLORS[site] || '#888';
+    html += `<div class="site-sec"><div class="site-hdr"><div class="site-dot" style="background:${color}"></div><div class="site-name">${site}</div><div class="site-count">${siteCount} item${siteCount !== 1 ? 's' : ''}</div></div>`;
+
+    if (!siteCount) {
+      html += `<div class="site-empty">No deliveries today</div>`;
+    } else {
+      Object.entries(suppObj).forEach(([suppName, data], idx) => {
+        const initials = suppName.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+        const color = AV_COLORS[idx % AV_COLORS.length];
+        const eta = data.info['DeliveryTime'] || '';
+        const itemCount = data.rows.length;
+        html += `<div class="supp-card${idx===0?' open':''}" onclick="toggleSupp(this)">
+          <div class="supp-hdr">
+            <div class="supp-av" style="background:${color}22;color:${color}">${initials}</div>
+            <div class="supp-info">
+              <div class="supp-name">${suppName}</div>
+              <div class="supp-meta">${itemCount} item${itemCount!==1?'s':''}</div>
+            </div>
+            ${eta ? `<div class="supp-eta">⏱ ${eta}</div>` : ''}
+            <div class="chev">▼</div>
+          </div>
+          <div class="items-list">`;
+        data.rows.forEach(p => {
+          const note = p['Notes'] || '';
+          html += `<div class="item-row">
+            <div class="item-name">${p['ProductName'] || '—'}${note ? `<span class="item-note">${note}</span>` : ''}</div>
+            <div><span class="item-qty">${p['Quantity'] || '—'}</span><span class="item-unit">${p['Unit'] || ''}</span></div>
+          </div>`;
+        });
+        html += `</div></div>`;
+      });
+    }
+    html += `</div>`;
+  });
+
+  html += `</div>`;
+  document.getElementById('main').innerHTML = html;
+}
+
+const today = todayStr();
+document.getElementById('date-picker').value = today;
+document.getElementById('date-label').textContent = formatLabel(today);
+document.getElementById('hdr-sub').textContent = formatLabel(today);
+loadData(today);
+</script>
+</body>
+</html>
