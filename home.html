@@ -35,7 +35,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </div>
 <script>
 const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
-const ICONS = { 'Performance':'📊', 'Sites':'📍', 'Policy':'📄', 'Rota':'🗓' };
+const ICONS = {
+  'Performance':'📊', 'Sites':'📍', 'Policy':'📄', 'Rota':'🗓',
+  'Today\'s Arrivals':'📦', 'Stock Check':'📋',
+  'Opening Checklist':'🌅', 'Prep List':'🍱', 'Cleaning Checklist':'🧼',
+  'Food Safety Checklist':'🚨', 'Closing Checklist':'🌙', 'Deep Cleaning':'🧽'
+};
 
 async function fetchNav() {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Nav&headers=1`;
