@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suppliers</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; padding-bottom: 40px; }
+
+.header { background: #fff; border-bottom: 1px solid #efefef; padding: 16px 16px 14px; }
+.header-top { display: flex; align-items: center; gap: 12px; }
+.back { width: 30px; height: 30px; border-radius: 50%; background: #f5f5f5; border: none; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #999; text-decoration: none; flex-shrink: 0; }
+.header-title { font-size: 16px; font-weight: 600; }
+.header-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+.body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.state-box { text-align: center; padding: 50px 20px; color: #aaa; font-size: 13px; }
+
+.supp-card { background: #fff; border: 1px solid #efefef; border-radius: 14px; overflow: hidden; }
+.supp-hdr { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; user-select: none; }
+.supp-av { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.supp-info { flex: 1; min-width: 0; }
+.supp-name { font-size: 15px; font-weight: 600; }
+.supp-tagline { font-size: 11px; color: #aaa; margin-top: 2px; }
+.chev { font-size: 11px; color: #ccc; transition: transform 0.2s; }
+.supp-card.open .chev { transform: rotate(180deg); }
+
+.supp-detail { display: none; border-top: 1px solid #f5f5f5; }
+.supp-card.open .supp-detail { display: block; }
+
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #f5f5f5; }
+.info-cell { background: #fff; padding: 10px 14px; }
+.info-label { font-size: 10px; color: #bbb; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
+.info-val { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+
+.prod-section { border-top: 1px solid #f5f5f5; }
+.prod-header { padding: 10px 14px 6px; font-size: 10px; color: #bbb; text-transform: uppercase; letter-spacing: 0.04em; }
+.prod-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; border-top: 1px solid #f5f5f5; }
+.prod-name { font-size: 13px; color: #1a1a1a; }
+.prod-unit { font-size: 12px; color: #bbb; }
+.no-products { padding: 14px; text-align: center; font-size: 12px; color: #ccc; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <a class="back" href="/home">←</a>
+    <div>
+      <div class="header-title">Suppliers</div>
+      <div class="header-sub" id="hdr-sub">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<div class="body" id="body">
+  <div class="state-box">Loading suppliers…</div>
+</div>
+
+<script>
+const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
+const AV_COLORS = [
+  {bg:'#eef2ff',text:'#4a6cf7'},{bg:'#fef3eb',text:'#e05c2a'},
+  {bg:'#ecfdf5',text:'#0f9d6e'},{bg:'#f5f3ff',text:'#9333ea'},
+  {bg:'#fffbeb',text:'#d97706'},{bg:'#ecfeff',text:'#0891b2'},
+];
+
+function toggleCard(card) { card.classList.toggle('open'); }
+
+async function fetchSheet(name) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}&headers=1`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  if (!json.table?.rows?.length) return [];
+  const cols = json.table.cols.map(c => c.label);
+  return json.table.rows.map(r => {
+    const obj = {};
+    cols.forEach((col, i) => { obj[col] = r.c[i]?.v ?? r.c[i]?.f ?? ''; });
+    return obj;
+  });
+}
+
+async function init() {
+  let suppliers, products;
+  try {
+    [suppliers, products] = await Promise.all([fetchSheet('Suppliers'), fetchSheet('Products')]);
+  } catch(e) {
+    document.getElementById('body').innerHTML = `<div class="state-box">⚠️ Failed to load. Check Sheet sharing settings.</div>`;
+    return;
+  }
+
+  document.getElementById('hdr-sub').textContent = `${suppliers.length} supplier${suppliers.length !== 1 ? 's' : ''}`;
+
+  const prodBySupp = {};
+  products.forEach(p => {
+    const s = p['SupplierName'];
+    if (!prodBySupp[s]) prodBySupp[s] = [];
+    prodBySupp[s].push(p);
+  });
+
+  document.getElementById('body').innerHTML = suppliers.map((s, idx) => {
+    const name = s['SupplierName'] || '—';
+    const initials = name.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const col = AV_COLORS[idx % AV_COLORS.length];
+    const prods = prodBySupp[name] || [];
+    const days = s['DeliveryDays'] || '—';
+    const cutoff = s['OrderCutoffTime'] || '—';
+    const delivery = s['DeliveryTime'] || '—';
+    const minOrder = s['MinOrderAmount'] ? '£' + s['MinOrderAmount'] : (s['MinOrderAmount'] === 0 ? '£0' : '—');
+
+    return `<div class="supp-card" onclick="toggleCard(this)">
+      <div class="supp-hdr">
+        <div class="supp-av" style="background:${col.bg};color:${col.text}">${initials}</div>
+        <div class="supp-info">
+          <div class="supp-name">${name}</div>
+          <div class="supp-tagline">${days} · ${prods.length} product${prods.length !== 1 ? 's' : ''}</div>
+        </div>
+        <div class="chev">▼</div>
+      </div>
+      <div class="supp-detail">
+        <div class="info-grid">
+          <div class="info-cell"><div class="info-label">Order cutoff</div><div class="info-val">${cutoff}</div></div>
+          <div class="info-cell"><div class="info-label">Delivery time</div><div class="info-val">${delivery}</div></div>
+          <div class="info-cell"><div class="info-label">Min order</div><div class="info-val">${minOrder}</div></div>
+          <div class="info-cell"><div class="info-label">Delivery days</div><div class="info-val">${days}</div></div>
+        </div>
+        <div class="prod-section">
+          <div class="prod-header">Products</div>
+          ${prods.length ? prods.map(p => `
+            <div class="prod-row">
+              <div class="prod-name">${p['ProductName'] || '—'}</div>
+              <div class="prod-unit">${p['Unit'] || ''}</div>
+            </div>`).join('') : `<div class="no-products">No products listed</div>`}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+init();
+</script>
+</body>
+</html>
