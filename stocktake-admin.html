@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Check — Admin</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; padding-bottom: 40px; }
+
+.header { background: #fff; border-bottom: 1px solid #efefef; padding: 16px; }
+.header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.back { width: 30px; height: 30px; border-radius: 50%; background: #f5f5f5; border: none; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #999; text-decoration: none; flex-shrink: 0; }
+.header-title { font-size: 16px; font-weight: 600; }
+.header-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+.filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-btn { padding: 6px 12px; border: 1px solid #efefef; border-radius: 20px; background: #f5f5f5; font-size: 12px; color: #666; cursor: pointer; font-family: inherit; }
+.filter-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+
+.body { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+.state-box { text-align: center; padding: 50px 20px; color: #aaa; font-size: 13px; }
+
+.section-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.section-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+.date-block { margin-bottom: 14px; }
+.date-heading { font-size: 12px; font-weight: 600; color: #666; margin-bottom: 6px; padding: 0 2px; }
+
+.supp-card { background: #fff; border: 1px solid #efefef; border-radius: 14px; overflow: hidden; margin-bottom: 8px; }
+.supp-hdr { display: flex; align-items: center; gap: 10px; padding: 12px 14px; cursor: pointer; }
+.supp-av { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.supp-name { font-size: 14px; font-weight: 500; flex: 1; }
+.supp-meta { font-size: 11px; color: #bbb; }
+.chev { font-size: 11px; color: #ccc; transition: transform 0.2s; }
+.supp-card.open .chev { transform: rotate(180deg); }
+.prod-list { display: none; border-top: 1px solid #f5f5f5; }
+.supp-card.open .prod-list { display: block; }
+.prod-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; border-bottom: 1px solid #f5f5f5; }
+.prod-row:last-child { border-bottom: none; }
+.prod-name { font-size: 13px; color: #1a1a1a; }
+.prod-qty { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+.prod-unit { font-size: 11px; color: #aaa; margin-left: 2px; }
+.submitted-by { font-size: 11px; color: #bbb; margin-top: 2px; }
+
+.clear-section { background: #fff; border: 1px solid #efefef; border-radius: 14px; padding: 16px; }
+.clear-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+.clear-desc { font-size: 12px; color: #aaa; margin-bottom: 14px; line-height: 1.5; }
+.clear-btn { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ffcdd2; background: #fff5f5; color: #c8102e; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
+.clear-btn:hover { background: #ffeaea; }
+
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <a class="back" href="/home">←</a>
+    <div>
+      <div class="header-title">Stock Check — Admin</div>
+      <div class="header-sub" id="hdr-sub">Loading…</div>
+    </div>
+  </div>
+  <div class="filter-row" id="site-filter">
+    <button class="filter-btn active" onclick="filterSite('',this)">All sites</button>
+    <button class="filter-btn" onclick="filterSite('Shoreditch',this)">Shoreditch</button>
+    <button class="filter-btn" onclick="filterSite('Battersea',this)">Battersea</button>
+    <button class="filter-btn" onclick="filterSite('Tower Bridge',this)">Tower Bridge</button>
+  </div>
+</div>
+
+<div class="body" id="body">
+  <div class="state-box">Loading…</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbys-Lf1PTUaFBBOecSwUZk6YvGlYZkfEVVX7-3aU-d4n2B_SuzVSKHnr-gAUKMObFb51g/exec';
+const SITE_COLORS = { 'Shoreditch': '#2563eb', 'Battersea': '#c8102e', 'Tower Bridge': '#059669' };
+const AV_COLORS = [
+  {bg:'#eef2ff',text:'#4a6cf7'},{bg:'#fef3eb',text:'#e05c2a'},
+  {bg:'#ecfdf5',text:'#0f9d6e'},{bg:'#f5f3ff',text:'#9333ea'},
+  {bg:'#fffbeb',text:'#d97706'},{bg:'#ecfeff',text:'#0891b2'},
+];
+
+let allData = [];
+let activeSite = '';
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function filterSite(site, btn) {
+  activeSite = site;
+  document.querySelectorAll('#site-filter .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render(allData);
+}
+
+function toggleCard(card) { card.classList.toggle('open'); }
+
+function normalizeDate(raw) {
+  if (!raw) return '';
+  if (typeof raw === 'string') {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+    const m = raw.match(/Date\((\d+),(\d+),(\d+)\)/);
+    if (m) return `${m[1]}-${String(+m[2]+1).padStart(2,'0')}-${String(+m[3]).padStart(2,'0')}`;
+  }
+  if (typeof raw === 'number') {
+    return new Date((raw - 25569) * 86400000).toISOString().split('T')[0];
+  }
+  return String(raw).slice(0,10);
+}
+
+function formatDate(d) {
+  const dt = new Date(d + 'T00:00:00');
+  const today = new Date().toISOString().split('T')[0];
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const prefix = d === today ? 'Today · ' : '';
+  return prefix + days[dt.getDay()] + ' ' + dt.getDate() + ' ' + months[dt.getMonth()];
+}
+
+async function fetchSheet(name) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}&headers=1`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  if (!json.table?.rows?.length) return [];
+  const cols = json.table.cols.map(c => c.label);
+  return json.table.rows.map(r => {
+    const obj = {};
+    cols.forEach((col, i) => { obj[col] = r.c[i]?.v ?? r.c[i]?.f ?? ''; });
+    return obj;
+  });
+}
+
+function render(data) {
+  const filtered = activeSite ? data.filter(r => r['Site'] === activeSite) : data;
+
+  if (!filtered.length) {
+    document.getElementById('body').innerHTML = `
+      <div class="state-box">No stock check data found</div>
+      ${clearSection()}`;
+    return;
+  }
+
+  // Group by date → site → supplier → products
+  const byDate = {};
+  filtered.forEach(r => {
+    const date = normalizeDate(r['Date']);
+    const site = r['Site'] || 'Unknown';
+    const supp = r['Supplier'] || 'Unknown';
+    if (!byDate[date]) byDate[date] = {};
+    if (!byDate[date][site]) byDate[date][site] = {};
+    if (!byDate[date][site][supp]) byDate[date][site][supp] = [];
+    byDate[date][site][supp].push(r);
+  });
+
+  const dates = Object.keys(byDate).sort().reverse();
+  document.getElementById('hdr-sub').textContent = `${filtered.length} records · ${dates.length} day${dates.length !== 1 ? 's' : ''}`;
+
+  let html = '';
+  dates.forEach(date => {
+    html += `<div class="date-block"><div class="date-heading">${formatDate(date)}</div>`;
+    const sites = Object.keys(byDate[date]);
+    sites.forEach(site => {
+      const color = SITE_COLORS[site] || '#888';
+      html += `<div class="section-label"><div class="section-dot" style="background:${color}"></div>${site}</div>`;
+      const supps = Object.keys(byDate[date][site]);
+      supps.forEach((supp, idx) => {
+        const col = AV_COLORS[idx % AV_COLORS.length];
+        const initials = supp.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+        const rows = byDate[date][site][supp];
+        html += `<div class="supp-card open" onclick="toggleCard(this)">
+          <div class="supp-hdr">
+            <div class="supp-av" style="background:${col.bg};color:${col.text}">${initials}</div>
+            <div class="supp-name">${supp}</div>
+            <div class="supp-meta">${rows.length} item${rows.length!==1?'s':''}</div>
+            <div class="chev">▼</div>
+          </div>
+          <div class="prod-list">`;
+        rows.forEach(r => {
+          html += `<div class="prod-row">
+            <div class="prod-name">${r['Product'] || '—'}</div>
+            <div><span class="prod-qty">${r['Quantity'] ?? '—'}</span><span class="prod-unit">${r['Unit'] || ''}</span></div>
+          </div>`;
+        });
+        html += `</div></div>`;
+      });
+    });
+    html += `</div>`;
+  });
+
+  html += clearSection();
+  document.getElementById('body').innerHTML = html;
+}
+
+function clearSection() {
+  return `<div class="clear-section">
+    <div class="clear-title">Clear stock check data</div>
+    <div class="clear-desc">Manually remove all stocktake records from the Sheet. Use this at the end of each week. This cannot be undone.</div>
+    <button class="clear-btn" onclick="clearData()">Clear all stock check records</button>
+  </div>`;
+}
+
+async function clearData() {
+  if (!confirm('Clear ALL stocktake records? This cannot be undone.')) return;
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'clear' })
+    });
+    showToast('✓ Records cleared');
+    setTimeout(() => location.reload(), 1000);
+  } catch(e) {
+    showToast('Failed. Try again.');
+  }
+}
+
+async function init() {
+  try {
+    allData = await fetchSheet('Stocktake');
+    render(allData);
+  } catch(e) {
+    document.getElementById('body').innerHTML = `<div class="state-box">⚠️ Failed to load. Check Sheet sharing settings.</div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
