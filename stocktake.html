@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Check</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; padding-bottom: 60px; }
+
+.header { background: #fff; border-bottom: 1px solid #efefef; padding: 16px; }
+.header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.back { width: 30px; height: 30px; border-radius: 50%; background: #f5f5f5; border: none; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #999; text-decoration: none; flex-shrink: 0; }
+.header-title { font-size: 16px; font-weight: 600; }
+.header-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+.selectors { display: flex; flex-direction: column; gap: 8px; }
+.sel-label { font-size: 11px; color: #aaa; margin-bottom: 3px; }
+.sel-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.sel-btn { padding: 7px 14px; border: 1px solid #efefef; border-radius: 20px; background: #f5f5f5; font-size: 13px; color: #666; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.sel-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+
+.body { padding: 16px; }
+.state-box { text-align: center; padding: 50px 20px; color: #aaa; font-size: 13px; }
+.state-icon { font-size: 32px; margin-bottom: 10px; }
+.state-title { font-size: 14px; font-weight: 500; color: #999; margin-bottom: 6px; }
+
+.item-card { background: #fff; border: 1px solid #efefef; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+.item-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.item-name { font-size: 15px; font-weight: 500; }
+.item-unit { font-size: 12px; color: #aaa; }
+.qty-row { display: flex; align-items: center; gap: 10px; }
+.qty-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #efefef; background: #f5f5f5; font-size: 20px; color: #666; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: inherit; }
+.qty-slider { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: #efefef; outline: none; cursor: pointer; }
+.qty-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #1a1a1a; cursor: pointer; }
+.qty-slider::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #1a1a1a; cursor: pointer; border: none; }
+.qty-val { font-size: 18px; font-weight: 600; min-width: 36px; text-align: center; }
+
+.submit-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #efefef; padding: 12px 16px; display: flex; gap: 10px; z-index: 100; }
+.submit-btn { flex: 1; padding: 14px; border-radius: 12px; border: none; background: #1a1a1a; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+.reset-btn { padding: 14px 18px; border-radius: 12px; border: 1px solid #efefef; background: #f5f5f5; color: #999; font-size: 14px; cursor: pointer; font-family: inherit; }
+
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <a class="back" href="/home">←</a>
+    <div>
+      <div class="header-title">Stock Check</div>
+      <div class="header-sub" id="hdr-date"></div>
+    </div>
+  </div>
+  <div class="selectors">
+    <div>
+      <div class="sel-label">SITE</div>
+      <div class="sel-row" id="site-row"></div>
+    </div>
+    <div>
+      <div class="sel-label">SUPPLIER</div>
+      <div class="sel-row" id="supp-row"></div>
+    </div>
+  </div>
+</div>
+
+<div class="body" id="body">
+  <div class="state-box"><div class="state-icon">☝️</div><div class="state-title">Select a site and supplier</div></div>
+</div>
+
+<div class="submit-bar">
+  <button class="reset-btn" onclick="resetAll()">Reset</button>
+  <button class="submit-btn" id="submit-btn" onclick="submitData()" disabled>Submit</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbys-Lf1PTUaFBBOecSwUZk6YvGlYZkfEVVX7-3aU-d4n2B_SuzVSKHnr-gAUKMObFb51g/exec';
+const SITES = ['Shoreditch', 'Battersea', 'Tower Bridge'];
+
+let selectedSite = '';
+let selectedSupp = '';
+let products = [];
+let quantities = {};
+
+function todayStr() {
+  const d = new Date();
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return days[d.getDay()] + ' ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+function showToast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+async function fetchSheet(name) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}&headers=1`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  if (!json.table?.rows?.length) return [];
+  const cols = json.table.cols.map(c => c.label);
+  return json.table.rows.map(r => {
+    const obj = {};
+    cols.forEach((col, i) => { obj[col] = r.c[i]?.v ?? r.c[i]?.f ?? ''; });
+    return obj;
+  });
+}
+
+async function init() {
+  document.getElementById('hdr-date').textContent = todayStr();
+  const [suppData, prodData] = await Promise.all([fetchSheet('Suppliers'), fetchSheet('Products')]);
+
+  // Site buttons
+  document.getElementById('site-row').innerHTML = SITES.map(s =>
+    `<button class="sel-btn" onclick="selectSite('${s}',this)">${s}</button>`
+  ).join('');
+
+  // Supplier buttons from sheet
+  const suppNames = [...new Set(suppData.map(s => s['SupplierName']).filter(Boolean))];
+  document.getElementById('supp-row').innerHTML = suppNames.map(s =>
+    `<button class="sel-btn" onclick="selectSupp('${s}',this)">${s}</button>`
+  ).join('');
+
+  // Store products globally
+  products = prodData;
+}
+
+function selectSite(site, btn) {
+  selectedSite = site;
+  document.querySelectorAll('#site-row .sel-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderItems();
+}
+
+function selectSupp(supp, btn) {
+  selectedSupp = supp;
+  quantities = {};
+  document.querySelectorAll('#supp-row .sel-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderItems();
+}
+
+function renderItems() {
+  if (!selectedSite || !selectedSupp) {
+    document.getElementById('body').innerHTML = `<div class="state-box"><div class="state-icon">☝️</div><div class="state-title">Select a site and supplier</div></div>`;
+    document.getElementById('submit-btn').disabled = true;
+    return;
+  }
+
+  const filtered = products.filter(p => p['SupplierName'] === selectedSupp);
+  if (!filtered.length) {
+    document.getElementById('body').innerHTML = `<div class="state-box"><div class="state-icon">📭</div><div class="state-title">No products found</div><div>Add products to the Products tab in the Sheet</div></div>`;
+    document.getElementById('submit-btn').disabled = true;
+    return;
+  }
+
+  filtered.forEach(p => { if (quantities[p['ProductName']] === undefined) quantities[p['ProductName']] = 0; });
+
+  document.getElementById('body').innerHTML = filtered.map(p => {
+    const name = p['ProductName'];
+    const unit = p['Unit'] || '';
+    const qty = quantities[name] || 0;
+    return `<div class="item-card">
+      <div class="item-top">
+        <div class="item-name">${name}</div>
+        <div class="item-unit">${unit}</div>
+      </div>
+      <div class="qty-row">
+        <button class="qty-btn" onclick="adjustQty('${name}',-1)">−</button>
+        <input class="qty-slider" type="range" min="0" max="100" step="1" value="${qty}"
+          oninput="onSlider('${name}',this.value)">
+        <div class="qty-val" id="qty-${name.replace(/\s+/g,'_')}">${qty}</div>
+        <button class="qty-btn" onclick="adjustQty('${name}',1)">+</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('submit-btn').disabled = false;
+}
+
+function onSlider(name, val) {
+  quantities[name] = parseInt(val);
+  document.getElementById('qty-' + name.replace(/\s+/g,'_')).textContent = val;
+}
+
+function adjustQty(name, delta) {
+  const newVal = Math.max(0, Math.min(100, (quantities[name] || 0) + delta));
+  quantities[name] = newVal;
+  const slider = document.querySelector(`input[oninput*="'${name}'"]`);
+  if (slider) slider.value = newVal;
+  const display = document.getElementById('qty-' + name.replace(/\s+/g,'_'));
+  if (display) display.textContent = newVal;
+}
+
+function resetAll() {
+  Object.keys(quantities).forEach(k => { quantities[k] = 0; });
+  renderItems();
+}
+
+async function submitData() {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  const date = new Date().toISOString().split('T')[0];
+  const rows = Object.entries(quantities).map(([product, qty]) => ({
+    date, site: selectedSite, supplier: selectedSupp, product, qty
+  }));
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'stocktake', rows })
+    });
+    showToast('✓ Submitted successfully');
+    resetAll();
+  } catch(e) {
+    showToast('Failed to submit. Try again.');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Submit';
+}
+
+init();
+</script>
+</body>
+</html>
