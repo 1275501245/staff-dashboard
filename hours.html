@@ -232,9 +232,34 @@ function checkPIN(){
 function lock(){ isMgr=false; render(); }
 
 // ── DATA UPDATES ──
-function upd(id,ds,f,v){ getE(ds,id)[f]=v; renderStats(); rerenderRow(id); }
+function upd(id,ds,f,v){ getE(ds,id)[f]=v; renderStats(); softUpdateRow(id,ds); }
 function clr(id,ds,f){ getE(ds,id)[f]=''; renderStats(); rerenderRow(id); }
 function toggleOff(id,ds){ const e=getE(ds,id); e.off=!e.off; rerenderRow(id); renderStats(); }
+
+// soft update: only refresh computed values (Worked, Paid, week total, clr buttons)
+// without touching focused inputs — prevents cursor jumping
+function softUpdateRow(id,ds){
+  const s=staff.find(x=>x.id===id);
+  if(!s)return;
+  const days=weekDays();
+  // update week paid total in header
+  let wkPaid=0;
+  days.forEach(d=>{const p=calcPaid(getE(dk(d),s.id));if(p!==null)wkPaid+=p;});
+  const wkEl=document.querySelector('#row-'+id+' .wk-paid-val');
+  if(wkEl){wkEl.textContent=wkPaid>0?fmtH(wkPaid):'—';wkEl.className='wk-paid-val '+(wkPaid>0?'has':'empty');}
+  // update each day's worked + paid display
+  days.forEach(d=>{
+    const dsk=dk(d);
+    const e=getE(dsk,s.id);
+    const worked=calcWorked(e);
+    const paid=calcPaid(e);
+    // worked span — find by data attribute
+    const wEl=document.querySelector('[data-worked="'+id+'_'+dsk+'"]');
+    if(wEl){wEl.textContent=worked!==null?fmtH(worked):'—';wEl.className='f-val'+(worked===null?' muted':'');}
+    const pEl=document.querySelector('[data-paid="'+id+'_'+dsk+'"]');
+    if(pEl){pEl.textContent=paid!==null?fmtH(paid):'—';pEl.className='paid-val '+(paid!==null&&paid>0?'paid-pos':'paid-zero');}
+  });
+}
 
 function rerenderRow(id){
   const days=weekDays();
@@ -316,19 +341,19 @@ function buildRow(s, days){
     // time inputs or values — with ✕ clear button
     const inEl = isMgr && !e.off
       ? `<div class="t-wrap">
-           <input type="time" class="f-inp t-inp" value="${e.in}" onchange="upd('${s.id}','${ds}','in',this.value)">
+           <input type="time" class="f-inp t-inp" value="${e.in}" onblur="upd('${s.id}','${ds}','in',this.value)">
            ${e.in?`<button class="clr-btn" onclick="clr('${s.id}','${ds}','in')">✕</button>`:''}
          </div>`
       : `<span class="f-val${e.in?'':' muted'}">${e.in||'—'}</span>`;
     const outEl = isMgr && !e.off
       ? `<div class="t-wrap">
-           <input type="time" class="f-inp t-inp" value="${e.out}" onchange="upd('${s.id}','${ds}','out',this.value)">
+           <input type="time" class="f-inp t-inp" value="${e.out}" onblur="upd('${s.id}','${ds}','out',this.value)">
            ${e.out?`<button class="clr-btn" onclick="clr('${s.id}','${ds}','out')">✕</button>`:''}
          </div>`
       : `<span class="f-val${e.out?'':' muted'}">${e.out||'—'}</span>`;
 
     // worked (read-only display)
-    const workedEl=`<span class="f-val${worked===null?' muted':''}">${worked!==null?fmtH(worked):'—'}</span>`;
+    const workedEl=`<span class="f-val${worked===null?' muted':''}" data-worked="${s.id}_${ds}">${worked!==null?fmtH(worked):'—'}</span>`;
 
     // break input
     const brkEl = isMgr && !e.off
@@ -351,7 +376,7 @@ function buildRow(s, days){
     // paid hrs
     const paidEl=`<div class="paid-row">
       <span class="paid-lbl">Paid hrs</span>
-      <span class="paid-val ${paid!==null&&paid>0?'paid-pos':'paid-zero'}">${paid!==null?fmtH(paid):'—'}</span>
+      <span class="paid-val ${paid!==null&&paid>0?'paid-pos':'paid-zero'}" data-paid="${s.id}_${ds}">${paid!==null?fmtH(paid):'—'}</span>
     </div>`;
 
     // off button
