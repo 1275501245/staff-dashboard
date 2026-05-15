@@ -55,6 +55,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .f-inp:focus{border-color:#1a1a1a;background:#fff}
 .f-inp[type=number]{-moz-appearance:textfield}
 .f-inp[type=number]::-webkit-inner-spin-button,.f-inp[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+.t-wrap{position:relative;margin-bottom:5px}
+.t-wrap .f-inp{margin-bottom:0;padding-right:24px}
+.clr-btn{position:absolute;right:5px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#ccc;font-size:11px;padding:2px;line-height:1}
+.clr-btn:hover{color:#888}
 .f-val{display:block;font-size:12px;font-family:ui-monospace,monospace;padding:5px 6px;background:#f5f5f5;border-radius:6px;color:#1a1a1a;margin-bottom:5px}
 .f-val.muted{color:#e5e7eb}
 .divider{border:none;border-top:1px solid #f0f0f0;margin:5px 0}
@@ -229,6 +233,7 @@ function lock(){ isMgr=false; render(); }
 
 // ── DATA UPDATES ──
 function upd(id,ds,f,v){ getE(ds,id)[f]=v; renderStats(); rerenderRow(id); }
+function clr(id,ds,f){ getE(ds,id)[f]=''; renderStats(); rerenderRow(id); }
 function toggleOff(id,ds){ const e=getE(ds,id); e.off=!e.off; rerenderRow(id); renderStats(); }
 
 function rerenderRow(id){
@@ -293,12 +298,18 @@ function buildRow(s, days){
           ? `<span class="site-tag ${SITE_CLS[e.site]||'site-none'}" style="margin-bottom:5px;display:inline-block">${e.site}</span>`
           : '');
 
-    // time inputs or values
+    // time inputs or values — with ✕ clear button
     const inEl = isMgr && !e.off
-      ? `<input type="time" class="f-inp" value="${e.in}" onchange="upd('${s.id}','${ds}','in',this.value)">`
+      ? `<div class="t-wrap">
+           <input type="time" class="f-inp t-inp" value="${e.in}" onchange="upd('${s.id}','${ds}','in',this.value)">
+           ${e.in?`<button class="clr-btn" onclick="clr('${s.id}','${ds}','in')">✕</button>`:''}
+         </div>`
       : `<span class="f-val${e.in?'':' muted'}">${e.in||'—'}</span>`;
     const outEl = isMgr && !e.off
-      ? `<input type="time" class="f-inp" value="${e.out}" onchange="upd('${s.id}','${ds}','out',this.value)">`
+      ? `<div class="t-wrap">
+           <input type="time" class="f-inp t-inp" value="${e.out}" onchange="upd('${s.id}','${ds}','out',this.value)">
+           ${e.out?`<button class="clr-btn" onclick="clr('${s.id}','${ds}','out')">✕</button>`:''}
+         </div>`
       : `<span class="f-val${e.out?'':' muted'}">${e.out||'—'}</span>`;
 
     // worked (read-only display)
@@ -306,12 +317,18 @@ function buildRow(s, days){
 
     // break input
     const brkEl = isMgr && !e.off
-      ? `<input type="number" class="f-inp" min="0" step="0.5" placeholder="0" value="${e.brk}" onchange="upd('${s.id}','${ds}','brk',this.value)">`
+      ? `<div class="t-wrap">
+           <input type="number" class="f-inp t-inp" min="0" step="0.5" placeholder="0" value="${e.brk}" oninput="upd('${s.id}','${ds}','brk',this.value)">
+           ${e.brk?`<button class="clr-btn" onclick="clr('${s.id}','${ds}','brk')">✕</button>`:''}
+         </div>`
       : `<span class="f-val${e.brk?'':' muted'}">${e.brk?e.brk+'h':'—'}</span>`;
 
     // adjust input + note
     const adjEl = isMgr && !e.off
-      ? `<input type="number" class="f-inp" step="0.5" placeholder="±0" value="${e.adj}" onchange="upd('${s.id}','${ds}','adj',this.value)">
+      ? `<div class="t-wrap">
+           <input type="number" class="f-inp t-inp" step="0.5" placeholder="±0" value="${e.adj}" oninput="upd('${s.id}','${ds}','adj',this.value)">
+           ${e.adj?`<button class="clr-btn" onclick="clr('${s.id}','${ds}','adj')">✕</button>`:''}
+         </div>
          <input type="text" class="note-inp" placeholder="Reason..." value="${e.adjNote}" onchange="upd('${s.id}','${ds}','adjNote',this.value)">`
       : `<span class="f-val${e.adj?'':' muted'}">${e.adj?(parseFloat(e.adj)>0?'+':'')+e.adj+'h':'—'}</span>
          ${e.adjNote?`<div class="note-txt">${e.adjNote}</div>`:''}`;
