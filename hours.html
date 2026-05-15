@@ -242,7 +242,22 @@ function rerenderRow(id){
   if(!s)return;
   const el=document.getElementById('row-'+id);
   if(!el)return;
+  // save scroll of every row before innerHTML swap
+  const scrolls={};
+  staff.forEach(sx=>{
+    const row=document.getElementById('row-'+sx.id);
+    if(row){const dr=row.querySelector('.days-row');if(dr)scrolls[sx.id]=dr.scrollLeft;}
+  });
   el.outerHTML=buildRow(s,days);
+  // restore all rows' scroll positions
+  requestAnimationFrame(()=>{
+    staff.forEach(sx=>{
+      if(scrolls[sx.id]!==undefined){
+        const row=document.getElementById('row-'+sx.id);
+        if(row){const dr=row.querySelector('.days-row');if(dr)dr.scrollLeft=scrolls[sx.id];}
+      }
+    });
+  });
 }
 
 // ── RENDER ──
