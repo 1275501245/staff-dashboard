@@ -101,9 +101,9 @@ let sheetData = [];
 function getWeekStart(offset) {
   const now = new Date();
   const day = now.getDay();
-  const daysFromSat = day === 6 ? 0 : day + 1;
+  const daysFromMon = day === 0 ? 6 : day - 1;
   const sat = new Date(now);
-  sat.setDate(now.getDate() - daysFromSat + offset * 7);
+  sat.setDate(now.getDate() - daysFromMon + offset * 7);
   sat.setHours(0, 0, 0, 0);
   return sat;
 }
