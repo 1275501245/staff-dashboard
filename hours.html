@@ -416,6 +416,51 @@ function buildRow(s, days){
 function changeWeek(n){ weekStart=new Date(weekStart); weekStart.setDate(weekStart.getDate()+n*7); render(); }
 function goToday(){ weekStart=getMonday(new Date()); render(); }
 
+// ── LOCAL CACHE ──
+function saveLocal(){
+  try{ localStorage.setItem('hoursData', JSON.stringify(D)); } catch(e){}
+}
+function loadLocal(){
+  try{
+    const raw=localStorage.getItem('hoursData');
+    if(raw) D=JSON.parse(raw);
+  } catch(e){}
+}
+
+// ── LOAD FROM SHEET ──
+async function loadFromSheet(){
+  const st=document.getElementById('save-st');
+  st.textContent='Loading...'; st.className='save-st';
+  try{
+    const res=await fetch(SCRIPT_URL+'?action=getAll');
+    const json=await res.json();
+    if(json.ok && json.data && json.data.length>0){
+      json.data.forEach(row=>{
+        const ds=row.date; const id=row.staffId;
+        if(!ds||!id)return;
+        if(!D[ds])D[ds]={};
+        D[ds][id]={
+          in:row.clockIn||'',
+          out:row.clockOut||'',
+          brk:row.breakMins?String(parseFloat(row.breakMins)/60):'',
+          adj:row.adjHours?String(row.adjHours):'',
+          adjNote:row.adjNote||'',
+          site:row.site||'',
+          off:row.off==='yes'
+        };
+      });
+      saveLocal();
+      render();
+      st.textContent='✓ Loaded'; st.className='save-st ok';
+      setTimeout(()=>{ st.textContent=''; },2000);
+    } else {
+      st.textContent=''; 
+    }
+  } catch(err){
+    st.textContent=''; 
+  }
+}
+
 // ── SAVE ──
 async function saveAll(){
   const btn=document.getElementById('save-btn');
@@ -423,16 +468,17 @@ async function saveAll(){
   btn.disabled=true; btn.textContent='Saving...';
   try{
     const days=weekDays();
-    const reqs=[];
+    const entries=[];
     days.forEach(d=>{
       const ds=dk(d);
       staff.forEach(s=>{
         const e=getE(ds,s.id);
+        // skip completely empty rows
+        if(!e.in && !e.out && !e.off && !e.site) return;
         const worked=calcWorked(e);
         const paid=calcPaid(e);
         const brkM=(parseFloat(e.brk)||0)*60;
-        reqs.push(fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({
-          action:'saveEntry',
+        entries.push({
           date:ds, staffId:s.id, staffName:s.name,
           site:e.site||'',
           schedIn:'', schedOut:'',
@@ -446,20 +492,35 @@ async function saveAll(){
           finalMins:paid||0,
           peak:'no',
           off:e.off?'yes':'no'
-        })}));
+        });
       });
     });
-    await Promise.all(reqs);
-    st.textContent='✓ Saved'; st.className='save-st ok';
+    if(entries.length===0){
+      st.textContent='Nothing to save'; st.className='save-st';
+      setTimeout(()=>{ st.textContent=''; },2000);
+      return;
+    }
+    // single batch request — no concurrency conflicts
+    await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'saveEntry',entries})});
+    saveLocal();
+    st.textContent=`✓ Saved ${entries.length} entries`; st.className='save-st ok';
     setTimeout(()=>{ st.textContent=''; },3000);
   } catch(err){
-    st.textContent='✗ Error'; st.className='save-st err';
+    st.textContent='✗ Error: '+err.message; st.className='save-st err';
   } finally{
     btn.disabled=false; btn.textContent='Save to Sheet';
   }
 }
 
+// intercept upd/clr to also save locally
+const _upd=upd; 
+function upd(id,ds,f,v){ getE(ds,id)[f]=v; saveLocal(); renderStats(); softUpdateRow(id,ds); }
+function clr(id,ds,f){ getE(ds,id)[f]=''; saveLocal(); renderStats(); rerenderRow(id); }
+
+// ── INIT ──
+loadLocal();   // restore from browser cache first (instant)
 render();
+loadFromSheet(); // then sync from Sheet in background
 </script>
 </body>
 </html>
