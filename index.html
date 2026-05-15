@@ -32,8 +32,6 @@
   .adjusted-note { margin-top: 6px; padding: 6px 12px; background: #fff8e1; border-radius: 8px; font-size: 11px; color: #856404; }
   .rate-note { margin-top: 8px; padding: 8px 12px; background: #f5f5f5; border-radius: 8px; font-size: 12px; color: #555; display: flex; justify-content: space-between; align-items: center; }
   .rate-val { font-weight: 600; }
-  .rate-ok { color: #2e7d32; }
-  .rate-bad { color: #c62828; }
   .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
   .stat { background: #f9f9f9; border-radius: 12px; padding: 12px 14px; }
   .stat-val { font-size: 22px; font-weight: 600; }
@@ -49,7 +47,7 @@
   .day-empty { background: #f5f5f5; color: #ccc; }
   .day-off { background: #f5f5f5; color: #bbb; font-size: 10px; }
   .day-today { box-shadow: 0 0 0 2px #1a1a1a; }
-  .day-penalty { font-size: 9px; color: #c62828; margin-top: 3px; }
+  .day-rate { font-size: 9px; margin-top: 3px; }
   .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-bottom: 6px; }
   .progress-bar { height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; }
   .progress-fill { height: 100%; background: #2e7d32; border-radius: 3px; }
@@ -87,12 +85,11 @@
 const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
 const STAFF = ['Prabin','Harshitha','Kin','Ashh','Surbhi','Barsudin'];
 const SITE = { Prabin:'Shoreditch', Harshitha:'Shoreditch', Kin:'Battersea', Ashh:'Tower Bridge', Surbhi:'Shoreditch', Barsudin:'Shoreditch' };
-const SPLIT = { Prabin: 2/3, Harshitha: 1/3, Surbhi: 0 };
 const HOURLY = 13.75;
 const FLOWER_TARGET = 7;
 const REWARD_HOURS = 2;
 const THRESHOLD = 0.02;
-const DAY_NAMES = ['Sat','Sun','Mon','Tue','Wed','Thu','Fri'];
+const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
 let currentOffset = 0;
 let selectedStaff = 'Prabin';
@@ -102,10 +99,10 @@ function getWeekStart(offset) {
   const now = new Date();
   const day = now.getDay();
   const daysFromMon = day === 0 ? 6 : day - 1;
-  const sat = new Date(now);
-  sat.setDate(now.getDate() - daysFromMon + offset * 7);
-  sat.setHours(0, 0, 0, 0);
-  return sat;
+  const mon = new Date(now);
+  mon.setDate(now.getDate() - daysFromMon + offset * 7);
+  mon.setHours(0, 0, 0, 0);
+  return mon;
 }
 
 function weekDates(weekStart) {
@@ -117,10 +114,7 @@ function weekDates(weekStart) {
 }
 
 function dateKey(d) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${dd}`;
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
 function fmtDate(d) {
@@ -172,19 +166,28 @@ function calcDay(data) {
   return { ok, rate, refund: data.refund, effectiveRefund: data.effectiveRefund, revenue: data.revenue, site: data.site, penaltyAmt, penaltyHrs, isAdjusted: data.isAdjusted };
 }
 
+function calcAllFlowers(name) {
+  const staffRows = sheetData.filter(r => r.staff === name && r.revenue > 0);
+  let totalFlowers = 0;
+  staffRows.forEach(r => {
+    const calc = calcDay(r);
+    if (calc && calc.ok) totalFlowers++;
+  });
+  return totalFlowers;
+}
+
 function calcWeek(name, dates) {
-  let flowers = 0, penaltyAmt = 0, penaltyHrs = 0;
+  let weekFlowers = 0, penaltyAmt = 0, penaltyHrs = 0;
   const days = dates.map(d => {
     const data = getStaffDay(name, dateKey(d));
     if (!data) return { status: 'empty' };
     if (data.revenue === 0) return { status: 'off' };
     const calc = calcDay(data);
-    if (calc.ok) flowers++;
+    if (calc.ok) weekFlowers++;
     else { penaltyAmt += calc.penaltyAmt; penaltyHrs += calc.penaltyHrs; }
     return { status: calc.ok ? 'ok' : 'bad', ...calc };
   });
-  const rewardHrs = Math.floor(flowers / FLOWER_TARGET) * REWARD_HOURS;
-  return { days, flowers, penaltyAmt, penaltyHrs, rewardHrs, net: rewardHrs - penaltyHrs };
+  return { days, weekFlowers, penaltyAmt, penaltyHrs };
 }
 
 function renderTabs() {
@@ -201,9 +204,15 @@ function renderContent() {
   const todayStr = dateKey(new Date());
   const name = selectedStaff;
   const c = calcWeek(name, dates);
+
+  // All-time flowers
+  const totalFlowers = calcAllFlowers(name);
+  const redeemedTimes = Math.floor(totalFlowers / FLOWER_TARGET);
+  const currentProgress = totalFlowers % FLOWER_TARGET;
+  const totalRewardHrs = redeemedTimes * REWARD_HOURS;
+
   const todayIdx = dates.findIndex(d => dateKey(d) === todayStr);
   const todayDay = todayIdx >= 0 ? c.days[todayIdx] : null;
-  const todayData = getStaffDay(name, todayStr);
 
   let todayHTML = '';
   if (todayDay && todayDay.status !== 'empty' && todayDay.status !== 'off') {
@@ -233,9 +242,7 @@ function renderContent() {
     todayHTML = `<div class="card"><div class="card-title">Today</div><p style="color:#aaa;font-size:14px;">No data yet</p></div>`;
   }
 
-  const progressPct = Math.round((c.flowers % FLOWER_TARGET) / FLOWER_TARGET * 100);
-  const netColor = c.net >= 0 ? '#2e7d32' : '#c62828';
-  const netClass = c.net >= 0 ? 'net-pos' : 'net-neg';
+  const progressPct = Math.round(currentProgress / FLOWER_TARGET * 100);
 
   const daysHTML = dates.map((d, i) => {
     const s = c.days[i];
@@ -245,10 +252,15 @@ function renderContent() {
     if (s.status === 'bad') { cls = 'day-bad'; icon = '✕'; }
     if (s.status === 'off') { cls = 'day-off'; icon = 'OFF'; }
     if (isToday) cls += ' day-today';
-    const penaltyLine = s.status === 'bad' ? `<div class="day-penalty">-£${s.penaltyAmt.toFixed(2)}</div>` : '';
-    const rateLine = (s.status === 'ok' || s.status === 'bad') ? `<div class="day-penalty" style="color:${s.ok?'#2e7d32':'#c62828'}">${(s.rate*100).toFixed(1)}%</div>` : '';
+    const rateLine = (s.status === 'ok' || s.status === 'bad')
+      ? `<div class="day-rate" style="color:${s.ok?'#2e7d32':'#c62828'}">${(s.rate*100).toFixed(1)}%</div>` : '';
     return `<div class="day-item"><div class="day-name">${DAY_NAMES[i]}</div><div class="day-dot ${cls}">${icon}</div>${rateLine}</div>`;
   }).join('');
+
+  const weekPenaltyHrs = c.penaltyHrs;
+  const netHrs = totalRewardHrs - weekPenaltyHrs;
+  const netColor = netHrs >= 0 ? '#2e7d32' : '#c62828';
+  const netClass = netHrs >= 0 ? 'net-pos' : 'net-neg';
 
   document.getElementById('content').innerHTML = `
     ${todayHTML}
@@ -256,18 +268,18 @@ function renderContent() {
       <div class="card-title">This week</div>
       <div class="days-grid">${daysHTML}</div>
       <div class="progress-label">
-        <span>Flower progress: ${c.flowers % FLOWER_TARGET} / ${FLOWER_TARGET}</span>
-        <span>${c.flowers} total · +${c.rewardHrs.toFixed(1)}h earned</span>
+        <span>Flower progress: ${currentProgress} / ${FLOWER_TARGET}</span>
+        <span>${totalFlowers} total · redeemed ${redeemedTimes}x</span>
       </div>
       <div class="progress-bar"><div class="progress-fill" style="width:${progressPct}%"></div></div>
     </div>
     <div class="stats-grid">
-      <div class="stat"><div class="stat-val green">+${c.rewardHrs.toFixed(1)}h</div><div class="stat-lbl">Reward hours</div></div>
-      <div class="stat"><div class="stat-val red">-£${c.penaltyAmt.toFixed(2)}<br><span style="font-size:13px;">${c.penaltyHrs.toFixed(2)}h</span></div><div class="stat-lbl">Penalty this week</div></div>
+      <div class="stat"><div class="stat-val green">+${totalRewardHrs.toFixed(1)}h</div><div class="stat-lbl">Total reward earned</div></div>
+      <div class="stat"><div class="stat-val red">-£${c.penaltyAmt.toFixed(2)}<br><span style="font-size:13px;">${weekPenaltyHrs.toFixed(2)}h</span></div><div class="stat-lbl">Penalty this week</div></div>
     </div>
     <div class="net-banner ${netClass}">
-      <div class="net-label">Net this week</div>
-      <div class="net-val" style="color:${netColor}">${c.net >= 0 ? '+' : ''}${c.net.toFixed(2)}h</div>
+      <div class="net-label">Net balance</div>
+      <div class="net-val" style="color:${netColor}">${netHrs >= 0 ? '+' : ''}${netHrs.toFixed(2)}h</div>
     </div>
   `;
 }
