@@ -10,6 +10,7 @@
     { "src": "/arrival", "dest": "/arrival.html" },
     { "src": "/stocktake", "dest": "/stocktake.html" },
     { "src": "/stocktake-admin", "dest": "/stocktake-admin.html" },
-    { "src": "/suppliers", "dest": "/suppliers.html" }
+    { "src": "/suppliers", "dest": "/suppliers.html" },
+    { "src": "/opening", "dest": "/opening.html" }
   ]
 }
