@@ -7,63 +7,87 @@
 <script src="staff-data.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;min-height:100vh}
-.header{background:#fff;border-bottom:1px solid #efefef;padding:14px 16px;position:sticky;top:0;z-index:100}
-.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.header-top h1{font-size:17px;font-weight:600}
-.back-btn{font-size:13px;color:#888;text-decoration:none}
-.today-btn{font-size:11px;color:#888;border:1px solid #e0e0e0;background:#fff;border-radius:6px;padding:4px 10px;cursor:pointer}
-.week-nav{display:flex;align-items:center;gap:8px}
-.week-nav button{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:5px 12px;font-size:15px;cursor:pointer;color:#1a1a1a}
-.week-label{font-size:13px;font-weight:500;flex:1;text-align:center}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;min-height:100vh;padding-bottom:88px}
+.hdr{background:#fff;border-bottom:1px solid #efefef;padding:14px 16px;position:sticky;top:0;z-index:100}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.hdr-top h1{font-size:17px;font-weight:600}
+.back{font-size:13px;color:#888;text-decoration:none}
+.today-btn{font-size:11px;color:#888;border:1px solid #e0e0e0;background:#fff;border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit}
+.wk-nav{display:flex;align-items:center;gap:8px}
+.wk-nav button{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:5px 12px;font-size:16px;cursor:pointer;color:#1a1a1a;font-family:inherit}
+.wk-lbl{font-size:13px;font-weight:500;flex:1;text-align:center}
 .lock-bar{background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#92400e}
 .lock-bar.hidden{display:none}
-.unlock-btn{background:#1a1a1a;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer}
-.stats-bar{display:flex;background:#fff;border-bottom:1px solid #efefef}
-.stat-item{flex:1;padding:10px 8px;text-align:center;border-right:1px solid #efefef}
-.stat-item:last-child{border-right:none}
-.stat-val{font-size:15px;font-weight:600}
-.stat-lbl{font-size:10px;color:#aaa;margin-top:1px}
-.pb{padding-bottom:80px}
-.staff-section{background:#fff;border-bottom:8px solid #f5f5f5}
-.staff-header{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid #f0f0f0;position:sticky;left:0;background:#fafafa}
-.staff-name{font-size:14px;font-weight:600}
-.week-total{margin-left:auto;font-size:13px;font-weight:600;font-family:ui-monospace,monospace;color:#16a34a}
-.week-total.empty{color:#d1d5db}
-.days-scroll{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.days-scroll::-webkit-scrollbar{display:none}
-.day-col{flex-shrink:0;width:105px;padding:10px 10px 8px;border-right:1px solid #f0f0f0}
-.day-col:last-child{border-right:none}
-.day-col.is-today{background:#f0fdf4}
-.day-col.is-off{background:#fff5f5}
-.day-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.day-name{font-size:10px;font-weight:600;color:#6b7280}
-.day-col.is-today .day-name{color:#16a34a}
-.day-date{font-size:10px;color:#d1d5db}
-.t-label{font-size:9px;color:#d1d5db;margin-bottom:2px;text-transform:uppercase;letter-spacing:.03em}
-.t-inp{display:block;width:100%;font-size:12px;font-family:ui-monospace,monospace;padding:4px 6px;background:#f5f5f5;border:1.5px solid transparent;border-radius:6px;outline:none;color:#1a1a1a;margin-bottom:5px;cursor:pointer}
-.t-inp:focus{border-color:#1a1a1a;background:#fff}
-.t-val{display:block;font-size:12px;font-family:ui-monospace,monospace;padding:4px 6px;background:#f5f5f5;border-radius:6px;color:#1a1a1a;margin-bottom:5px}
-.t-val.empty{color:#e5e7eb}
+.unlock-btn{background:#1a1a1a;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:inherit}
+.stats{display:flex;background:#fff;border-bottom:1px solid #efefef}
+.st{flex:1;padding:10px 8px;text-align:center;border-right:1px solid #efefef}
+.st:last-child{border-right:none}
+.st-v{font-size:15px;font-weight:600}
+.st-l{font-size:10px;color:#aaa;margin-top:1px}
+
+/* STAFF BLOCK */
+.staff-block{background:#fff;border-bottom:8px solid #f5f5f5}
+.staff-hdr{display:flex;align-items:center;padding:11px 16px;background:#fafafa;border-bottom:1px solid #f0f0f0;gap:8px}
+.staff-nm{font-size:14px;font-weight:600}
+.wk-summary{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.wk-paid-val{font-size:14px;font-weight:700;font-family:ui-monospace,monospace}
+.wk-paid-val.has{color:#16a34a}
+.wk-paid-val.empty{color:#d1d5db}
+.wk-paid-lbl{font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.03em}
+
+/* DAYS SCROLL */
+.days-row{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.days-row::-webkit-scrollbar{display:none}
+
+/* DAY CELL */
+.day{flex-shrink:0;width:118px;padding:10px 9px;border-right:1px solid #f0f0f0}
+.day:last-child{border-right:none}
+.day.today{background:#f0fdf4}
+.day.is-off{background:#fff8f8}
+.day-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.d-name{font-size:10px;font-weight:600;color:#9ca3af;text-transform:uppercase}
+.day.today .d-name{color:#16a34a}
+.d-date{font-size:10px;color:#e5e7eb}
+
+/* INPUTS */
+.f-lbl{font-size:9px;color:#d1d5db;margin-bottom:2px;text-transform:uppercase;letter-spacing:.03em}
+.f-inp{display:block;width:100%;font-size:12px;font-family:ui-monospace,monospace;padding:5px 6px;background:#f5f5f5;border:1.5px solid transparent;border-radius:6px;outline:none;color:#1a1a1a;margin-bottom:5px;-webkit-appearance:none}
+.f-inp:focus{border-color:#1a1a1a;background:#fff}
+.f-inp[type=number]{-moz-appearance:textfield}
+.f-inp[type=number]::-webkit-inner-spin-button,.f-inp[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+.f-val{display:block;font-size:12px;font-family:ui-monospace,monospace;padding:5px 6px;background:#f5f5f5;border-radius:6px;color:#1a1a1a;margin-bottom:5px}
+.f-val.muted{color:#e5e7eb}
 .divider{border:none;border-top:1px solid #f0f0f0;margin:5px 0}
-.row2{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
-.brk-btn{font-size:10px;padding:2px 5px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;line-height:1.4}
-.brk-auto{background:#f3f4f6;color:#9ca3af}
-.brk-yes{background:#dcfce7;color:#16a34a}
-.brk-no{background:#fee2e2;color:#dc2626}
-.final{font-size:12px;font-weight:600;font-family:ui-monospace,monospace}
-.final-ok{color:#16a34a}
-.final-warn{color:#d97706}
-.final-empty{color:#e5e7eb}
-.adj-row{display:flex;align-items:center;gap:3px;margin-top:3px}
-.adj-lbl{font-size:9px;color:#d1d5db}
-.adj-inp{font-size:11px;font-family:ui-monospace,monospace;width:46px;padding:2px 4px;background:#f5f5f5;border:1px solid #e5e7eb;border-radius:4px;outline:none}
-.adj-val{font-size:11px;font-family:ui-monospace,monospace;color:#9ca3af}
-.peak-btn{font-size:12px;background:none;border:none;cursor:pointer;padding:0;line-height:1}
+
+/* SITE */
+.site-wrap{margin-bottom:5px}
+.site-sel{display:block;width:100%;font-size:11px;padding:4px 20px 4px 6px;background:#f5f5f5 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23bbb'/%3E%3C/svg%3E") no-repeat right 6px center;border:1.5px solid transparent;border-radius:6px;outline:none;color:#6b7280;cursor:pointer;font-family:inherit;-webkit-appearance:none;appearance:none}
+.site-sel:focus{border-color:#1a1a1a}
+.site-tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500}
+.site-bat{background:#dbeafe;color:#1d4ed8}
+.site-sho{background:#dcfce7;color:#166534}
+.site-tow{background:#fef3c7;color:#92400e}
+.site-none{background:#f3f4f6;color:#9ca3af}
+
+/* PAID HRS */
+.paid-row{display:flex;align-items:center;justify-content:space-between;margin-top:5px}
+.paid-lbl{font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.03em}
+.paid-val{font-size:14px;font-weight:700;font-family:ui-monospace,monospace}
+.paid-pos{color:#16a34a}
+.paid-zero{color:#d1d5db}
+
+/* NOTE */
+.note-inp{display:block;width:100%;font-size:10px;padding:3px 6px;background:transparent;border:none;border-bottom:1px solid #f0f0f0;outline:none;color:#9ca3af;margin-top:4px;font-family:inherit}
+.note-inp::placeholder{color:#e5e7eb}
+.note-txt{font-size:10px;color:#bbb;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:italic}
+
+/* OFF */
 .off-btn{display:block;width:100%;margin-top:6px;font-size:10px;padding:4px;border-radius:6px;border:none;cursor:pointer;font-family:inherit;text-align:center}
-.off-btn.is-off{background:#fee2e2;color:#dc2626;font-weight:500}
-.off-btn.not-off{background:#f3f4f6;color:#9ca3af}
-.off-label{display:block;text-align:center;font-size:11px;font-weight:600;color:#dc2626;padding:8px 0}
+.off-btn.is-off{background:#fee2e2;color:#dc2626;font-weight:600}
+.off-btn.not-off{background:#f3f4f6;color:#bbb}
+.off-label{display:block;text-align:center;font-size:11px;font-weight:600;color:#dc2626;padding:10px 0}
+
+/* SAVE BAR */
 .save-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #efefef;padding:10px 16px;display:flex;gap:10px;align-items:center;z-index:50}
 .save-bar.hidden{display:none}
 .save-btn{flex:1;background:#1a1a1a;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
@@ -71,7 +95,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .save-st{font-size:12px;white-space:nowrap}
 .save-st.ok{color:#16a34a}
 .save-st.err{color:#dc2626}
-.lock-btn2{background:none;border:1px solid #e0e0e0;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;color:#6b7280;white-space:nowrap}
+.lock-btn{background:none;border:1px solid #e0e0e0;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;color:#6b7280;font-family:inherit}
+
+/* PIN MODAL */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:300}
 .modal-bg.open{display:flex}
 .modal{background:#fff;border-radius:20px;padding:28px 24px;width:290px;max-width:92vw;text-align:center}
@@ -82,24 +108,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .pin-dot.filled{background:#1a1a1a}
 .pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:210px;margin:0 auto}
 .p-key{background:#f5f5f5;border:none;border-radius:10px;padding:14px;font-size:18px;font-weight:500;cursor:pointer;font-family:inherit}
-.p-key:active{background:#e5e7eb}
+.p-key:active{background:#e5e7eb;transform:scale(.96)}
 .p-key.del{font-size:14px;color:#6b7280}
 .p-key.blank{background:transparent;cursor:default}
 .pin-err{font-size:12px;color:#dc2626;margin-top:10px;min-height:16px}
-.modal-cancel{margin-top:12px;background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;font-family:inherit}
+.modal-cancel{margin-top:14px;background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;font-family:inherit}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-top">
-    <a class="back-btn" href="/home.html">‹ Home</a>
+<div class="hdr">
+  <div class="hdr-top">
+    <a class="back" href="/home.html">‹ Home</a>
     <h1>Staff Hours</h1>
     <button class="today-btn" onclick="goToday()">Today</button>
   </div>
-  <div class="week-nav">
+  <div class="wk-nav">
     <button onclick="changeWeek(-1)">‹</button>
-    <span class="week-label" id="week-label"></span>
+    <span class="wk-lbl" id="wk-lbl"></span>
     <button onclick="changeWeek(1)">›</button>
   </div>
 </div>
@@ -109,20 +135,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <button class="unlock-btn" onclick="showPIN()">Manager login</button>
 </div>
 
-<div class="stats-bar" id="stats-bar"></div>
-
-<div class="pb" id="table-wrap"></div>
+<div class="stats" id="stats"></div>
+<div id="table"></div>
 
 <div class="save-bar hidden" id="save-bar">
-  <button class="save-btn" id="save-btn" onclick="saveToSheet()">Save to Sheet</button>
+  <button class="save-btn" id="save-btn" onclick="saveAll()">Save to Sheet</button>
   <span class="save-st" id="save-st"></span>
-  <button class="lock-btn2" onclick="lockManager()">Lock</button>
+  <button class="lock-btn" onclick="lock()">Lock</button>
 </div>
 
 <div class="modal-bg" id="pin-modal">
   <div class="modal">
     <h3>Manager login</h3>
-    <p class="modal-sub">Enter PIN to enable editing</p>
+    <p class="modal-sub">Enter your PIN to edit</p>
     <div class="pin-dots">
       <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
       <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
@@ -139,7 +164,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="p-key" onclick="pp('9')">9</button>
       <button class="p-key blank"></button>
       <button class="p-key" onclick="pp('0')">0</button>
-      <button class="p-key del" onclick="pd()">⌫</button>
+      <button class="p-key del" onclick="pdel()">⌫</button>
     </div>
     <div class="pin-err" id="pin-err"></div>
     <button class="modal-cancel" onclick="closePIN()">Cancel</button>
@@ -147,178 +172,233 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbyh_F4jPG5xRFkaYskJOrvBBui7bx-hCVlK1RPeCSn7PFq_W7F3FvVWtrQtnnX-fWKrbA/exec';
-const MGR_PIN='1234'; // ← change to your PIN
-const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const BIZ_OPEN='09:00', BIZ_CLOSE='22:00';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyh_F4jPG5xRFkaYskJOrvBBui7bx-hCVlK1RPeCSn7PFq_W7F3FvVWtrQtnnX-fWKrbA/exec';
+const MGR_PIN = '1234'; // ← change to your PIN
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const SITES = ['','Battersea','Shoreditch','Tower Bridge'];
+const SITE_CLS = {'Battersea':'site-bat','Shoreditch':'site-sho','Tower Bridge':'site-tow','':'site-none'};
 
-let isManager=false;
-let weekStart=getMonday(new Date());
-let data={};
-let pinVal='';
+let isMgr = false;
+let weekStart = getMonday(new Date());
+let D = {}; // { dateStr: { staffId: {in,out,brk,adj,adjNote,site,off} } }
+let pinVal = '';
 
-const staff=STAFF_LIST.map(n=>({id:n.toLowerCase().replace(/\s+/g,'_'),name:n}));
+const staff = STAFF_LIST.map(n => ({id: n.toLowerCase().replace(/\s+/g,'_'), name: n}));
 
-function dk(d){return d.toISOString().slice(0,10);}
-function toM(t){if(!t)return null;const[h,m]=t.split(':').map(Number);return h*60+m;}
-function fmtH(m){return(m/60).toFixed(1)+'h';}
-function getMonday(d){const c=new Date(d);const day=c.getDay();c.setDate(c.getDate()-(day===0?6:day-1));c.setHours(0,0,0,0);return c;}
-function isToday(d){return dk(d)===dk(new Date());}
-function weekDays(){return Array.from({length:7},(_,i)=>{const d=new Date(weekStart);d.setDate(d.getDate()+i);return d;});}
-function bizM(){const o=toM(BIZ_OPEN),c=toM(BIZ_CLOSE);return(o&&c)?c-o:0;}
+// ── UTILS ──
+function dk(d){ return d.toISOString().slice(0,10); }
+function toM(t){ if(!t||t==='')return null; const[h,m]=t.split(':').map(Number); return h*60+m; }
+function fmtH(m){ return (m/60).toFixed(1)+'h'; }
+function getMonday(d){ const c=new Date(d),day=c.getDay(); c.setDate(c.getDate()-(day===0?6:day-1)); c.setHours(0,0,0,0); return c; }
+function isToday(d){ return dk(d)===dk(new Date()); }
+function weekDays(){ return Array.from({length:7},(_,i)=>{ const d=new Date(weekStart); d.setDate(d.getDate()+i); return d; }); }
 
-function getE(ds,id){
-  if(!data[ds])data[ds]={};
-  if(!data[ds][id])data[ds][id]={in:'',out:'',brk:null,adj:'',note:'',peak:false,off:false};
-  return data[ds][id];
+function getE(ds, id){
+  if(!D[ds]) D[ds]={};
+  if(!D[ds][id]) D[ds][id]={in:'',out:'',brk:'',adj:'',adjNote:'',site:'',off:false};
+  return D[ds][id];
 }
 
-function presentCount(ds){
-  return staff.filter(s=>{const e=getE(ds,s.id);return !e.off&&toM(e.in)!==null&&toM(e.out)!==null&&toM(e.out)>toM(e.in);}).length;
+function calcPaid(e){
+  const i=toM(e.in), o=toM(e.out);
+  if(e.off||i===null||o===null||o<=i) return null;
+  const worked = o - i;
+  const brkM = (parseFloat(e.brk)||0) * 60;
+  const adjM = (parseFloat(e.adj)||0) * 60;
+  return Math.max(0, worked - brkM + adjM);
 }
 
-function calcBreak(e,workedM,ds){
-  if(e.peak||e.brk===false)return 0;
-  if(e.brk===true)return presentCount(ds)>=2?30:60;
-  const half=bizM()/2;
-  if(workedM<half)return 0;
-  return presentCount(ds)>=2?30:60;
+function calcWorked(e){
+  const i=toM(e.in), o=toM(e.out);
+  if(e.off||i===null||o===null||o<=i) return null;
+  return o - i;
 }
 
-function calc(e,ds){
-  if(e.off)return{worked:0,brk:0,paid:0,final:0,has:false};
-  const i=toM(e.in),o=toM(e.out);
-  if(!i||!o||o<=i)return{worked:0,brk:0,paid:0,final:0,has:false};
-  const worked=o-i,brk=calcBreak(e,worked,ds),paid=worked-brk;
-  const adj=(parseFloat(e.adj)||0)*60;
-  return{worked,brk,paid,final:paid+adj,has:true};
-}
-
-function upd(id,ds,f,v){getE(ds,id)[f]=v;render();}
-function cycleBreak(id,ds){const e=getE(ds,id);e.brk=e.brk===null?true:e.brk===true?false:null;render();}
-function togglePeak(id,ds){const e=getE(ds,id);e.peak=!e.peak;e.brk=e.peak?false:null;render();}
-function toggleOff(id,ds){getE(ds,id).off=!getE(ds,id).off;render();}
-function changeWeek(n){weekStart=new Date(weekStart);weekStart.setDate(weekStart.getDate()+n*7);render();}
-function goToday(){weekStart=getMonday(new Date());render();}
-function lockManager(){isManager=false;render();}
-
-function showPIN(){pinVal='';dots();document.getElementById('pin-err').textContent='';document.getElementById('pin-modal').classList.add('open');}
-function closePIN(){document.getElementById('pin-modal').classList.remove('open');}
-function pp(d){if(pinVal.length>=4)return;pinVal+=d;dots();if(pinVal.length===4)setTimeout(checkPIN,120);}
-function pd(){pinVal=pinVal.slice(0,-1);dots();}
-function dots(){for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('filled',i<pinVal.length);}
+// ── PIN ──
+function showPIN(){ pinVal=''; dots(); document.getElementById('pin-err').textContent=''; document.getElementById('pin-modal').classList.add('open'); }
+function closePIN(){ document.getElementById('pin-modal').classList.remove('open'); }
+function pp(d){ if(pinVal.length>=4)return; pinVal+=d; dots(); if(pinVal.length===4) setTimeout(checkPIN,130); }
+function pdel(){ pinVal=pinVal.slice(0,-1); dots(); }
+function dots(){ for(let i=0;i<4;i++) document.getElementById('pd'+i).classList.toggle('filled',i<pinVal.length); }
 function checkPIN(){
-  if(pinVal===MGR_PIN){isManager=true;closePIN();render();}
-  else{document.getElementById('pin-err').textContent='Incorrect PIN';pinVal='';dots();}
+  if(pinVal===MGR_PIN){ isMgr=true; closePIN(); render(); }
+  else{ document.getElementById('pin-err').textContent='Incorrect PIN'; pinVal=''; dots(); }
+}
+function lock(){ isMgr=false; render(); }
+
+// ── DATA UPDATES ──
+function upd(id,ds,f,v){ getE(ds,id)[f]=v; renderStats(); rerenderRow(id); }
+function toggleOff(id,ds){ const e=getE(ds,id); e.off=!e.off; rerenderRow(id); renderStats(); }
+
+function rerenderRow(id){
+  const days=weekDays();
+  const s=staff.find(x=>x.id===id);
+  if(!s)return;
+  const el=document.getElementById('row-'+id);
+  if(!el)return;
+  el.outerHTML=buildRow(s,days);
 }
 
+// ── RENDER ──
 function render(){
   const days=weekDays();
   const ms=days[0].getDate()+' '+MONTHS[days[0].getMonth()];
   const me=days[6].getDate()+' '+MONTHS[days[6].getMonth()]+' '+days[6].getFullYear();
-  document.getElementById('week-label').textContent=ms+' – '+me;
-  document.getElementById('lock-bar').classList.toggle('hidden',isManager);
-  document.getElementById('save-bar').classList.toggle('hidden',!isManager);
-
-  let totFinal=0,totEntries=0;
-  days.forEach(d=>{const ds=dk(d);staff.forEach(s=>{const c=calc(getE(ds,s.id),ds);if(c.has){totFinal+=c.final;totEntries++;}});});
-  document.getElementById('stats-bar').innerHTML=`
-    <div class="stat-item"><div class="stat-val">${staff.length}</div><div class="stat-lbl">Staff</div></div>
-    <div class="stat-item"><div class="stat-val">${fmtH(totFinal)}</div><div class="stat-lbl">Week total</div></div>
-    <div class="stat-item"><div class="stat-val">${totEntries}</div><div class="stat-lbl">Logged</div></div>
-  `;
-
-  document.getElementById('table-wrap').innerHTML=staff.map(s=>{
-    let wkTotal=0;
-    const cols=days.map((d,di)=>{
-      const ds=dk(d);const e=getE(ds,s.id);const c=calc(e,ds);
-      if(c.has)wkTotal+=c.final;
-      const todayCls=isToday(d)?'is-today':'';
-      const offCls=e.off?'is-off':'';
-
-      const inF=isManager&&!e.off
-        ?`<input type="time" class="t-inp" value="${e.in}" onchange="upd('${s.id}','${ds}','in',this.value)">`
-        :`<span class="t-val${e.in?'':' empty'}">${e.in||'—'}</span>`;
-      const outF=isManager&&!e.off
-        ?`<input type="time" class="t-inp" value="${e.out}" onchange="upd('${s.id}','${ds}','out',this.value)">`
-        :`<span class="t-val${e.out?'':' empty'}">${e.out||'—'}</span>`;
-
-      const brkCls=e.peak?'brk-no':e.brk===true?'brk-yes':e.brk===false?'brk-no':'brk-auto';
-      const brkTxt=e.peak?'No brk':e.brk===true?'Brk ✓':e.brk===false?'No brk':'Auto';
-      const brkEl=c.has&&!e.off
-        ?(isManager
-          ?`<button class="brk-btn ${brkCls}" onclick="cycleBreak('${s.id}','${ds}')">${brkTxt}</button>`
-          :`<span class="brk-btn ${brkCls}" style="cursor:default">${brkTxt}</span>`)
-        :'';
-
-      const finalCls=!c.has||e.off?'final-empty':'final-ok';
-      const finalTxt=e.off?'Off':c.has?fmtH(c.final):'—';
-
-      const adjEl=isManager&&!e.off
-        ?`<span class="adj-lbl">adj</span><input type="number" class="adj-inp" step="0.5" placeholder="±" value="${e.adj}" onchange="upd('${s.id}','${ds}','adj',this.value)">`
-        :(e.adj?`<span class="adj-val">${parseFloat(e.adj)>0?'+':''}${e.adj}h</span>`:'');
-
-      const peakEl=isManager
-        ?`<button class="peak-btn" onclick="togglePeak('${s.id}','${ds}')" title="Peak no-break">${e.peak?'⚡':'·'}</button>`
-        :(e.peak?'<span>⚡</span>':'');
-
-      const offEl=isManager
-        ?`<button class="off-btn ${e.off?'is-off':'not-off'}" onclick="toggleOff('${s.id}','${ds}')">${e.off?'DAY OFF':'Set off'}</button>`
-        :(e.off?'<span class="off-label">DAY OFF</span>':'');
-
-      return `<div class="day-col ${todayCls} ${offCls}">
-        <div class="day-top"><span class="day-name">${DAYS[di]}</span><span class="day-date">${d.getDate()}/${d.getMonth()+1}</span></div>
-        ${!e.off?`
-          <div class="t-label">In</div>${inF}
-          <div class="t-label">Out</div>${outF}
-          <hr class="divider">
-          <div class="row2">${brkEl}<span class="final ${finalCls}">${finalTxt}</span></div>
-          <div class="adj-row">${adjEl}${peakEl}</div>
-        `:''}
-        ${offEl}
-      </div>`;
-    }).join('');
-
-    return `<div class="staff-section">
-      <div class="staff-header">
-        <span class="staff-name">${s.name}</span>
-        <span class="week-total${wkTotal===0?' empty':''}">${wkTotal?fmtH(wkTotal):'—'}</span>
-      </div>
-      <div class="days-scroll">${cols}</div>
-    </div>`;
-  }).join('');
+  document.getElementById('wk-lbl').textContent=ms+' – '+me;
+  document.getElementById('lock-bar').classList.toggle('hidden',isMgr);
+  document.getElementById('save-bar').classList.toggle('hidden',!isMgr);
+  renderStats();
+  document.getElementById('table').innerHTML=staff.map(s=>buildRow(s,days)).join('');
 }
 
-async function saveToSheet(){
+function renderStats(){
+  const days=weekDays();
+  let totPaid=0,entries=0,staffWithHrs=new Set();
+  days.forEach(d=>{
+    const ds=dk(d);
+    staff.forEach(s=>{
+      const p=calcPaid(getE(ds,s.id));
+      if(p!==null){ totPaid+=p; entries++; staffWithHrs.add(s.id); }
+    });
+  });
+  document.getElementById('stats').innerHTML=`
+    <div class="st"><div class="st-v">${staff.length}</div><div class="st-l">Staff</div></div>
+    <div class="st"><div class="st-v">${fmtH(totPaid)}</div><div class="st-l">Week paid hrs</div></div>
+    <div class="st"><div class="st-v">${entries}</div><div class="st-l">Entries</div></div>
+  `;
+}
+
+function buildRow(s, days){
+  // weekly paid total
+  let wkPaid=0;
+  days.forEach(d=>{ const p=calcPaid(getE(dk(d),s.id)); if(p!==null)wkPaid+=p; });
+
+  const cols=days.map((d,di)=>{
+    const ds=dk(d);
+    const e=getE(ds,s.id);
+    const worked=calcWorked(e);
+    const paid=calcPaid(e);
+    const todayCls=isToday(d)?'today':'';
+    const offCls=e.off?'is-off':'';
+
+    // site
+    const siteEl = isMgr && !e.off
+      ? `<div class="site-wrap">
+          <select class="site-sel" onchange="upd('${s.id}','${ds}','site',this.value)">
+            ${SITES.map(sv=>`<option value="${sv}"${e.site===sv?' selected':''}>${sv||'— site —'}</option>`).join('')}
+          </select>
+        </div>`
+      : (e.site
+          ? `<span class="site-tag ${SITE_CLS[e.site]||'site-none'}" style="margin-bottom:5px;display:inline-block">${e.site}</span>`
+          : '');
+
+    // time inputs or values
+    const inEl = isMgr && !e.off
+      ? `<input type="time" class="f-inp" value="${e.in}" onchange="upd('${s.id}','${ds}','in',this.value)">`
+      : `<span class="f-val${e.in?'':' muted'}">${e.in||'—'}</span>`;
+    const outEl = isMgr && !e.off
+      ? `<input type="time" class="f-inp" value="${e.out}" onchange="upd('${s.id}','${ds}','out',this.value)">`
+      : `<span class="f-val${e.out?'':' muted'}">${e.out||'—'}</span>`;
+
+    // worked (read-only display)
+    const workedEl=`<span class="f-val${worked===null?' muted':''}">${worked!==null?fmtH(worked):'—'}</span>`;
+
+    // break input
+    const brkEl = isMgr && !e.off
+      ? `<input type="number" class="f-inp" min="0" step="0.5" placeholder="0" value="${e.brk}" onchange="upd('${s.id}','${ds}','brk',this.value)">`
+      : `<span class="f-val${e.brk?'':' muted'}">${e.brk?e.brk+'h':'—'}</span>`;
+
+    // adjust input + note
+    const adjEl = isMgr && !e.off
+      ? `<input type="number" class="f-inp" step="0.5" placeholder="±0" value="${e.adj}" onchange="upd('${s.id}','${ds}','adj',this.value)">
+         <input type="text" class="note-inp" placeholder="Reason..." value="${e.adjNote}" onchange="upd('${s.id}','${ds}','adjNote',this.value)">`
+      : `<span class="f-val${e.adj?'':' muted'}">${e.adj?(parseFloat(e.adj)>0?'+':'')+e.adj+'h':'—'}</span>
+         ${e.adjNote?`<div class="note-txt">${e.adjNote}</div>`:''}`;
+
+    // paid hrs
+    const paidEl=`<div class="paid-row">
+      <span class="paid-lbl">Paid hrs</span>
+      <span class="paid-val ${paid!==null&&paid>0?'paid-pos':'paid-zero'}">${paid!==null?fmtH(paid):'—'}</span>
+    </div>`;
+
+    // off button
+    const offEl = isMgr
+      ? `<button class="off-btn ${e.off?'is-off':'not-off'}" onclick="toggleOff('${s.id}','${ds}')">${e.off?'DAY OFF':'Set off'}</button>`
+      : (e.off?`<span class="off-label">DAY OFF</span>`:'');
+
+    return `<div class="day ${todayCls} ${offCls}">
+      <div class="day-hdr"><span class="d-name">${DAYS[di]}</span><span class="d-date">${d.getDate()}/${d.getMonth()+1}</span></div>
+      ${siteEl}
+      ${!e.off?`
+        <div class="f-lbl">In</div>${inEl}
+        <div class="f-lbl">Out</div>${outEl}
+        <div class="divider"></div>
+        <div class="f-lbl">Worked</div>${workedEl}
+        <div class="f-lbl">Break (h)</div>${brkEl}
+        <div class="f-lbl">Adjust (h)</div>${adjEl}
+        ${paidEl}
+      `:''}
+      ${offEl}
+    </div>`;
+  }).join('');
+
+  return `<div class="staff-block" id="row-${s.id}">
+    <div class="staff-hdr">
+      <span class="staff-nm">${s.name}</span>
+      <div class="wk-summary">
+        <span class="wk-paid-val ${wkPaid>0?'has':'empty'}">${wkPaid>0?fmtH(wkPaid):'—'}</span>
+        <span class="wk-paid-lbl">Week paid</span>
+      </div>
+    </div>
+    <div class="days-row">${cols}</div>
+  </div>`;
+}
+
+// ── NAV ──
+function changeWeek(n){ weekStart=new Date(weekStart); weekStart.setDate(weekStart.getDate()+n*7); render(); }
+function goToday(){ weekStart=getMonday(new Date()); render(); }
+
+// ── SAVE ──
+async function saveAll(){
   const btn=document.getElementById('save-btn');
   const st=document.getElementById('save-st');
-  btn.disabled=true;btn.textContent='Saving...';
+  btn.disabled=true; btn.textContent='Saving...';
   try{
     const days=weekDays();
     const reqs=[];
     days.forEach(d=>{
       const ds=dk(d);
       staff.forEach(s=>{
-        const e=getE(ds,s.id);const c=calc(e,ds);
+        const e=getE(ds,s.id);
+        const worked=calcWorked(e);
+        const paid=calcPaid(e);
+        const brkM=(parseFloat(e.brk)||0)*60;
         reqs.push(fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({
-          action:'saveEntry',date:ds,staffId:s.id,staffName:s.name,
-          site:'',schedIn:'',schedOut:'',
-          clockIn:e.in||'',clockOut:e.out||'',
-          workedMins:c.worked,hasBreak:e.brk===true?'yes':e.brk===false?'no':'auto',
-          breakMins:c.brk,paidMins:c.paid,
-          adjHours:parseFloat(e.adj)||0,adjNote:e.note||'',
-          finalMins:c.final,peak:e.peak?'yes':'no',off:e.off?'yes':'no'
+          action:'saveEntry',
+          date:ds, staffId:s.id, staffName:s.name,
+          site:e.site||'',
+          schedIn:'', schedOut:'',
+          clockIn:e.in||'', clockOut:e.out||'',
+          workedMins:worked||0,
+          hasBreak:e.brk&&parseFloat(e.brk)>0?'yes':'no',
+          breakMins:brkM,
+          paidMins:paid||0,
+          adjHours:parseFloat(e.adj)||0,
+          adjNote:e.adjNote||'',
+          finalMins:paid||0,
+          peak:'no',
+          off:e.off?'yes':'no'
         })}));
       });
     });
     await Promise.all(reqs);
-    st.textContent='✓ Saved';st.className='save-st ok';
-    setTimeout(()=>{st.textContent='';},3000);
-  }catch(err){
-    st.textContent='✗ Error';st.className='save-st err';
-  }finally{
-    btn.disabled=false;btn.textContent='Save to Sheet';
+    st.textContent='✓ Saved'; st.className='save-st ok';
+    setTimeout(()=>{ st.textContent=''; },3000);
+  } catch(err){
+    st.textContent='✗ Error'; st.className='save-st err';
+  } finally{
+    btn.disabled=false; btn.textContent='Save to Sheet';
   }
 }
 
