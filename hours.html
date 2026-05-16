@@ -436,47 +436,62 @@ async function loadFromSheet(){
   const st=document.getElementById('save-st');
   st.textContent='↓ Syncing...'; st.className='save-st';
   try{
-    // Try POST first
-    const res=await fetch(SCRIPT_URL,{
-      method:'POST',
-      body:JSON.stringify({action:'getAll'}),
-      headers:{'Content-Type':'text/plain'},
-    });
-    const text=await res.text();
-    let json;
-    try{ json=JSON.parse(text); }
-    catch(e){ throw new Error('Bad response: '+text.slice(0,100)); }
+    // Read via Google Sheets public CSV — no CORS issues
+    const SHEET_ID='1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=DailyHours`;
+    const res=await fetch(url);
+    const csv=await res.text();
+    const lines=csv.trim().split('\n');
+    if(lines.length<2){ st.textContent=''; return; }
     
-    if(!json.ok){ throw new Error(json.error||'getAll failed'); }
+    // Parse CSV headers
+    const headers=lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim());
+    const idx={};
+    headers.forEach((h,i)=>idx[h]=i);
     
-    const rows=json.data||[];
     let loaded=0;
-    D={}; // clear first — Sheet is source of truth
-    rows.forEach(row=>{
-      const ds=String(row.date||'').trim();
-      const id=String(row.staffId||'').trim();
+    D={}; // Sheet is source of truth
+    
+    lines.slice(1).forEach(line=>{
+      // Parse CSV line handling quoted fields
+      const cols=[];
+      let cur='', inQ=false;
+      for(let i=0;i<line.length;i++){
+        if(line[i]==='"'){ inQ=!inQ; }
+        else if(line[i]===','&&!inQ){ cols.push(cur); cur=''; }
+        else cur+=line[i];
+      }
+      cols.push(cur);
+      
+      const get=h=>( cols[idx[h]]||'' ).replace(/^"|"$/g,'').trim();
+      const ds=get('date');
+      const id=get('staffId');
       if(!ds||!id)return;
-      if(!row.clockIn && !row.clockOut && row.off!=='yes') return;
+      
+      const clockIn=get('clockIn');
+      const clockOut=get('clockOut');
+      const off=get('off');
+      if(!clockIn&&!clockOut&&off!=='yes')return;
+      
       if(!D[ds])D[ds]={};
+      const brkMins=parseFloat(get('breakMins'))||0;
+      const adjH=parseFloat(get('adjHours'))||0;
       D[ds][id]={
-        in:row.clockIn||'',
-        out:row.clockOut||'',
-        brk:row.breakMins&&parseFloat(row.breakMins)>0?String(parseFloat(row.breakMins)/60):'',
-        adj:row.adjHours&&parseFloat(row.adjHours)!==0?String(row.adjHours):'',
-        adjNote:row.adjNote||'',
-        site:row.site||'',
-        off:row.off==='yes'
+        in:clockIn,
+        out:clockOut,
+        brk:brkMins>0?String(brkMins/60):'',
+        adj:adjH!==0?String(adjH):'',
+        adjNote:get('adjNote'),
+        site:get('site'),
+        off:off==='yes'
       };
       loaded++;
     });
+    
     snapshot=JSON.parse(JSON.stringify(D));
     saveLocal();
     render();
-    if(loaded>0){
-      st.textContent='✓ '+loaded+' entries loaded'; st.className='save-st ok';
-    } else {
-      st.textContent='✓ Connected'; st.className='save-st ok';
-    }
+    st.textContent='✓ '+loaded+' entries loaded'; st.className='save-st ok';
     setTimeout(()=>{ st.textContent=''; },2000);
   } catch(err){
     st.textContent='⚠ Sync failed'; st.className='save-st err';
