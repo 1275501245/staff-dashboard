@@ -471,7 +471,8 @@ async function loadFromSheet(){
       const clockIn=get('clockIn');
       const clockOut=get('clockOut');
       const off=get('off');
-      if(!clockIn&&!clockOut&&off!=='yes')return;
+      const isOff=off==='yes'||off==='TRUE'||off==='true'||off==='1';
+      if(!clockIn&&!clockOut&&!isOff)return;
       
       if(!D[ds])D[ds]={};
       const brkMins=parseFloat(get('breakMins'))||0;
@@ -483,7 +484,7 @@ async function loadFromSheet(){
         adj:adjH!==0?String(adjH):'',
         adjNote:get('adjNote'),
         site:get('site'),
-        off:off==='yes'
+        off:isOff
       };
       loaded++;
     });
