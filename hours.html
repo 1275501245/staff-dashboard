@@ -473,8 +473,8 @@ async function saveAll(){
       const ds=dk(d);
       staff.forEach(s=>{
         const e=getE(ds,s.id);
-        // skip completely empty rows
-        if(!e.in && !e.out && !e.off && !e.site) return;
+        // only save if clock in OR clock out is filled, or explicitly marked off
+        if(!e.in && !e.out && !e.off) return;
         const worked=calcWorked(e);
         const paid=calcPaid(e);
         const brkM=(parseFloat(e.brk)||0)*60;
