@@ -206,8 +206,11 @@ function getE(ds, id){
 
 function calcPaid(e){
   const i=toM(e.in), o=toM(e.out);
-  if(e.off||i===null||o===null||o<=i) return null;
-  const worked = o - i;
+  if(e.off||i===null||o===null) return null;
+  // support overnight: if out < in, add 24h
+  const adj_o = o < i ? o + 1440 : o;
+  if(adj_o <= i) return null;
+  const worked = adj_o - i;
   const brkM = (parseFloat(e.brk)||0) * 60;
   const adjM = (parseFloat(e.adj)||0) * 60;
   return Math.max(0, worked - brkM + adjM);
@@ -215,8 +218,11 @@ function calcPaid(e){
 
 function calcWorked(e){
   const i=toM(e.in), o=toM(e.out);
-  if(e.off||i===null||o===null||o<=i) return null;
-  return o - i;
+  if(e.off||i===null||o===null) return null;
+  // support overnight: if out < in, add 24h
+  const adj_o = o < i ? o + 1440 : o;
+  if(adj_o <= i) return null;
+  return adj_o - i;
 }
 
 // ── PIN ──
@@ -319,14 +325,14 @@ function buildRow(s, days){
       ? `<div class="t-wrap">
            <input type="time" class="f-inp t-inp" value="${e.in}"
              onchange="updTime('${s.id}','${ds}','in',this.value,this)">
-           ${e.in?`<button class="clr-btn" onclick="clr('${s.id}','${ds}','in')">✕</button>`:''}
+           <button class="clr-btn" data-clr="${s.id}_${ds}_in" onclick="clr('${s.id}','${ds}','in')" style="${e.in?'':'display:none'}">✕</button>
          </div>`
       : `<span class="f-val${e.in?'':' muted'}">${e.in||'—'}</span>`;
     const outEl = isMgr && !e.off
       ? `<div class="t-wrap">
            <input type="time" class="f-inp t-inp" value="${e.out}"
              onchange="updTime('${s.id}','${ds}','out',this.value,this)">
-           ${e.out?`<button class="clr-btn" onclick="clr('${s.id}','${ds}','out')">✕</button>`:''}
+           <button class="clr-btn" data-clr="${s.id}_${ds}_out" onclick="clr('${s.id}','${ds}','out')" style="${e.out?'':'display:none'}">✕</button>
          </div>`
       : `<span class="f-val${e.out?'':' muted'}">${e.out||'—'}</span>`;
 
@@ -490,32 +496,70 @@ async function saveAll(){
   }
 }
 
-// ── DATA UPDATES (single definition) ──
+// ── DATA UPDATES ──
+// Update data + refresh only computed display values (no DOM rebuild = no jumping)
 function upd(id,ds,f,v){
   getE(ds,id)[f]=v;
   saveLocal();
+  refreshCalc(id,ds);
   renderStats();
-  rerenderRow(id);
 }
 
-// For time inputs: save focused element path, rerender, restore focus
+function clr(id,ds,f){
+  getE(ds,id)[f]='';
+  saveLocal();
+  // full rerender only for clear (removes the ✕ button itself)
+  rerenderRow(id);
+  renderStats();
+}
+
+// updTime: same as upd but for time inputs (onchange on mobile fires after picker closes)
 function updTime(id,ds,field,val,el){
   getE(ds,id)[field]=val;
   saveLocal();
+  refreshCalc(id,ds);
   renderStats();
-  // find position of this input among all time inputs in this row
-  const row=document.getElementById('row-'+id);
-  const allInputs=row?Array.from(row.querySelectorAll('.t-inp')):[];
-  const idx=allInputs.indexOf(el);
-  rerenderRow(id);
-  // restore focus to same position input
-  if(idx>=0){
-    const row2=document.getElementById('row-'+id);
-    const inputs2=row2?row2.querySelectorAll('.t-inp'):[];
-    if(inputs2[idx]) inputs2[idx].focus();
+}
+
+// Refresh only the computed spans (Worked + Paid + week total) — no DOM rebuild
+function refreshCalc(id,ds){
+  const days=weekDays();
+  const s=staff.find(x=>x.id===id);
+  if(!s)return;
+
+  // update all 7 days for this staff member
+  days.forEach(d=>{
+    const dsk=dk(d);
+    const e=getE(dsk,s.id);
+    const worked=calcWorked(e);
+    const paid=calcPaid(e);
+
+    const wEl=document.querySelector('[data-worked="'+id+'_'+dsk+'"]');
+    if(wEl){
+      wEl.textContent=worked!==null?fmtH(worked):'—';
+      wEl.className='f-val'+(worked===null?' muted':'');
+    }
+    const pEl=document.querySelector('[data-paid="'+id+'_'+dsk+'"]');
+    if(pEl){
+      pEl.textContent=paid!==null?fmtH(paid):'—';
+      pEl.className='paid-val '+(paid!==null&&paid>0?'paid-pos':'paid-zero');
+    }
+    // show/hide ✕ button for time inputs
+    ['in','out'].forEach(field=>{
+      const inp=document.querySelector('[data-clr="'+id+'_'+dsk+'_'+field+'"]');
+      if(inp) inp.style.display=e[field]?'':'none';
+    });
+  });
+
+  // update week total in row header
+  let wkPaid=0;
+  days.forEach(d=>{const p=calcPaid(getE(dk(d),s.id));if(p!==null)wkPaid+=p;});
+  const wkEl=document.querySelector('#row-'+id+' .wk-paid-val');
+  if(wkEl){
+    wkEl.textContent=wkPaid>0?fmtH(wkPaid):'—';
+    wkEl.className='wk-paid-val '+(wkPaid>0?'has':'empty');
   }
 }
-function clr(id,ds,f){ getE(ds,id)[f]=''; saveLocal(); renderStats(); rerenderRow(id); }
 
 // ── INIT ──
 loadLocal();   // restore from browser cache first (instant)
