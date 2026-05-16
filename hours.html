@@ -117,6 +117,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .p-key.blank{background:transparent;cursor:default}
 .pin-err{font-size:12px;color:#dc2626;margin-top:10px;min-height:16px}
 .modal-cancel{margin-top:14px;background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;font-family:inherit}
+.identity-screen{position:fixed;inset:0;background:#f5f5f5;display:flex;align-items:center;justify-content:center;z-index:500;padding:24px}
+.identity-box{background:#fff;border-radius:20px;padding:32px 24px;width:100%;max-width:340px;text-align:center}
+.identity-box h2{font-size:18px;font-weight:600;margin-bottom:6px}
+.identity-box p{font-size:13px;color:#aaa;margin-bottom:24px}
+.staff-btn{display:block;width:100%;padding:13px;margin-bottom:10px;background:#f5f5f5;border:none;border-radius:10px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;text-align:left;padding-left:16px}
+.staff-btn:hover{background:#efefef}
+.staff-btn:active{background:#e5e5e5}
+.mgr-link{margin-top:16px;display:block;font-size:12px;color:#bbb;cursor:pointer;background:none;border:none;font-family:inherit}
 </style>
 </head>
 <body>
@@ -146,6 +154,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <button class="save-btn" id="save-btn" onclick="saveAll()">Save to Sheet</button>
   <span class="save-st" id="save-st"></span>
   <button class="lock-btn" onclick="lock()">Lock</button>
+</div>
+
+<!-- IDENTITY SCREEN -->
+<div class="identity-screen" id="identity-screen">
+  <div class="identity-box">
+    <h2>Staff Hours</h2>
+    <p>Who are you?</p>
+    <div id="staff-btn-list"></div>
+    <button class="mgr-link" onclick="showPIN()">Login with PIN</button>
+  </div>
 </div>
 
 <div class="modal-bg" id="pin-modal">
@@ -178,12 +196,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyh_F4jPG5xRFkaYskJOrvBBui7bx-hCVlK1RPeCSn7PFq_W7F3FvVWtrQtnnX-fWKrbA/exec';
 const MGR_PIN = '1234'; // ← change to your PIN
+const CONTRACTOR_PIN = '5678'; // ← contractor (view all, read-only)
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const SITES = ['','Battersea','Shoreditch','Tower Bridge'];
 const SITE_CLS = {'Battersea':'site-bat','Shoreditch':'site-sho','Tower Bridge':'site-tow','':'site-none'};
 
 let isMgr = false;
+let isContractor = false;
+let currentUser = null; // null = not selected, 'mgr' = manager, staffId = staff
 let weekStart = getMonday(new Date());
 let D = {}; // { dateStr: { staffId: {in,out,brk,adj,adjNote,site,off} } }
 let pinVal = '';
@@ -235,7 +256,7 @@ function checkPIN(){
   if(pinVal===MGR_PIN){ isMgr=true; closePIN(); render(); }
   else{ document.getElementById('pin-err').textContent='Incorrect PIN'; pinVal=''; dots(); }
 }
-function lock(){ isMgr=false; render(); }
+function lock(){ isMgr=false; isContractor=false; currentUser=null; document.getElementById('identity-screen').style.display='flex'; }
 
 // ── DATA UPDATES ──
 function toggleOff(id,ds){ const e=getE(ds,id); e.off=!e.off; rerenderRow(id); renderStats(); }
@@ -275,8 +296,13 @@ function render(){
   document.getElementById('wk-lbl').textContent=ms+' – '+me;
   document.getElementById('lock-bar').classList.toggle('hidden',isMgr);
   document.getElementById('save-bar').classList.toggle('hidden',!isMgr);
+  document.getElementById('lock-bar').classList.toggle('hidden', isMgr||isContractor);
   renderStats();
-  document.getElementById('table').innerHTML=staff.map(s=>buildRow(s,days)).join('');
+  // filter: staff see only themselves, manager sees all
+  const visibleStaff = (isMgr || isContractor) ? staff : staff.filter(s => s.id === currentUser);
+  document.getElementById('table').innerHTML = visibleStaff.length
+    ? visibleStaff.map(s=>buildRow(s,days)).join('')
+    : '<div style="text-align:center;padding:3rem;color:#bbb;font-size:14px">No data found</div>';
 }
 
 function renderStats(){
@@ -598,10 +624,52 @@ function refreshCalc(id,ds){
   }
 }
 
+// ── IDENTITY ──
+function initIdentity(){
+  // Build staff buttons
+  const list = document.getElementById('staff-btn-list');
+  list.innerHTML = STAFF_LIST.map(name => {
+    const id = name.toLowerCase().replace(/\s+/g,'_');
+    return `<button class="staff-btn" onclick="selectUser('${id}','${name}')">${name}</button>`;
+  }).join('');
+}
+
+function selectUser(id, name){
+  currentUser = id;
+  document.getElementById('identity-screen').style.display = 'none';
+  loadLocal();
+  render();
+  loadFromSheet();
+}
+
+// Override showPIN to hide identity screen after unlock
+const _origCheckPIN = checkPIN;
+function checkPIN(){
+  if(pinVal === MGR_PIN){
+    isMgr = true; isContractor = false;
+    currentUser = 'mgr';
+    document.getElementById('identity-screen').style.display = 'none';
+    closePIN();
+    loadLocal();
+    render();
+    loadFromSheet();
+  } else if(pinVal === CONTRACTOR_PIN){
+    isContractor = true; isMgr = false;
+    currentUser = 'contractor';
+    document.getElementById('identity-screen').style.display = 'none';
+    closePIN();
+    loadLocal();
+    render();
+    loadFromSheet();
+  } else {
+    document.getElementById('pin-err').textContent = 'Incorrect PIN';
+    pinVal = ''; dots();
+  }
+}
+
 // ── INIT ──
-loadLocal();   // restore from browser cache first (instant)
-render();
-loadFromSheet(); // then sync from Sheet in background
+initIdentity();
+// Don't auto-load — wait for identity selection
 </script>
 </body>
 </html>
