@@ -445,6 +445,7 @@ async function loadFromSheet(){
         loaded++;
       });
       if(loaded>0){
+        snapshot = JSON.parse(JSON.stringify(D)); // save clean snapshot
         saveLocal();
         render();
         st.textContent='✓ Synced '+loaded+' entries'; st.className='save-st ok';
@@ -475,6 +476,12 @@ async function saveAll(){
         const e=getE(ds,s.id);
         // only save if clock in OR clock out is filled, or explicitly marked off
         if(!e.in && !e.out && !e.off) return;
+        // skip if identical to what was loaded from Sheet (no changes)
+        const snap = (snapshot[ds]||{})[s.id]||{};
+        const changed = e.in!==snap.in || e.out!==snap.out || e.brk!==snap.brk ||
+                        e.adj!==snap.adj || e.adjNote!==snap.adjNote ||
+                        e.site!==snap.site || e.off!==snap.off;
+        if(!changed) return;
         const worked=calcWorked(e);
         const paid=calcPaid(e);
         const brkM=(parseFloat(e.brk)||0)*60;
@@ -509,6 +516,12 @@ async function saveAll(){
     const saveJson = await saveRes.json();
     if(!saveJson.ok) throw new Error(saveJson.error||'Save failed');
     saveLocal();
+    // update snapshot to reflect what's now in Sheet
+    entries.forEach(en => {
+      if(!snapshot[en.date]) snapshot[en.date]={};
+      const e=getE(en.date,en.staffId);
+      snapshot[en.date][en.staffId]=JSON.parse(JSON.stringify(e));
+    });
     st.textContent=`✓ Saved ${entries.length} entries`; st.className='save-st ok';
     setTimeout(()=>{ st.textContent=''; },3000);
   } catch(err){
