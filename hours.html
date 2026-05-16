@@ -236,28 +236,6 @@ function toggleOff(id,ds){ const e=getE(ds,id); e.off=!e.off; rerenderRow(id); r
 
 // soft update: only refresh computed values (Worked, Paid, week total, clr buttons)
 // without touching focused inputs — prevents cursor jumping
-function softUpdateRow(id,ds){
-  const s=staff.find(x=>x.id===id);
-  if(!s)return;
-  const days=weekDays();
-  // update week paid total in header
-  let wkPaid=0;
-  days.forEach(d=>{const p=calcPaid(getE(dk(d),s.id));if(p!==null)wkPaid+=p;});
-  const wkEl=document.querySelector('#row-'+id+' .wk-paid-val');
-  if(wkEl){wkEl.textContent=wkPaid>0?fmtH(wkPaid):'—';wkEl.className='wk-paid-val '+(wkPaid>0?'has':'empty');}
-  // update each day's worked + paid display
-  days.forEach(d=>{
-    const dsk=dk(d);
-    const e=getE(dsk,s.id);
-    const worked=calcWorked(e);
-    const paid=calcPaid(e);
-    // worked span — find by data attribute
-    const wEl=document.querySelector('[data-worked="'+id+'_'+dsk+'"]');
-    if(wEl){wEl.textContent=worked!==null?fmtH(worked):'—';wEl.className='f-val'+(worked===null?' muted':'');}
-    const pEl=document.querySelector('[data-paid="'+id+'_'+dsk+'"]');
-    if(pEl){pEl.textContent=paid!==null?fmtH(paid):'—';pEl.className='paid-val '+(paid!==null&&paid>0?'paid-pos':'paid-zero');}
-  });
-}
 
 function rerenderRow(id){
   const days=weekDays();
@@ -339,13 +317,15 @@ function buildRow(s, days){
     // time inputs or values — with ✕ clear button
     const inEl = isMgr && !e.off
       ? `<div class="t-wrap">
-           <input type="time" class="f-inp t-inp" value="${e.in}" onblur="upd('${s.id}','${ds}','in',this.value)">
+           <input type="time" class="f-inp t-inp" value="${e.in}"
+             onchange="updTime('${s.id}','${ds}','in',this.value,this)">
            ${e.in?`<button class="clr-btn" onclick="clr('${s.id}','${ds}','in')">✕</button>`:''}
          </div>`
       : `<span class="f-val${e.in?'':' muted'}">${e.in||'—'}</span>`;
     const outEl = isMgr && !e.off
       ? `<div class="t-wrap">
-           <input type="time" class="f-inp t-inp" value="${e.out}" onblur="upd('${s.id}','${ds}','out',this.value)">
+           <input type="time" class="f-inp t-inp" value="${e.out}"
+             onchange="updTime('${s.id}','${ds}','out',this.value,this)">
            ${e.out?`<button class="clr-btn" onclick="clr('${s.id}','${ds}','out')">✕</button>`:''}
          </div>`
       : `<span class="f-val${e.out?'':' muted'}">${e.out||'—'}</span>`;
@@ -511,7 +491,30 @@ async function saveAll(){
 }
 
 // ── DATA UPDATES (single definition) ──
-function upd(id,ds,f,v){ getE(ds,id)[f]=v; saveLocal(); renderStats(); softUpdateRow(id,ds); }
+function upd(id,ds,f,v){
+  getE(ds,id)[f]=v;
+  saveLocal();
+  renderStats();
+  rerenderRow(id);
+}
+
+// For time inputs: save focused element path, rerender, restore focus
+function updTime(id,ds,field,val,el){
+  getE(ds,id)[field]=val;
+  saveLocal();
+  renderStats();
+  // find position of this input among all time inputs in this row
+  const row=document.getElementById('row-'+id);
+  const allInputs=row?Array.from(row.querySelectorAll('.t-inp')):[];
+  const idx=allInputs.indexOf(el);
+  rerenderRow(id);
+  // restore focus to same position input
+  if(idx>=0){
+    const row2=document.getElementById('row-'+id);
+    const inputs2=row2?row2.querySelectorAll('.t-inp'):[];
+    if(inputs2[idx]) inputs2[idx].focus();
+  }
+}
 function clr(id,ds,f){ getE(ds,id)[f]=''; saveLocal(); renderStats(); rerenderRow(id); }
 
 // ── INIT ──
