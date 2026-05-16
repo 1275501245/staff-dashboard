@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Staff Hours</title>
-<script src="staff-data.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;min-height:100vh;padding-bottom:88px}
@@ -117,14 +116,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .p-key.blank{background:transparent;cursor:default}
 .pin-err{font-size:12px;color:#dc2626;margin-top:10px;min-height:16px}
 .modal-cancel{margin-top:14px;background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;font-family:inherit}
-.identity-screen{position:fixed;inset:0;background:#f5f5f5;display:flex;align-items:center;justify-content:center;z-index:400;padding:24px}
-.identity-box{background:#fff;border-radius:20px;padding:32px 24px;width:100%;max-width:340px;text-align:center}
-.identity-box h2{font-size:18px;font-weight:600;margin-bottom:6px}
-.identity-box p{font-size:13px;color:#aaa;margin-bottom:24px}
-.staff-btn{display:block;width:100%;padding:13px;margin-bottom:10px;background:#f5f5f5;border:none;border-radius:10px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;text-align:left;padding-left:16px}
-.staff-btn:hover{background:#efefef}
-.staff-btn:active{background:#e5e5e5}
-.mgr-link{margin-top:16px;display:block;font-size:12px;color:#bbb;cursor:pointer;background:none;border:none;font-family:inherit}
 </style>
 </head>
 <body>
@@ -154,43 +145,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <button class="save-btn" id="save-btn" onclick="saveAll()">Save to Sheet</button>
   <span class="save-st" id="save-st"></span>
   <button class="lock-btn" onclick="lock()">Lock</button>
-</div>
-
-<!-- IDENTITY SCREEN -->
-<div class="identity-screen" id="identity-screen">
-  <div class="identity-box">
-    <h2>Staff Hours</h2>
-    <p>Who are you?</p>
-    <div id="staff-btn-list"></div>
-  </div>
-</div>
-
-<!-- STAFF PIN MODAL -->
-<div class="modal-bg" id="staff-pin-modal">
-  <div class="modal">
-    <h3 id="staff-pin-title">Enter your PIN</h3>
-    <p class="modal-sub">Your personal 4-digit PIN</p>
-    <div class="pin-dots">
-      <div class="pin-dot" id="spd0"></div><div class="pin-dot" id="spd1"></div>
-      <div class="pin-dot" id="spd2"></div><div class="pin-dot" id="spd3"></div>
-    </div>
-    <div class="pin-pad">
-      <button class="p-key" onclick="spp('1')">1</button>
-      <button class="p-key" onclick="spp('2')">2</button>
-      <button class="p-key" onclick="spp('3')">3</button>
-      <button class="p-key" onclick="spp('4')">4</button>
-      <button class="p-key" onclick="spp('5')">5</button>
-      <button class="p-key" onclick="spp('6')">6</button>
-      <button class="p-key" onclick="spp('7')">7</button>
-      <button class="p-key" onclick="spp('8')">8</button>
-      <button class="p-key" onclick="spp('9')">9</button>
-      <button class="p-key blank"></button>
-      <button class="p-key" onclick="spp('0')">0</button>
-      <button class="p-key del" onclick="spd()">⌫</button>
-    </div>
-    <div class="pin-err" id="staff-pin-err"></div>
-    <button class="modal-cancel" onclick="closeStaffPIN()">Cancel</button>
-  </div>
 </div>
 
 <div class="modal-bg" id="pin-modal">
@@ -223,27 +177,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyh_F4jPG5xRFkaYskJOrvBBui7bx-hCVlK1RPeCSn7PFq_W7F3FvVWtrQtnnX-fWKrbA/exec';
 const MGR_PIN = '3020'; // ← change to your PIN
-const CONTRACTOR_PIN = '8461'; // ← contractor (view all, read-only)
-const STAFF_PINS = {
-  'prabin':    '2847',
-  'harshitha': '5193',
-  'kin':       '7362',
-  'ashh':      '4815',
-  'surbhi':    '9234',
-  'barsudin':  '6571',
-};
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const SITES = ['','Battersea','Shoreditch','Tower Bridge'];
 const SITE_CLS = {'Battersea':'site-bat','Shoreditch':'site-sho','Tower Bridge':'site-tow','':'site-none'};
 
 let isMgr = false;
-let isContractor = false;
-let currentUser = null; // null = not selected, 'mgr' = manager, staffId = staff
-let pendingUser = null; // staff id waiting for PIN verification
 let weekStart = getMonday(new Date());
 let D = {}; // { dateStr: { staffId: {in,out,brk,adj,adjNote,site,off} } }
 
+const STAFF_LIST = ['Prabin','Harshitha','Kin','Ashh','Surbhi','Barsudin'];
 const staff = STAFF_LIST.map(n => ({id: n.toLowerCase().replace(/\s+/g,'_'), name: n}));
 
 // ── UTILS ──
@@ -298,25 +241,16 @@ function mgDots(){ for(let i=0;i<4;i++) document.getElementById('pd'+i).classLis
 
 function checkPIN(){
   if(pinVal===MGR_PIN){
-    isMgr=true; isContractor=false; currentUser='mgr';
+    isMgr=true;
     closePIN();
-    document.getElementById('identity-screen').style.display='none';
-    loadLocal(); render(); loadFromSheet();
-  } else if(pinVal===CONTRACTOR_PIN){
-    isContractor=true; isMgr=false; currentUser='contractor';
-    closePIN();
-    document.getElementById('identity-screen').style.display='none';
-    loadLocal(); render(); loadFromSheet();
+    render();
   } else {
     document.getElementById('pin-err').textContent='Incorrect PIN';
     pinVal=''; mgDots();
   }
 }
 
-function lock(){
-  isMgr=false; isContractor=false; currentUser=null;
-  document.getElementById('identity-screen').style.display='flex';
-}
+function lock(){ isMgr=false; render(); }
 
 // ── DATA UPDATES ──
 function toggleOff(id,ds){ const e=getE(ds,id); e.off=!e.off; rerenderRow(id); renderStats(); }
@@ -356,10 +290,10 @@ function render(){
   document.getElementById('wk-lbl').textContent=ms+' – '+me;
   document.getElementById('lock-bar').classList.toggle('hidden',isMgr);
   document.getElementById('save-bar').classList.toggle('hidden',!isMgr);
-  document.getElementById('lock-bar').classList.toggle('hidden', isMgr||isContractor);
+  document.getElementById('lock-bar').classList.toggle('hidden', isMgr);
   renderStats();
   // filter: staff see only themselves, manager sees all
-  const visibleStaff = (isMgr || isContractor) ? staff : staff.filter(s => s.id === currentUser);
+  const visibleStaff = staff;
   document.getElementById('table').innerHTML = visibleStaff.length
     ? visibleStaff.map(s=>buildRow(s,days)).join('')
     : '<div style="text-align:center;padding:3rem;color:#bbb;font-size:14px">No data found</div>';
@@ -684,61 +618,10 @@ function refreshCalc(id,ds){
   }
 }
 
-// ── IDENTITY ──
-function initIdentity(){
-  const list = document.getElementById('staff-btn-list');
-  list.innerHTML = '';
-  // Staff buttons
-  STAFF_LIST.forEach(name => {
-    const id = name.toLowerCase().replace(/\s+/g,'_');
-    const btn = document.createElement('button');
-    btn.className = 'staff-btn';
-    btn.textContent = name;
-    btn.addEventListener('click', function(){ selectUser(id, name); });
-    list.appendChild(btn);
-  });
-  // Manager button
-  const mgrBtn = document.createElement('button');
-  mgrBtn.className = 'staff-btn';
-  mgrBtn.textContent = 'Manager';
-  mgrBtn.style.cssText = 'margin-top:8px;border-top:1px solid #f0f0f0;color:#888;font-weight:400';
-  mgrBtn.addEventListener('click', showPIN);
-  list.appendChild(mgrBtn);
-}
-
-let pendingUser = null;
-let staffPinVal = '';
-
-function selectUser(id, name){
-  pendingUser = id;
-  staffPinVal = '';
-  staffDots();
-  document.getElementById('staff-pin-title').textContent = name + ' — enter PIN';
-  document.getElementById('staff-pin-err').textContent = '';
-  document.getElementById('staff-pin-modal').classList.add('open');
-}
-
-function spp(d){ if(staffPinVal.length>=4)return; staffPinVal+=d; staffDots(); if(staffPinVal.length===4) setTimeout(checkStaffPIN,130); }
-function spd(){ staffPinVal=staffPinVal.slice(0,-1); staffDots(); }
-function staffDots(){ for(let i=0;i<4;i++) document.getElementById('spd'+i).classList.toggle('filled',i<staffPinVal.length); }
-function closeStaffPIN(){ staffPinVal=''; staffDots(); pendingUser=null; document.getElementById('staff-pin-modal').classList.remove('open'); }
-
-function checkStaffPIN(){
-  const correct = STAFF_PINS[pendingUser];
-  if(staffPinVal === correct){
-    currentUser = pendingUser;
-    pendingUser = null;
-    document.getElementById('staff-pin-modal').classList.remove('open');
-    document.getElementById('identity-screen').style.display = 'none';
-    loadLocal(); render(); loadFromSheet();
-  } else {
-    document.getElementById('staff-pin-err').textContent = 'Incorrect PIN';
-    staffPinVal = ''; staffDots();
-  }
-}
-
 // ── INIT ──
-initIdentity();
+loadLocal();
+render();
+loadFromSheet();
 </script>
 </body>
 </html>
