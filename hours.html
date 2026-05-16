@@ -102,7 +102,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .lock-btn{background:none;border:1px solid #e0e0e0;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;color:#6b7280;font-family:inherit}
 
 /* PIN MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:300}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:600}
 .modal-bg.open{display:flex}
 .modal{background:#fff;border-radius:20px;padding:28px 24px;width:290px;max-width:92vw;text-align:center}
 .modal h3{font-size:16px;font-weight:600;margin-bottom:4px}
@@ -117,7 +117,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .p-key.blank{background:transparent;cursor:default}
 .pin-err{font-size:12px;color:#dc2626;margin-top:10px;min-height:16px}
 .modal-cancel{margin-top:14px;background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;font-family:inherit}
-.identity-screen{position:fixed;inset:0;background:#f5f5f5;display:flex;align-items:center;justify-content:center;z-index:500;padding:24px}
+.identity-screen{position:fixed;inset:0;background:#f5f5f5;display:flex;align-items:center;justify-content:center;z-index:400;padding:24px}
 .identity-box{background:#fff;border-radius:20px;padding:32px 24px;width:100%;max-width:340px;text-align:center}
 .identity-box h2{font-size:18px;font-weight:600;margin-bottom:6px}
 .identity-box p{font-size:13px;color:#aaa;margin-bottom:24px}
@@ -243,7 +243,6 @@ let currentUser = null; // null = not selected, 'mgr' = manager, staffId = staff
 let pendingUser = null; // staff id waiting for PIN verification
 let weekStart = getMonday(new Date());
 let D = {}; // { dateStr: { staffId: {in,out,brk,adj,adjNote,site,off} } }
-let pinVal = '';
 
 const staff = STAFF_LIST.map(n => ({id: n.toLowerCase().replace(/\s+/g,'_'), name: n}));
 
@@ -283,16 +282,41 @@ function calcWorked(e){
 }
 
 // ── PIN ──
-function showPIN(){ pinVal=''; dots(); document.getElementById('pin-err').textContent=''; document.getElementById('pin-modal').classList.add('open'); }
-function closePIN(){ document.getElementById('pin-modal').classList.remove('open'); }
-function pp(d){ if(pinVal.length>=4)return; pinVal+=d; dots(); if(pinVal.length===4) setTimeout(checkPIN,130); }
-function pdel(){ pinVal=pinVal.slice(0,-1); dots(); }
-function dots(){ for(let i=0;i<4;i++) document.getElementById('pd'+i).classList.toggle('filled',i<pinVal.length); }
-function checkPIN(){
-  if(pinVal===MGR_PIN){ isMgr=true; closePIN(); render(); }
-  else{ document.getElementById('pin-err').textContent='Incorrect PIN'; pinVal=''; dots(); }
+
+function showPIN(){
+  pinVal=''; mgDots();
+  document.getElementById('pin-err').textContent='';
+  document.getElementById('pin-modal').classList.add('open');
 }
-function lock(){ isMgr=false; isContractor=false; currentUser=null; document.getElementById('identity-screen').style.display='flex'; }
+function closePIN(){
+  pinVal=''; mgDots();
+  document.getElementById('pin-modal').classList.remove('open');
+}
+function pp(d){ if(pinVal.length>=4)return; pinVal+=d; mgDots(); if(pinVal.length===4) setTimeout(checkPIN,130); }
+function pdel(){ pinVal=pinVal.slice(0,-1); mgDots(); }
+function mgDots(){ for(let i=0;i<4;i++) document.getElementById('pd'+i).classList.toggle('filled',i<pinVal.length); }
+
+function checkPIN(){
+  if(pinVal===MGR_PIN){
+    isMgr=true; isContractor=false; currentUser='mgr';
+    closePIN();
+    document.getElementById('identity-screen').style.display='none';
+    loadLocal(); render(); loadFromSheet();
+  } else if(pinVal===CONTRACTOR_PIN){
+    isContractor=true; isMgr=false; currentUser='contractor';
+    closePIN();
+    document.getElementById('identity-screen').style.display='none';
+    loadLocal(); render(); loadFromSheet();
+  } else {
+    document.getElementById('pin-err').textContent='Incorrect PIN';
+    pinVal=''; mgDots();
+  }
+}
+
+function lock(){
+  isMgr=false; isContractor=false; currentUser=null;
+  document.getElementById('identity-screen').style.display='flex';
+}
 
 // ── DATA UPDATES ──
 function toggleOff(id,ds){ const e=getE(ds,id); e.off=!e.off; rerenderRow(id); renderStats(); }
@@ -663,30 +687,42 @@ function refreshCalc(id,ds){
 // ── IDENTITY ──
 function initIdentity(){
   const list = document.getElementById('staff-btn-list');
+  list.innerHTML = '';
   // Staff buttons
-  const staffBtns = STAFF_LIST.map(name => {
+  STAFF_LIST.forEach(name => {
     const id = name.toLowerCase().replace(/\s+/g,'_');
-    return `<button class="staff-btn" onclick="selectUser('${id}','${name}')">${name}</button>`;
-  }).join('');
+    const btn = document.createElement('button');
+    btn.className = 'staff-btn';
+    btn.textContent = name;
+    btn.addEventListener('click', function(){ selectUser(id, name); });
+    list.appendChild(btn);
+  });
   // Manager button
-  const mgrBtn = `<button class="staff-btn" onclick="showPIN()" style="margin-top:8px;border-top:1px solid #f0f0f0;color:#888">Manager</button>`;
-  list.innerHTML = staffBtns + mgrBtn;
+  const mgrBtn = document.createElement('button');
+  mgrBtn.className = 'staff-btn';
+  mgrBtn.textContent = 'Manager';
+  mgrBtn.style.cssText = 'margin-top:8px;border-top:1px solid #f0f0f0;color:#888;font-weight:400';
+  mgrBtn.addEventListener('click', showPIN);
+  list.appendChild(mgrBtn);
 }
+
+let pendingUser = null;
+let staffPinVal = '';
 
 function selectUser(id, name){
   pendingUser = id;
+  staffPinVal = '';
+  staffDots();
   document.getElementById('staff-pin-title').textContent = name + ' — enter PIN';
   document.getElementById('staff-pin-err').textContent = '';
-  staffPinVal = '';
-  updateStaffDots();
   document.getElementById('staff-pin-modal').classList.add('open');
 }
 
-let staffPinVal = '';
-function spp(d){ if(staffPinVal.length>=4)return; staffPinVal+=d; updateStaffDots(); if(staffPinVal.length===4)setTimeout(checkStaffPIN,130); }
-function spd(){ staffPinVal=staffPinVal.slice(0,-1); updateStaffDots(); }
-function updateStaffDots(){ for(let i=0;i<4;i++) document.getElementById('spd'+i).classList.toggle('filled',i<staffPinVal.length); }
-function closeStaffPIN(){ document.getElementById('staff-pin-modal').classList.remove('open'); pendingUser=null; staffPinVal=''; }
+function spp(d){ if(staffPinVal.length>=4)return; staffPinVal+=d; staffDots(); if(staffPinVal.length===4) setTimeout(checkStaffPIN,130); }
+function spd(){ staffPinVal=staffPinVal.slice(0,-1); staffDots(); }
+function staffDots(){ for(let i=0;i<4;i++) document.getElementById('spd'+i).classList.toggle('filled',i<staffPinVal.length); }
+function closeStaffPIN(){ staffPinVal=''; staffDots(); pendingUser=null; document.getElementById('staff-pin-modal').classList.remove('open'); }
+
 function checkStaffPIN(){
   const correct = STAFF_PINS[pendingUser];
   if(staffPinVal === correct){
@@ -694,43 +730,15 @@ function checkStaffPIN(){
     pendingUser = null;
     document.getElementById('staff-pin-modal').classList.remove('open');
     document.getElementById('identity-screen').style.display = 'none';
-    loadLocal();
-    render();
-    loadFromSheet();
+    loadLocal(); render(); loadFromSheet();
   } else {
     document.getElementById('staff-pin-err').textContent = 'Incorrect PIN';
-    staffPinVal = ''; updateStaffDots();
-  }
-}
-
-// Override showPIN to hide identity screen after unlock
-const _origCheckPIN = checkPIN;
-function checkPIN(){
-  if(pinVal === MGR_PIN){
-    isMgr = true; isContractor = false;
-    currentUser = 'mgr';
-    document.getElementById('identity-screen').style.display = 'none';
-    closePIN();
-    loadLocal();
-    render();
-    loadFromSheet();
-  } else if(pinVal === CONTRACTOR_PIN){
-    isContractor = true; isMgr = false;
-    currentUser = 'contractor';
-    document.getElementById('identity-screen').style.display = 'none';
-    closePIN();
-    loadLocal();
-    render();
-    loadFromSheet();
-  } else {
-    document.getElementById('pin-err').textContent = 'Incorrect PIN';
-    pinVal = ''; dots();
+    staffPinVal = ''; staffDots();
   }
 }
 
 // ── INIT ──
 initIdentity();
-// Don't auto-load — wait for identity selection
 </script>
 </body>
 </html>
