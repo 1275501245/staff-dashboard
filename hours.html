@@ -323,15 +323,15 @@ function buildRow(s, days){
     // time inputs or values — with ✕ clear button
     const inEl = isMgr && !e.off
       ? `<div class="t-wrap">
-           <input type="time" class="f-inp t-inp" value="${e.in}"
-             onchange="updTime('${s.id}','${ds}','in',this.value,this)">
+           <input type="time" class="f-inp t-inp" id="t_${s.id}_${ds}_in" value="${e.in}"
+             onblur="updTime('${s.id}','${ds}','in',this.value)">
            <button class="clr-btn" data-clr="${s.id}_${ds}_in" onclick="clr('${s.id}','${ds}','in')" style="${e.in?'':'display:none'}">✕</button>
          </div>`
       : `<span class="f-val${e.in?'':' muted'}">${e.in||'—'}</span>`;
     const outEl = isMgr && !e.off
       ? `<div class="t-wrap">
-           <input type="time" class="f-inp t-inp" value="${e.out}"
-             onchange="updTime('${s.id}','${ds}','out',this.value,this)">
+           <input type="time" class="f-inp t-inp" id="t_${s.id}_${ds}_out" value="${e.out}"
+             onblur="updTime('${s.id}','${ds}','out',this.value)">
            <button class="clr-btn" data-clr="${s.id}_${ds}_out" onclick="clr('${s.id}','${ds}','out')" style="${e.out?'':'display:none'}">✕</button>
          </div>`
       : `<span class="f-val${e.out?'':' muted'}">${e.out||'—'}</span>`;
@@ -513,8 +513,10 @@ function clr(id,ds,f){
   renderStats();
 }
 
-// updTime: same as upd but for time inputs (onchange on mobile fires after picker closes)
-function updTime(id,ds,field,val,el){
+// updTime: fires on blur (when user taps away after selecting time)
+// No DOM rebuild - only updates computed values
+function updTime(id,ds,field,val){
+  if(val===getE(ds,id)[field]) return; // no change, skip
   getE(ds,id)[field]=val;
   saveLocal();
   refreshCalc(id,ds);
