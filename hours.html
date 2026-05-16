@@ -470,10 +470,11 @@ async function loadFromSheet(){
       
       const clockIn=get('clockIn');
       const clockOut=get('clockOut');
-      const off=get('off');
-      const isOff=off==='yes'||off==='TRUE'||off==='true'||off==='1'||off==='Yes';
-      if(off) console.log('off value raw:',JSON.stringify(off),'isOff:',isOff);
-      if(!clockIn&&!clockOut&&!isOff)return;
+      // 'off' column may not exist in sheet — fall back to reading it
+      const offRaw=get('off')||get('OFF')||'';
+      const offLower=String(offRaw).toLowerCase().trim();
+      const isOff=offLower==='yes'||offLower==='true'||offLower==='1';
+      if(!clockIn && !clockOut && !isOff) return;
       
       if(!D[ds])D[ds]={};
       const brkMins=parseFloat(get('breakMins'))||0;
@@ -538,7 +539,7 @@ async function saveAll(){
           adjNote:e.adjNote||'',
           finalMins:paid||0,
           peak:'no',
-          off:e.off?'yes':'no'
+          off:e.off?'yes':'no'  // stored as yes/no string
         });
       });
     });
