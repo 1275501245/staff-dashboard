@@ -436,49 +436,52 @@ async function loadFromSheet(){
   const st=document.getElementById('save-st');
   st.textContent='↓ Syncing...'; st.className='save-st';
   try{
-    // Use POST to avoid CORS issues with GET
+    // Try POST first
     const res=await fetch(SCRIPT_URL,{
       method:'POST',
       body:JSON.stringify({action:'getAll'}),
       headers:{'Content-Type':'text/plain'},
     });
-    const json=await res.json();
-    if(json.ok && json.data && json.data.length>0){
-      // only load rows that have actual clock data
-      let loaded=0;
-      json.data.forEach(row=>{
-        const ds=String(row.date||'').trim();
-        const id=String(row.staffId||'').trim();
-        if(!ds||!id)return;
-        // skip empty rows
-        if(!row.clockIn && !row.clockOut && row.off!=='yes' && !row.site) return;
-        if(!D[ds])D[ds]={};
-        D[ds][id]={
-          in:row.clockIn||'',
-          out:row.clockOut||'',
-          brk:row.breakMins&&parseFloat(row.breakMins)>0?String(parseFloat(row.breakMins)/60):'',
-          adj:row.adjHours&&parseFloat(row.adjHours)!==0?String(row.adjHours):'',
-          adjNote:row.adjNote||'',
-          site:row.site||'',
-          off:row.off==='yes'
-        };
-        loaded++;
-      });
-      if(loaded>0){
-        snapshot = JSON.parse(JSON.stringify(D)); // save clean snapshot
-        saveLocal();
-        render();
-        st.textContent='✓ Synced '+loaded+' entries'; st.className='save-st ok';
-      } else {
-        st.textContent='';
-      }
-      setTimeout(()=>{ st.textContent=''; },3000);
+    const text=await res.text();
+    let json;
+    try{ json=JSON.parse(text); }
+    catch(e){ throw new Error('Bad response: '+text.slice(0,100)); }
+    
+    if(!json.ok){ throw new Error(json.error||'getAll failed'); }
+    
+    const rows=json.data||[];
+    let loaded=0;
+    D={}; // clear first — Sheet is source of truth
+    rows.forEach(row=>{
+      const ds=String(row.date||'').trim();
+      const id=String(row.staffId||'').trim();
+      if(!ds||!id)return;
+      if(!row.clockIn && !row.clockOut && row.off!=='yes') return;
+      if(!D[ds])D[ds]={};
+      D[ds][id]={
+        in:row.clockIn||'',
+        out:row.clockOut||'',
+        brk:row.breakMins&&parseFloat(row.breakMins)>0?String(parseFloat(row.breakMins)/60):'',
+        adj:row.adjHours&&parseFloat(row.adjHours)!==0?String(row.adjHours):'',
+        adjNote:row.adjNote||'',
+        site:row.site||'',
+        off:row.off==='yes'
+      };
+      loaded++;
+    });
+    snapshot=JSON.parse(JSON.stringify(D));
+    saveLocal();
+    render();
+    if(loaded>0){
+      st.textContent='✓ '+loaded+' entries loaded'; st.className='save-st ok';
     } else {
-      st.textContent='';
+      st.textContent='✓ Connected'; st.className='save-st ok';
     }
+    setTimeout(()=>{ st.textContent=''; },2000);
   } catch(err){
-    st.textContent='';
-    console.error('loadFromSheet error:',err);
+    st.textContent='⚠ Sync failed'; st.className='save-st err';
+    console.error('loadFromSheet:',err);
+    setTimeout(()=>{ st.textContent=''; },4000);
   }
 }
 
