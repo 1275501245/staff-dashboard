@@ -471,7 +471,8 @@ async function loadFromSheet(){
       const clockIn=get('clockIn');
       const clockOut=get('clockOut');
       const off=get('off');
-      const isOff=off==='yes'||off==='TRUE'||off==='true'||off==='1';
+      const isOff=off==='yes'||off==='TRUE'||off==='true'||off==='1'||off==='Yes';
+      if(off) console.log('off value raw:',JSON.stringify(off),'isOff:',isOff);
       if(!clockIn&&!clockOut&&!isOff)return;
       
       if(!D[ds])D[ds]={};
