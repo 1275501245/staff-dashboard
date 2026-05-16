@@ -232,8 +232,6 @@ function checkPIN(){
 function lock(){ isMgr=false; render(); }
 
 // ── DATA UPDATES ──
-function upd(id,ds,f,v){ getE(ds,id)[f]=v; renderStats(); softUpdateRow(id,ds); }
-function clr(id,ds,f){ getE(ds,id)[f]=''; renderStats(); rerenderRow(id); }
 function toggleOff(id,ds){ const e=getE(ds,id); e.off=!e.off; rerenderRow(id); renderStats(); }
 
 // soft update: only refresh computed values (Worked, Paid, week total, clr buttons)
@@ -512,8 +510,7 @@ async function saveAll(){
   }
 }
 
-// intercept upd/clr to also save locally
-const _upd=upd; 
+// ── DATA UPDATES (single definition) ──
 function upd(id,ds,f,v){ getE(ds,id)[f]=v; saveLocal(); renderStats(); softUpdateRow(id,ds); }
 function clr(id,ds,f){ getE(ds,id)[f]=''; saveLocal(); renderStats(); rerenderRow(id); }
 
