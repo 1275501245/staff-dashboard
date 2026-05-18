@@ -11,6 +11,7 @@
     { "src": "/stocktake", "dest": "/stocktake.html" },
     { "src": "/stocktake-admin", "dest": "/stocktake-admin.html" },
     { "src": "/suppliers", "dest": "/suppliers.html" },
-    { "src": "/opening", "dest": "/opening.html" }
+    { "src": "/admin", "dest": "/admin-home.html" },
+    { "src": "/purchase-orders", "dest": "/purchase-orders.html" }
   ]
 }
