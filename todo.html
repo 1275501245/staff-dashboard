@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Today's Tasks</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; padding-bottom: 40px; }
+.header { background: #fff; border-bottom: 1px solid #efefef; padding: 16px; }
+.header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.back { width: 30px; height: 30px; border-radius: 50%; background: #f5f5f5; border: none; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #999; text-decoration: none; flex-shrink: 0; }
+.header-title { font-size: 16px; font-weight: 600; }
+.header-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+.filter-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+.filter-row::-webkit-scrollbar { display: none; }
+.tag-btn { padding: 6px 14px; border: 1px solid #efefef; border-radius: 20px; background: #f5f5f5; font-size: 12px; font-weight: 500; color: #666; cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0; }
+.tag-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.progress-row { background: #fff; border: 1px solid #efefef; border-radius: 14px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+.progress-bar { flex: 1; height: 4px; background: #efefef; border-radius: 2px; }
+.progress-fill { height: 100%; background: #1a1a1a; border-radius: 2px; transition: width 0.3s; }
+.progress-label { font-size: 12px; color: #aaa; white-space: nowrap; }
+.group-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; padding: 0 2px; }
+.task-card { background: #fff; border: 1px solid #efefef; border-radius: 14px; overflow: hidden; }
+.task-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid #f5f5f5; cursor: pointer; user-select: none; }
+.task-row:last-child { border-bottom: none; }
+.task-row:active { background: #f9f9f9; }
+.task-left { display: flex; align-items: center; gap: 12px; }
+.task-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid #ddd; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; color: #fff; }
+.task-row.done .task-check { background: #1a1a1a; border-color: #1a1a1a; }
+.task-row.done .task-name { text-decoration: line-through; color: #bbb; }
+.task-row.done .task-meta { color: #ccc; }
+.task-name { font-size: 14px; font-weight: 500; }
+.task-meta { font-size: 11px; color: #aaa; margin-top: 2px; }
+.task-tag { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+.state-box { text-align: center; padding: 50px 20px; color: #aaa; font-size: 13px; }
+.state-icon { font-size: 32px; margin-bottom: 10px; }
+.state-title { font-size: 14px; font-weight: 500; color: #999; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-top">
+    <a class="back" href="/admin">←</a>
+    <div>
+      <div class="header-title">Today's Tasks</div>
+      <div class="header-sub" id="hdr-sub"></div>
+    </div>
+  </div>
+  <div class="filter-row" id="filter-row">
+    <button class="tag-btn active" onclick="filterTag('',this)">All</button>
+  </div>
+</div>
+<div class="body" id="body">
+  <div class="state-box"><div class="state-icon">📋</div><div class="state-title">Loading…</div></div>
+</div>
+<script>
+const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyh_F4jPG5xRFkaYskJOrvBBui7bx-hCVlK1RPeCSn7PFq_W7F3FvVWtrQtnnX-fWKrbA/exec';
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const TAG_COLORS = {
+  'Purchasing': {bg:'#eef2ff',text:'#4a6cf7'},
+  'Opening':    {bg:'#ecfdf5',text:'#059669'},
+  'Closing':    {bg:'#fdf0f2',text:'#c8102e'},
+  'Menu':       {bg:'#fffbeb',text:'#d97706'},
+  'Standards':  {bg:'#f5f3ff',text:'#9333ea'},
+};
+
+let allTasks = [];
+let activeTag = '';
+
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function todayDay() { return DAYS[new Date().getDay()]; }
+function formatDate() {
+  const d = new Date();
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + months[d.getMonth()];
+}
+function normalizeDate(raw) {
+  if (!raw) return '';
+  if (typeof raw === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+  if (typeof raw === 'string') { const m = raw.match(/Date\((\d+),(\d+),(\d+)\)/); if (m) return `${m[1]}-${String(+m[2]+1).padStart(2,'0')}-${String(+m[3]).padStart(2,'0')}`; }
+  if (typeof raw === 'number') return new Date((raw-25569)*86400000).toISOString().split('T')[0];
+  return String(raw).slice(0,10);
+}
+async function fetchSheet(name) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}&headers=1`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  if (!json.table?.rows?.length) return [];
+  const cols = json.table.cols.map(c => c.label);
+  return json.table.rows.map(r => { const obj = {}; cols.forEach((col,i) => { obj[col] = r.c[i]?.v ?? r.c[i]?.f ?? ''; }); return obj; });
+}
+async function saveTask(tag, task, done) {
+  await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify({action:'saveTask', date:todayStr(), tag, task, done}) });
+}
+async function toggleTask(el, tag, task) {
+  const row = el.closest('.task-row');
+  const isDone = !row.classList.contains('done');
+  row.classList.toggle('done', isDone);
+  row.querySelector('.task-check').textContent = isDone ? '✓' : '';
+  const t = allTasks.find(t => t.tag===tag && t.task===task);
+  if (t) t.done = isDone;
+  updateProgress();
+  await saveTask(tag, task, isDone);
+}
+function filterTag(tag, btn) {
+  activeTag = tag;
+  document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTasks();
+}
+function updateProgress() {
+  const visible = activeTag ? allTasks.filter(t=>t.tag===activeTag) : allTasks;
+  const done = visible.filter(t=>t.done).length;
+  const total = visible.length;
+  const fill = document.getElementById('progress-fill');
+  const label = document.getElementById('progress-label');
+  if (fill) fill.style.width = total ? Math.round(done/total*100)+'%' : '0%';
+  if (label) label.textContent = done+' / '+total;
+}
+function renderTasks() {
+  const filtered = activeTag ? allTasks.filter(t=>t.tag===activeTag) : allTasks;
+  if (!filtered.length) { document.getElementById('body').innerHTML=`<div class="state-box"><div class="state-icon">✅</div><div class="state-title">No tasks today</div></div>`; return; }
+  const done = filtered.filter(t=>t.done).length;
+  const total = filtered.length;
+  const groups = {};
+  filtered.forEach(t => { if (!groups[t.tag]) groups[t.tag]=[]; groups[t.tag].push(t); });
+  let html = `<div class="progress-row"><div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:${Math.round(done/total*100)}%"></div></div><div class="progress-label" id="progress-label">${done} / ${total}</div></div>`;
+  Object.entries(groups).forEach(([tag, tasks]) => {
+    const col = TAG_COLORS[tag] || {bg:'#f0f0f0',text:'#888'};
+    if (!activeTag) html += `<div class="group-label">${tag}</div>`;
+    html += `<div class="task-card">`;
+    tasks.forEach(t => {
+      const safeTag = tag.replace(/'/g,"\\'");
+      const safeTask = t.task.replace(/'/g,"\\'");
+      html += `<div class="task-row${t.done?' done':''}" onclick="toggleTask(this,'${safeTag}','${safeTask}')">
+        <div class="task-left">
+          <div class="task-check">${t.done?'✓':''}</div>
+          <div><div class="task-name">${t.task}</div>${t.cutoff?`<div class="task-meta">截单 ${t.cutoff}</div>`:''}</div>
+        </div>
+        ${activeTag?'':`<span class="task-tag" style="background:${col.bg};color:${col.text}">${tag}</span>`}
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  document.getElementById('body').innerHTML = html;
+}
+async function init() {
+  const today = todayStr(); const day = todayDay();
+  document.getElementById('hdr-sub').textContent = formatDate();
+  let suppliers, todoList;
+  try { [suppliers, todoList] = await Promise.all([fetchSheet('Suppliers'), fetchSheet('TodoList')]); }
+  catch(e) { document.getElementById('body').innerHTML=`<div class="state-box"><div class="state-icon">⚠️</div><div class="state-title">Failed to load</div></div>`; return; }
+  const doneMap = {};
+  todoList.forEach(r => { if (normalizeDate(r['Date'])===today) doneMap[r['Tag']+'|'+r['Task']] = r['Done']===true||r['Done']==='TRUE'; });
+  const todaySupps = suppliers.filter(s => { const days=(s['StocktakeDays']||'').split(',').map(d=>d.trim()); return days.includes(day); });
+  todaySupps.forEach(s => { allTasks.push({ tag:'Purchasing', task:s['SupplierName'], cutoff:s['OrderCutoffTime']||'', done:doneMap['Purchasing|'+s['SupplierName']]||false }); });
+  if (!allTasks.length) { document.getElementById('body').innerHTML=`<div class="state-box"><div class="state-icon">✅</div><div class="state-title">No tasks today</div></div>`; return; }
+  const tags = [...new Set(allTasks.map(t=>t.tag))];
+  const filterRow = document.getElementById('filter-row');
+  tags.forEach(tag => { const btn=document.createElement('button'); btn.className='tag-btn'; btn.textContent=tag; btn.onclick=()=>filterTag(tag,btn); filterRow.appendChild(btn); });
+  renderTasks();
+}
+init();
+</script>
+</body>
+</html>
