@@ -13,6 +13,9 @@
     { "src": "/suppliers", "dest": "/suppliers.html" },
     { "src": "/admin", "dest": "/admin-home.html" },
     { "src": "/purchase-orders", "dest": "/purchase-orders.html" },
+    { "src": "/opening", "dest": "/opening.html" },
+    { "src": "/hours", "dest": "/hours.html" },
+    { "src": "/closing", "dest": "/closing.html" },
     { "src": "/todo", "dest": "/todo.html" }
   ]
 }

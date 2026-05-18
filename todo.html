@@ -3,168 +3,217 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Today's Tasks</title>
+<title>Today's Tasks — Admin</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; padding-bottom: 40px; }
-.header { background: #fff; border-bottom: 1px solid #efefef; padding: 16px; }
-.header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-.back { width: 30px; height: 30px; border-radius: 50%; background: #f5f5f5; border: none; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #999; text-decoration: none; flex-shrink: 0; }
-.header-title { font-size: 16px; font-weight: 600; }
-.header-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
-.filter-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
-.filter-row::-webkit-scrollbar { display: none; }
-.tag-btn { padding: 6px 14px; border: 1px solid #efefef; border-radius: 20px; background: #f5f5f5; font-size: 12px; font-weight: 500; color: #666; cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0; }
-.tag-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
-.body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
-.progress-row { background: #fff; border: 1px solid #efefef; border-radius: 14px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
-.progress-bar { flex: 1; height: 4px; background: #efefef; border-radius: 2px; }
-.progress-fill { height: 100%; background: #1a1a1a; border-radius: 2px; transition: width 0.3s; }
-.progress-label { font-size: 12px; color: #aaa; white-space: nowrap; }
-.group-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; padding: 0 2px; }
-.task-card { background: #fff; border: 1px solid #efefef; border-radius: 14px; overflow: hidden; }
-.task-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid #f5f5f5; cursor: pointer; user-select: none; }
-.task-row:last-child { border-bottom: none; }
-.task-row:active { background: #f9f9f9; }
-.task-left { display: flex; align-items: center; gap: 12px; }
-.task-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid #ddd; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; color: #fff; }
-.task-row.done .task-check { background: #1a1a1a; border-color: #1a1a1a; }
-.task-row.done .task-name { text-decoration: line-through; color: #bbb; }
-.task-row.done .task-meta { color: #ccc; }
-.task-name { font-size: 14px; font-weight: 500; }
-.task-meta { font-size: 11px; color: #aaa; margin-top: 2px; }
-.task-tag { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
-.state-box { text-align: center; padding: 50px 20px; color: #aaa; font-size: 13px; }
-.state-icon { font-size: 32px; margin-bottom: 10px; }
-.state-title { font-size: 14px; font-weight: 500; color: #999; margin-bottom: 6px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+    background: #f5f5f7;
+    color: #1c1c1e;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+  .header {
+    background: #fff;
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid #e5e5ea;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .back-btn {
+    width: 32px; height: 32px; border-radius: 50%; background: #f2f2f7;
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; text-decoration: none; color: #1c1c1e; flex-shrink: 0;
+  }
+  .header-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+  .header-date { font-size: 13px; color: #8e8e93; margin-top: 1px; }
+  .progress-label { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .progress-text { font-size: 12px; color: #8e8e93; font-weight: 500; }
+  .done-badge { font-size: 12px; font-weight: 600; color: #34c759; opacity: 0; transition: opacity 0.3s; }
+  .done-badge.visible { opacity: 1; }
+  .progress-bar-wrap { background: #f2f2f7; border-radius: 100px; height: 6px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; border-radius: 100px; background: #1c1c1e; transition: width 0.4s ease; width: 0%; }
+
+  /* Filter tabs */
+  .filter-tabs { display: flex; gap: 8px; padding: 14px 16px 0; overflow-x: auto; scrollbar-width: none; }
+  .filter-tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 100px;
+    border: none; cursor: pointer; white-space: nowrap; transition: all 0.15s;
+    background: #fff; color: #8e8e93;
+  }
+  .tab-btn.active { background: #1c1c1e; color: #fff; }
+
+  .content { padding: 16px 16px 0; }
+  .section-label {
+    font-size: 11px; font-weight: 600; color: #8e8e93; letter-spacing: 0.5px;
+    text-transform: uppercase; padding: 0 4px; margin-bottom: 8px;
+  }
+  .tasks-card { background: #fff; border-radius: 16px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+  .task-row {
+    display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+    cursor: pointer; border-bottom: 1px solid #f2f2f7; transition: background 0.1s;
+  }
+  .task-row:last-child { border-bottom: none; }
+  .task-row:active { background: #f9f9f9; }
+  .check-circle {
+    width: 24px; height: 24px; border-radius: 50%; border: 2px solid #d1d1d6;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; background: transparent;
+  }
+  .check-circle svg { width: 13px; height: 13px; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; fill: none; opacity: 0; transition: opacity 0.15s; }
+  .task-row.done .check-circle { background: #1c1c1e; border-color: #1c1c1e; }
+  .task-row.done .check-circle svg { opacity: 1; }
+  .task-info { flex: 1; }
+  .task-name { font-size: 15px; color: #1c1c1e; transition: color 0.2s; }
+  .task-row.done .task-name { color: #aeaeb2; text-decoration: line-through; }
+  .task-tag {
+    font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 100px; letter-spacing: 0.2px; flex-shrink: 0;
+  }
+  .tag-hours    { background: #e8f4fd; color: #1d7bc4; }
+  .tag-delivery { background: #fef3e2; color: #c47b00; }
+  .tag-review   { background: #f0f8ec; color: #2d8c3e; }
+  .tag-perf     { background: #fce8f3; color: #b8236a; }
+  .tag-purchasing { background: #f2f0ff; color: #6e4fc9; }
+
+  .save-toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: #1c1c1e; color: #fff; font-size: 13px; font-weight: 500;
+    padding: 10px 20px; border-radius: 100px; transition: transform 0.3s ease; z-index: 999; white-space: nowrap;
+  }
+  .save-toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
+
 <div class="header">
   <div class="header-top">
-    <a class="back" href="/admin">←</a>
+    <a href="/admin" class="back-btn">←</a>
     <div>
       <div class="header-title">Today's Tasks</div>
-      <div class="header-sub" id="hdr-sub"></div>
+      <div class="header-date" id="today-date"></div>
     </div>
   </div>
-  <div class="filter-row" id="filter-row">
-    <button class="tag-btn active" onclick="filterTag('',this)">All</button>
+  <div class="progress-label">
+    <span class="progress-text" id="progress-text">0 / 9 completed</span>
+    <span class="done-badge" id="done-badge">✓ All Done</span>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-bar"></div>
   </div>
 </div>
-<div class="body" id="body">
-  <div class="state-box"><div class="state-icon">📋</div><div class="state-title">Loading…</div></div>
-</div>
+
+<div class="filter-tabs" id="filter-tabs"></div>
+<div class="content" id="todo-root"></div>
+<div class="save-toast" id="save-toast">Saved</div>
+
 <script>
-const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyh_F4jPG5xRFkaYskJOrvBBui7bx-hCVlK1RPeCSn7PFq_W7F3FvVWtrQtnnX-fWKrbA/exec';
-const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const TAG_COLORS = {
-  'Purchasing': {bg:'#eef2ff',text:'#4a6cf7'},
-  'Opening':    {bg:'#ecfdf5',text:'#059669'},
-  'Closing':    {bg:'#fdf0f2',text:'#c8102e'},
-  'Menu':       {bg:'#fffbeb',text:'#d97706'},
-  'Standards':  {bg:'#f5f3ff',text:'#9333ea'},
-};
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw28EoWdsH1yOZGlyP012-7GSmNhB3msGzHKD6VFtwtulAzNoUSvaoLY3BOAM5Vx4WXfw/exec';
+const todayKey = new Date().toISOString().slice(0, 10);
 
-let allTasks = [];
-let activeTag = '';
+const TODOS = [
+  { id: 'hours',    label: '工时 Staff Hours',       tag: '工时',       tagClass: 'tag-hours',      section: 'CLOSING' },
+  { id: 'delivery', label: '收货确认 Delivery Check', tag: '收货',       tagClass: 'tag-delivery',   section: 'CLOSING' },
+  { id: 'review',   label: 'Deliveroo 评价回复',      tag: '评价',       tagClass: 'tag-review',     section: 'CLOSING' },
+  { id: 'refund',   label: '绩效管理 Refund',          tag: '绩效',       tagClass: 'tag-perf',       section: 'CLOSING' },
+  { id: 'purchase', label: '采购下单 Purchase Orders', tag: 'Purchasing', tagClass: 'tag-purchasing', section: 'PURCHASING' },
+];
 
-function todayStr() { return new Date().toISOString().split('T')[0]; }
-function todayDay() { return DAYS[new Date().getDay()]; }
-function formatDate() {
-  const d = new Date();
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + months[d.getMonth()];
-}
-function normalizeDate(raw) {
-  if (!raw) return '';
-  if (typeof raw === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
-  if (typeof raw === 'string') { const m = raw.match(/Date\((\d+),(\d+),(\d+)\)/); if (m) return `${m[1]}-${String(+m[2]+1).padStart(2,'0')}-${String(+m[3]).padStart(2,'0')}`; }
-  if (typeof raw === 'number') return new Date((raw-25569)*86400000).toISOString().split('T')[0];
-  return String(raw).slice(0,10);
-}
-async function fetchSheet(name) {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}&headers=1`;
-  const res = await fetch(url);
-  const text = await res.text();
-  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
-  if (!json.table?.rows?.length) return [];
-  const cols = json.table.cols.map(c => c.label);
-  return json.table.rows.map(r => { const obj = {}; cols.forEach((col,i) => { obj[col] = r.c[i]?.v ?? r.c[i]?.f ?? ''; }); return obj; });
-}
-async function saveTask(tag, task, done) {
-  await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify({action:'saveTask', date:todayStr(), tag, task, done}) });
-}
-async function toggleTask(el, tag, task) {
-  const row = el.closest('.task-row');
-  const isDone = !row.classList.contains('done');
-  row.classList.toggle('done', isDone);
-  row.querySelector('.task-check').textContent = isDone ? '✓' : '';
-  const t = allTasks.find(t => t.tag===tag && t.task===task);
-  if (t) t.done = isDone;
-  updateProgress();
-  await saveTask(tag, task, isDone);
-}
-function filterTag(tag, btn) {
-  activeTag = tag;
-  document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderTasks();
-}
-function updateProgress() {
-  const visible = activeTag ? allTasks.filter(t=>t.tag===activeTag) : allTasks;
-  const done = visible.filter(t=>t.done).length;
-  const total = visible.length;
-  const fill = document.getElementById('progress-fill');
-  const label = document.getElementById('progress-label');
-  if (fill) fill.style.width = total ? Math.round(done/total*100)+'%' : '0%';
-  if (label) label.textContent = done+' / '+total;
-}
-function renderTasks() {
-  const filtered = activeTag ? allTasks.filter(t=>t.tag===activeTag) : allTasks;
-  if (!filtered.length) { document.getElementById('body').innerHTML=`<div class="state-box"><div class="state-icon">✅</div><div class="state-title">No tasks today</div></div>`; return; }
-  const done = filtered.filter(t=>t.done).length;
-  const total = filtered.length;
-  const groups = {};
-  filtered.forEach(t => { if (!groups[t.tag]) groups[t.tag]=[]; groups[t.tag].push(t); });
-  let html = `<div class="progress-row"><div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:${Math.round(done/total*100)}%"></div></div><div class="progress-label" id="progress-label">${done} / ${total}</div></div>`;
-  Object.entries(groups).forEach(([tag, tasks]) => {
-    const col = TAG_COLORS[tag] || {bg:'#f0f0f0',text:'#888'};
-    if (!activeTag) html += `<div class="group-label">${tag}</div>`;
-    html += `<div class="task-card">`;
-    tasks.forEach(t => {
-      const safeTag = tag.replace(/'/g,"\\'");
-      const safeTask = t.task.replace(/'/g,"\\'");
-      html += `<div class="task-row${t.done?' done':''}" onclick="toggleTask(this,'${safeTag}','${safeTask}')">
-        <div class="task-left">
-          <div class="task-check">${t.done?'✓':''}</div>
-          <div><div class="task-name">${t.task}</div>${t.cutoff?`<div class="task-meta">截单 ${t.cutoff}</div>`:''}</div>
-        </div>
-        ${activeTag?'':`<span class="task-tag" style="background:${col.bg};color:${col.text}">${tag}</span>`}
-      </div>`;
-    });
-    html += `</div>`;
+const TAGS = ['All', '工时', '收货', '评价', '绩效', 'Purchasing'];
+const state = {};
+let activeTag = 'All';
+
+// Date
+const d = new Date();
+const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+document.getElementById('today-date').textContent = `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+
+// Filter tabs
+function buildTabs() {
+  const container = document.getElementById('filter-tabs');
+  container.innerHTML = '';
+  TAGS.forEach(tag => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (tag === activeTag ? ' active' : '');
+    btn.textContent = tag;
+    btn.onclick = () => { activeTag = tag; buildTabs(); buildUI(); };
+    container.appendChild(btn);
   });
-  document.getElementById('body').innerHTML = html;
 }
-async function init() {
-  const today = todayStr(); const day = todayDay();
-  document.getElementById('hdr-sub').textContent = formatDate();
-  let suppliers, todoList;
-  try { [suppliers, todoList] = await Promise.all([fetchSheet('Suppliers'), fetchSheet('TodoList')]); }
-  catch(e) { document.getElementById('body').innerHTML=`<div class="state-box"><div class="state-icon">⚠️</div><div class="state-title">Failed to load</div></div>`; return; }
-  const doneMap = {};
-  todoList.forEach(r => { if (normalizeDate(r['Date'])===today) doneMap[r['Tag']+'|'+r['Task']] = r['Done']===true||r['Done']==='TRUE'; });
-  const todaySupps = suppliers.filter(s => { const days=(s['StocktakeDays']||'').split(',').map(d=>d.trim()); return days.includes(day); });
-  todaySupps.forEach(s => { allTasks.push({ tag:'Purchasing', task:s['SupplierName'], cutoff:s['OrderCutoffTime']||'', done:doneMap['Purchasing|'+s['SupplierName']]||false }); });
-  if (!allTasks.length) { document.getElementById('body').innerHTML=`<div class="state-box"><div class="state-icon">✅</div><div class="state-title">No tasks today</div></div>`; return; }
-  const tags = [...new Set(allTasks.map(t=>t.tag))];
-  const filterRow = document.getElementById('filter-row');
-  tags.forEach(tag => { const btn=document.createElement('button'); btn.className='tag-btn'; btn.textContent=tag; btn.onclick=()=>filterTag(tag,btn); filterRow.appendChild(btn); });
-  renderTasks();
+
+function buildUI() {
+  const root = document.getElementById('todo-root');
+  root.innerHTML = '';
+
+  const filtered = activeTag === 'All' ? TODOS : TODOS.filter(t => t.tag === activeTag);
+  const sections = [...new Set(filtered.map(t => t.section))];
+
+  sections.forEach(section => {
+    const items = filtered.filter(t => t.section === section);
+    const label = document.createElement('div');
+    label.className = 'section-label';
+    label.textContent = section;
+    root.appendChild(label);
+
+    const card = document.createElement('div');
+    card.className = 'tasks-card';
+
+    items.forEach(todo => {
+      const row = document.createElement('div');
+      row.className = 'task-row' + (state[todo.id] ? ' done' : '');
+      row.innerHTML = `
+        <div class="check-circle">
+          <svg viewBox="0 0 13 10"><polyline points="1.5,5 5,8.5 11.5,1.5"/></svg>
+        </div>
+        <div class="task-info">
+          <div class="task-name">${todo.label}</div>
+        </div>
+        <span class="task-tag ${todo.tagClass}">${todo.tag}</span>
+      `;
+      row.onclick = () => {
+        state[todo.id] = !state[todo.id];
+        row.classList.toggle('done', state[todo.id]);
+        updateProgress();
+        saveToSheet();
+      };
+      card.appendChild(row);
+    });
+
+    root.appendChild(card);
+  });
 }
-init();
+
+function updateProgress() {
+  const total = TODOS.length;
+  const done = Object.values(state).filter(Boolean).length;
+  document.getElementById('progress-text').textContent = `${done} / ${total} completed`;
+  document.getElementById('progress-bar').style.width = `${(done / total) * 100}%`;
+  document.getElementById('done-badge').classList.toggle('visible', done === total);
+}
+
+let saveTimer;
+function saveToSheet() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'saveTodo', date: todayKey, tasks: state }) })
+      .then(() => { const t = document.getElementById('save-toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 1800); })
+      .catch(() => {});
+  }, 600);
+}
+
+function loadFromSheet() {
+  fetch(`${SCRIPT_URL}?action=getTodo&date=${todayKey}`)
+    .then(r => r.json())
+    .then(data => { if (data && data.tasks) { Object.assign(state, data.tasks); buildUI(); updateProgress(); } })
+    .catch(() => {});
+}
+
+buildTabs();
+buildUI();
+updateProgress();
+loadFromSheet();
 </script>
 </body>
 </html>
