@@ -6,213 +6,38 @@
 <title>Closing — Admin</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-    background: #f5f5f7;
-    color: #1c1c1e;
-    min-height: 100vh;
-    padding-bottom: 40px;
-  }
-
-  /* Header */
-  .header {
-    background: #fff;
-    padding: 16px 20px 12px;
-    border-bottom: 1px solid #e5e5ea;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-top {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
-  .back-btn {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: #f2f2f7;
-    border: none;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-    text-decoration: none;
-    color: #1c1c1e;
-    flex-shrink: 0;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: #f5f5f7; color: #1c1c1e; min-height: 100vh; padding-bottom: 40px; }
+  .header { background: #fff; padding: 16px 20px 12px; border-bottom: 1px solid #e5e5ea; position: sticky; top: 0; z-index: 100; }
+  .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .back-btn { width: 32px; height: 32px; border-radius: 50%; background: #f2f2f7; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; text-decoration: none; color: #1c1c1e; flex-shrink: 0; }
   .header-titles { flex: 1; }
   .header-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
   .header-date { font-size: 13px; color: #8e8e93; margin-top: 1px; }
-
-  /* Progress */
-  .progress-bar-wrap {
-    background: #f2f2f7;
-    border-radius: 100px;
-    height: 6px;
-    overflow: hidden;
-  }
-  .progress-bar-fill {
-    height: 100%;
-    border-radius: 100px;
-    background: #1c1c1e;
-    transition: width 0.4s ease;
-    width: 0%;
-  }
-  .progress-label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-  }
+  .progress-bar-wrap { background: #f2f2f7; border-radius: 100px; height: 6px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; border-radius: 100px; background: #1c1c1e; transition: width 0.4s ease; width: 0%; }
+  .progress-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
   .progress-text { font-size: 12px; color: #8e8e93; font-weight: 500; }
-  .done-badge {
-    font-size: 12px;
-    font-weight: 600;
-    color: #34c759;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
+  .done-badge { font-size: 12px; font-weight: 600; color: #34c759; opacity: 0; transition: opacity 0.3s; }
   .done-badge.visible { opacity: 1; }
-
-  /* Content */
   .content { padding: 20px 16px 0; }
-
-  /* Section group */
-  .section-group {
-    background: #fff;
-    border-radius: 16px;
-    margin-bottom: 12px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-
-  /* Section header */
-  .section-header {
-    padding: 16px 16px 0;
-  }
-  .section-title-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-  .section-title {
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: -0.2px;
-  }
-  .section-tag {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 9px;
-    border-radius: 100px;
-    letter-spacing: 0.2px;
-  }
-  .tag-hours    { background: #e8f4fd; color: #1d7bc4; }
-  .tag-delivery { background: #fef3e2; color: #c47b00; }
-  .tag-review   { background: #f0f8ec; color: #2d8c3e; }
-  .tag-perf     { background: #fce8f3; color: #b8236a; }
-
-  /* Links row */
-  .links-row {
-    display: flex;
-    gap: 8px;
-    padding-bottom: 12px;
-    flex-wrap: wrap;
-  }
-  .link-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #1c1c1e;
-    background: #f2f2f7;
-    border: none;
-    border-radius: 8px;
-    padding: 6px 12px;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.15s;
-  }
+  .section-group { background: #fff; border-radius: 16px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .section-header { padding: 16px 16px 0; }
+  .section-title { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; margin-bottom: 10px; }
+  .links-row { display: flex; gap: 8px; padding-bottom: 12px; flex-wrap: wrap; min-height: 0; }
+  .link-btn { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: #1c1c1e; background: #f2f2f7; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; text-decoration: none; transition: background 0.15s; }
   .link-btn:active { background: #e5e5ea; }
-  .link-btn svg { width: 12px; height: 12px; opacity: 0.5; }
-
-  /* Divider */
-  .section-divider {
-    height: 1px;
-    background: #f2f2f7;
-    margin: 0 16px;
-  }
-
-  /* Task rows */
-  .task-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
-    cursor: pointer;
-    transition: background 0.1s;
-    border-bottom: 1px solid #f2f2f7;
-  }
+  .link-icon { width: 12px; height: 12px; opacity: 0.4; }
+  .section-divider { height: 1px; background: #f2f2f7; }
+  .task-row { display: flex; align-items: center; gap: 14px; padding: 14px 16px; cursor: pointer; transition: background 0.1s; border-bottom: 1px solid #f2f2f7; }
   .task-row:last-child { border-bottom: none; }
   .task-row:active { background: #f9f9f9; }
-
-  /* Checkbox */
-  .check-circle {
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    border: 2px solid #d1d1d6;
-    flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s ease;
-    background: transparent;
-  }
-  .check-circle svg {
-    width: 13px; height: 13px;
-    stroke: #fff;
-    stroke-width: 2.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    fill: none;
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
-  .task-row.done .check-circle {
-    background: #1c1c1e;
-    border-color: #1c1c1e;
-  }
+  .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #d1d1d6; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; background: transparent; }
+  .check-circle svg { width: 13px; height: 13px; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; fill: none; opacity: 0; transition: opacity 0.15s; }
+  .task-row.done .check-circle { background: #1c1c1e; border-color: #1c1c1e; }
   .task-row.done .check-circle svg { opacity: 1; }
-  .task-label {
-    font-size: 15px;
-    color: #1c1c1e;
-    transition: color 0.2s, text-decoration 0.2s;
-    flex: 1;
-    line-height: 1.4;
-  }
-  .task-row.done .task-label {
-    color: #aeaeb2;
-    text-decoration: line-through;
-  }
-
-  /* Save status */
-  .save-toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: #1c1c1e;
-    color: #fff;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 10px 20px;
-    border-radius: 100px;
-    transition: transform 0.3s ease;
-    z-index: 999;
-    white-space: nowrap;
-  }
+  .task-label { font-size: 15px; color: #1c1c1e; transition: color 0.2s; flex: 1; line-height: 1.4; }
+  .task-row.done .task-label { color: #aeaeb2; text-decoration: line-through; }
+  .save-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1c1c1e; color: #fff; font-size: 13px; font-weight: 500; padding: 10px 20px; border-radius: 100px; transition: transform 0.3s ease; z-index: 999; white-space: nowrap; }
   .save-toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
@@ -236,140 +61,68 @@
 </div>
 
 <div class="content" id="checklist-root"></div>
-
 <div class="save-toast" id="save-toast">Saved</div>
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxtzuYyz9RtG127E-A7D-Of8w7sYQbRzdqoP5q3Fl1W1dKh545CvE682F-NWDZ3DdABtQ/exec';
 
 const SECTIONS = [
-  {
-    id: 'hours',
-    title: '工时 Staff Hours',
-    tag: '工时',
-    tagClass: 'tag-hours',
-    links: [
-      { label: 'Rota Sheet', url: '#' },
-      { label: 'Hours Log', url: '#' }
-    ],
-    tasks: [
-      { id: 'hours_check', label: '核对工时' },
-      { id: 'hours_entry', label: '录入工时' }
-    ]
-  },
-  {
-    id: 'delivery',
-    title: '收货确认 Delivery Check',
-    tag: '收货',
-    tagClass: 'tag-delivery',
-    links: [
-      { label: 'Delivery Photos', url: '#' },
-      { label: 'Invoice Folder', url: '#' }
-    ],
-    tasks: [
-      { id: 'delivery_check', label: '核对图片、收货单、发票' },
-      { id: 'delivery_issues', label: '整理质量问题、退款、供应商反馈' },
-      { id: 'delivery_invoice', label: '发票录入' }
-    ]
-  },
-  {
-    id: 'review',
-    title: 'Deliveroo 评价回复',
-    tag: '评价',
-    tagClass: 'tag-review',
-    links: [
-      { label: 'Deliveroo Reviews', url: '#' }
-    ],
-    tasks: [
-      { id: 'review_reply', label: '回复今日店铺评价' }
-    ]
-  },
-  {
-    id: 'refund',
-    title: '绩效管理 Refund',
-    tag: '绩效',
-    tagClass: 'tag-perf',
-    links: [
-      { label: 'Refund Dashboard', url: '#' }
-    ],
-    tasks: [
-      { id: 'refund_dispute', label: 'Refund 检查并提交 Dispute' },
-      { id: 'refund_malicious', label: '恶意退款整理' },
-      { id: 'refund_platforms', label: '两个平台 Refund 数据整理' },
-      { id: 'refund_staff', label: '对应员工与销售额整理' },
-      { id: 'refund_sync', label: '完成绩效系统同步' }
-    ]
-  }
+  { id: 'hours',    title: '工时 Staff Hours',        tasks: [{ id: 'hours_check', label: '核对工时' }, { id: 'hours_entry', label: '录入工时' }] },
+  { id: 'delivery', title: '收货确认 Delivery Check',  tasks: [{ id: 'delivery_check', label: '核对图片、收货单、发票' }, { id: 'delivery_issues', label: '整理质量问题、退款、供应商反馈' }, { id: 'delivery_invoice', label: '发票录入' }] },
+  { id: 'review',   title: 'Deliveroo 评价回复',       tasks: [{ id: 'review_reply', label: '回复今日店铺评价' }] },
+  { id: 'refund',   title: '绩效管理 Refund',           tasks: [{ id: 'refund_dispute', label: 'Refund 检查并提交 Dispute' }, { id: 'refund_malicious', label: '恶意退款整理' }, { id: 'refund_platforms', label: '两个平台 Refund 数据整理' }, { id: 'refund_staff', label: '对应员工与销售额整理' }, { id: 'refund_sync', label: '完成绩效系统同步' }] },
 ];
 
-// State
 const state = {};
+const linksBySection = {};
 const todayKey = new Date().toISOString().slice(0, 10);
 
-// Date display
 const d = new Date();
 const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 document.getElementById('today-date').textContent = `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
 
-// Build UI
 function buildUI() {
   const root = document.getElementById('checklist-root');
   root.innerHTML = '';
-
   SECTIONS.forEach(section => {
     const group = document.createElement('div');
     group.className = 'section-group';
 
-    // Header
     const header = document.createElement('div');
     header.className = 'section-header';
-
-    const titleRow = document.createElement('div');
-    titleRow.className = 'section-title-row';
-
     const title = document.createElement('div');
     title.className = 'section-title';
     title.textContent = section.title;
+    header.appendChild(title);
 
-    titleRow.appendChild(title);
-    header.appendChild(titleRow);
-
-    // Links
-    if (section.links.length) {
-      const linksRow = document.createElement('div');
-      linksRow.className = 'links-row';
-      section.links.forEach(link => {
-        const a = document.createElement('a');
-        a.className = 'link-btn';
-        a.href = link.url;
-        a.target = '_blank';
-        a.innerHTML = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 1h4v4M5 7l6-6M2 3h3M2 3v7h7V7"/></svg>${link.label}`;
-        linksRow.appendChild(a);
-      });
-      header.appendChild(linksRow);
-    }
+    const linksRow = document.createElement('div');
+    linksRow.className = 'links-row';
+    linksRow.id = 'links-' + section.id;
+    const sectionLinks = linksBySection[section.id] || [];
+    sectionLinks.forEach(link => {
+      const a = document.createElement('a');
+      a.className = 'link-btn';
+      a.href = link.url;
+      a.target = '_blank';
+      a.innerHTML = `<svg class="link-icon" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 1h4v4M5 7l6-6M2 3h3M2 3v7h7V7"/></svg>${link.label}`;
+      linksRow.appendChild(a);
+    });
+    if (sectionLinks.length) header.appendChild(linksRow);
 
     group.appendChild(header);
+    group.appendChild(Object.assign(document.createElement('div'), {className: 'section-divider'}));
 
-    const divider = document.createElement('div');
-    divider.className = 'section-divider';
-    group.appendChild(divider);
-
-    // Tasks
     section.tasks.forEach(task => {
       const row = document.createElement('div');
       row.className = 'task-row' + (state[task.id] ? ' done' : '');
-      row.dataset.id = task.id;
-
-      row.innerHTML = `
-        <div class="check-circle">
-          <svg viewBox="0 0 13 10"><polyline points="1.5,5 5,8.5 11.5,1.5"/></svg>
-        </div>
-        <div class="task-label">${task.label}</div>
-      `;
-
-      row.addEventListener('click', () => toggleTask(task.id, row));
+      row.innerHTML = `<div class="check-circle"><svg viewBox="0 0 13 10"><polyline points="1.5,5 5,8.5 11.5,1.5"/></svg></div><div class="task-label">${task.label}</div>`;
+      row.addEventListener('click', () => {
+        state[task.id] = !state[task.id];
+        row.classList.toggle('done', state[task.id]);
+        updateProgress();
+        saveToSheet();
+      });
       group.appendChild(row);
     });
 
@@ -377,53 +130,49 @@ function buildUI() {
   });
 }
 
-function toggleTask(id, row) {
-  state[id] = !state[id];
-  row.classList.toggle('done', state[id]);
-  updateProgress();
-  saveToSheet();
-}
-
 function updateProgress() {
   const total = SECTIONS.reduce((s, sec) => s + sec.tasks.length, 0);
   const done = Object.values(state).filter(Boolean).length;
   document.getElementById('progress-text').textContent = `${done} / ${total} completed`;
   document.getElementById('progress-bar').style.width = `${(done / total) * 100}%`;
-  const badge = document.getElementById('done-badge');
-  badge.classList.toggle('visible', done === total);
+  document.getElementById('done-badge').classList.toggle('visible', done === total);
 }
 
 let saveTimer;
 function saveToSheet() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
-    const payload = { action: 'saveClosing', date: todayKey, tasks: state };
-    fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    }).then(() => {
-      const toast = document.getElementById('save-toast');
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 1800);
-    }).catch(() => {});
+    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'saveClosing', date: todayKey, tasks: state }) })
+      .then(() => { const t = document.getElementById('save-toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 1800); })
+      .catch(() => {});
   }, 600);
 }
 
-function loadFromSheet() {
-  fetch(`${SCRIPT_URL}?action=getClosing&date=${todayKey}`)
-    .then(r => r.json())
-    .then(data => {
-      if (data && data.tasks) {
-        Object.assign(state, data.tasks);
-        buildUI();
-        updateProgress();
-      }
-    }).catch(() => {});
+async function init() {
+  // Load links and today's state in parallel
+  const [linksRes, stateRes] = await Promise.allSettled([
+    fetch(`${SCRIPT_URL}?action=getLinks`).then(r => r.json()),
+    fetch(`${SCRIPT_URL}?action=getClosing&date=${todayKey}`).then(r => r.json())
+  ]);
+
+  if (linksRes.status === 'fulfilled' && linksRes.value.links) {
+    linksRes.value.links.forEach(l => {
+      if (!linksBySection[l.section]) linksBySection[l.section] = [];
+      linksBySection[l.section].push(l);
+    });
+  }
+
+  if (stateRes.status === 'fulfilled' && stateRes.value.tasks) {
+    Object.assign(state, stateRes.value.tasks);
+  }
+
+  buildUI();
+  updateProgress();
 }
 
 buildUI();
 updateProgress();
-loadFromSheet();
+init();
 </script>
 </body>
 </html>
