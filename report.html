@@ -107,25 +107,28 @@ function fmtShort(d){
 }
 
 async function fetchSheet(sheetName){
-  const url = `https://docs.google.com/spreadsheets/d/${SS_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+  const url = `https://docs.google.com/spreadsheets/d/${SS_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
   const res = await fetch(url);
   const text = await res.text();
-  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
-  return json.table;
-}
-
-function parseData(table){
-  const rows = [];
-  const cols = table.cols.map(c=>c.label);
-  table.rows.forEach(r=>{
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim());
+  const rows = lines.slice(1).map(line=>{
+    const vals=[];
+    let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){
+      if(line[i]==='"'){inQ=!inQ;}
+      else if(line[i]===','&&!inQ){vals.push(cur);cur='';}
+      else cur+=line[i];
+    }
+    vals.push(cur);
     const obj={};
-    cols.forEach((c,i)=>{
-      obj[c] = r.c[i] ? r.c[i].v : null;
-    });
-    rows.push(obj);
+    headers.forEach((h,i)=>{obj[h]=(vals[i]||'').trim();});
+    return obj;
   });
   return rows;
 }
+
+function parseData(rows){ return rows; }
 
 function aggregateByDateSite(rows){
   const map = {};
@@ -433,31 +436,20 @@ function renderAll(){
 
 let hoursData = [];
 
-function parseHoursData(table){
-  const rows = [];
-  if(!table||!table.rows) return rows;
-  const cols = table.cols.map(c=>c.label);
-  table.rows.forEach(r=>{
-    if(!r.c) return;
-    const obj={};
-    cols.forEach((c,i)=>{ obj[c] = r.c[i]?r.c[i].v:null; });
-    if(!obj.date||!obj.site) return;
-    let d = obj.date;
-    try{ const m=String(d).match(/Date\((\d+),(\d+),(\d+)\)/); if(m) d=`${m[1]}-${String(parseInt(m[2])+1).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`; }catch(e){}
-    rows.push({
-      date: String(d).slice(0,10),
-      staffName: obj.staffName||'',
-      site: obj.site||'',
-      clockIn: obj.clockIn||'',
-      clockOut: obj.clockOut||'',
-      workedMins: parseInt(obj.workedMins)||0,
-      hasBreak: obj.hasBreak==='yes'||obj.hasBreak===true,
-      breakMins: parseInt(obj.breakMins)||0,
-      paidMins: parseInt(obj.paidMins)||0,
-      off: obj.off==='yes'||obj.off===true
-    });
-  });
-  return rows;
+function parseHoursData(rows){
+  if(!rows||!rows.length) return [];
+  return rows.filter(r=>r.date&&r.site).map(r=>({
+    date: String(r.date||'').trim().slice(0,10),
+    staffName: (r.staffName||'').trim(),
+    site: (r.site||'').trim(),
+    clockIn: (r.clockIn||'').trim(),
+    clockOut: (r.clockOut||'').trim(),
+    workedMins: parseInt(r.workedMins)||0,
+    hasBreak: (r.hasBreak||'').trim()==='yes',
+    breakMins: parseInt(r.breakMins)||0,
+    paidMins: parseInt(r.paidMins)||0,
+    off: (r.off||'').trim()==='yes'
+  }));
 }
 
 function renderStaffRows(date, site){
