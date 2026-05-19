@@ -497,6 +497,12 @@ async function init(){
         adjRefund: 0
       };
     });
+    // Debug: show first 3 rows
+    document.getElementById('app').innerHTML = `<div class="error-msg" style="color:#333;background:#f9f9f9;border-color:#ddd">
+      Loaded ${allData.length} rows<br>
+      First: ${JSON.stringify(allData[0])}<br>
+      Today key: ${dateKey(currentDate)}
+    </div>`;
     hoursData = parseHoursData(hoursTable);
     renderAll();
   } catch(e){
