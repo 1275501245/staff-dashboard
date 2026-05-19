@@ -503,6 +503,35 @@ async function loadFromSheet(){
   }
 }
 
+// ── JSONP helper — bypasses CORS completely ──
+function jsonpRequest(url, data) {
+  return new Promise((resolve, reject) => {
+    const cbName = 'cb_' + Date.now();
+    const script = document.createElement('script');
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error('JSONP timeout'));
+    }, 15000);
+    
+    function cleanup() {
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      clearTimeout(timeout);
+    }
+    
+    window[cbName] = function(result) {
+      cleanup();
+      resolve(result);
+    };
+    
+    // Encode data as base64 in URL param
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+    script.src = url + '?callback=' + cbName + '&data=' + encodeURIComponent(encoded);
+    script.onerror = () => { cleanup(); reject(new Error('JSONP error')); };
+    document.head.appendChild(script);
+  });
+}
+
 // ── SAVE ──
 async function saveAll(){
   const btn=document.getElementById('save-btn');
@@ -548,14 +577,8 @@ async function saveAll(){
       setTimeout(()=>{ st.textContent=''; },2000);
       return;
     }
-    // single batch request — no concurrency conflicts
-    const saveRes = await fetch(SCRIPT_URL,{
-      method:'POST',
-      body:JSON.stringify({action:'saveEntry',entries}),
-      headers:{'Content-Type':'text/plain'}, // avoid CORS preflight
-    });
-    const saveJson = await saveRes.json();
-    if(!saveJson.ok) throw new Error(saveJson.error||'Save failed');
+    // Use JSONP to bypass CORS — works from any browser/device
+    await jsonpRequest(SCRIPT_URL, {action:'saveEntry', entries});
     saveLocal();
     // update snapshot to reflect what's now in Sheet
     entries.forEach(en => {
