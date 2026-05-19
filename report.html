@@ -279,7 +279,7 @@ function renderChart(canvasId, labels, datasets, yFmt, existing){
 
 function renderDailySection(dayData){
   const key = dateKey(currentDate);
-  const todaySites = dayData.filter(r=>r.date===key);
+  const todaySites = dayData.filter(r=>r.date===key&&(r.revenue>0||r.orders!=null));
   
   let totalRev=0, totalOrders=0;
   SITES.forEach(s=>{
@@ -479,21 +479,20 @@ async function init(){
     ]);
     const rawOps = parseData(opsTable);
     allData = rawOps.map(r=>{
-      let d = r.Date||r.date||'';
-      const s = String(d).trim();
-      let dateStr = s.slice(0,10);
-      const ordersRaw = r.Orders!==undefined ? r.Orders : (r.orders!==undefined ? r.orders : '');
-      const ordersVal = ordersRaw!=='' ? parseInt(ordersRaw) : null;
-      const prepRaw = r.PrepTime!==undefined ? r.PrepTime : (r.prepTime!==undefined ? r.prepTime : '');
+      const d = (r.Date||r.date||'').trim();
+      const dateStr = d.slice(0,10);
+      const ordersRaw = (r.Orders||r.orders||'').trim();
+      const revenueRaw = (r.Revenue||r.revenue||'').trim();
+      const prepRaw = (r.PrepTime||r.prepTime||'').trim();
       return {
         date: dateStr,
         site: (r.Site||r.site||'').trim(),
-        orders: ordersVal,
-        revenue: parseFloat(r.Revenue||r.revenue)||0,
+        orders: ordersRaw!==''?parseInt(ordersRaw):null,
+        revenue: revenueRaw!==''?parseFloat(revenueRaw):0,
         prepTime: prepRaw!==''?parseFloat(prepRaw):null,
         adjRefund: 0
       };
-    });
+    }).filter(r=>r.date.length===10&&r.site!=='');
     hoursData = parseHoursData(hoursTable);
     renderAll();
   } catch(e){
