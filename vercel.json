@@ -16,7 +16,7 @@
     { "src": "/opening", "dest": "/opening.html" },
     { "src": "/hours", "dest": "/hours.html" },
     { "src": "/closing", "dest": "/closing.html" },
-    { "src": "/todo", "dest": "/todo.html" }
+    { "src": "/todo", "dest": "/todo.html" },
     { "src": "/report", "dest": "/report.html" }
   ]
 }
