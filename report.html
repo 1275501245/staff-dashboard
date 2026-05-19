@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Daily Report</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh;padding-bottom:40px}
+.header{background:#fff;border-bottom:1px solid #e8e8e4;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.header-title{font-size:17px;font-weight:600;letter-spacing:-0.3px}
+.date-nav{display:flex;align-items:center;gap:6px}
+.nav-btn{background:none;border:1px solid #ddd;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:14px;color:#1a1a1a;line-height:1}
+.nav-btn:active{background:#f0f0f0}
+.date-lbl{font-size:13px;font-weight:500;color:#1a1a1a;padding:5px 10px;border:1px solid #ddd;border-radius:8px;cursor:pointer;min-width:100px;text-align:center}
+input[type=date]{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
+.content{padding:12px 16px}
+.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.s-card{background:#fff;border-radius:12px;padding:14px;border:1px solid #e8e8e4}
+.s-label{font-size:11px;color:#888;margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em}
+.s-val{font-size:24px;font-weight:600;letter-spacing:-0.5px;color:#1a1a1a}
+.s-sub{font-size:11px;color:#aaa;margin-top:2px}
+.site-card{background:#fff;border-radius:12px;margin-bottom:10px;border:1px solid #e8e8e4;overflow:hidden}
+.site-header{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-bottom:1px solid #f0f0ec}
+.site-name{font-size:15px;font-weight:600;letter-spacing:-0.2px}
+.break-tag{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px}
+.tag-none{background:#fef0f0;color:#c0392b}
+.tag-half{background:#fef9e7;color:#d68910}
+.tag-full{background:#f0faf4;color:#1e8449}
+.site-body{display:grid;grid-template-columns:repeat(3,1fr)}
+.site-metric{padding:12px 14px;border-right:1px solid #f0f0ec}
+.site-metric:last-child{border-right:none}
+.m-label{font-size:10px;color:#aaa;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.05em;font-weight:500}
+.m-val{font-size:17px;font-weight:600;color:#1a1a1a;letter-spacing:-0.3px}
+.m-sub{font-size:10px;color:#bbb;margin-top:1px}
+.sat-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fafaf8;border-top:1px solid #f0f0ec}
+.sat-label{font-size:11px;color:#999;white-space:nowrap;font-weight:500}
+.sat-bar-wrap{flex:1;height:4px;background:#e8e8e4;border-radius:2px;overflow:hidden}
+.sat-bar{height:4px;border-radius:2px;transition:width 0.4s ease}
+.bar-ok{background:#27ae60}
+.bar-warn{background:#e67e22}
+.bar-high{background:#c0392b}
+.sat-val{font-size:12px;font-weight:600;color:#1a1a1a;white-space:nowrap}
+.section-title{font-size:14px;font-weight:600;color:#1a1a1a;margin:16px 0 10px;letter-spacing:-0.2px}
+.chart-card{background:#fff;border-radius:12px;border:1px solid #e8e8e4;padding:14px;margin-bottom:10px}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.chart-title{font-size:13px;font-weight:600;color:#1a1a1a}
+.tab-row{display:flex;gap:4px}
+.tab-btn{font-size:11px;font-weight:500;padding:4px 10px;border-radius:6px;border:1px solid #ddd;background:none;color:#888;cursor:pointer}
+.tab-btn.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.legend{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#888}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.no-data{text-align:center;padding:32px 16px;color:#bbb;font-size:13px}
+.loading{text-align:center;padding:40px;color:#bbb;font-size:13px}
+.error-msg{background:#fef0f0;border:1px solid #f5c6c6;border-radius:8px;padding:12px;margin:12px 0;font-size:12px;color:#c0392b}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">Daily Report</div>
+  <div class="date-nav">
+    <button class="nav-btn" onclick="changeDay(-1)">‹</button>
+    <span class="date-lbl" id="date-lbl" onclick="document.getElementById('date-input').showPicker()"></span>
+    <input type="date" id="date-input" onchange="onDatePick(this.value)">
+    <button class="nav-btn" onclick="changeDay(1)">›</button>
+  </div>
+</div>
+
+<div class="content">
+  <div id="app"><div class="loading">Loading...</div></div>
+</div>
+
+<script>
+const SS_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
+const SITES = ['Battersea','Shoreditch','Tower Bridge'];
+const SITE_HOURS = {Battersea:11, Shoreditch:11.5, 'Tower Bridge':10};
+const COLORS = {Battersea:'#1D9E75', Shoreditch:'#378ADD', 'Tower Bridge':'#BA7517'};
+
+let currentDate = new Date();
+currentDate.setHours(0,0,0,0);
+let allData = null;
+let prepData = null;
+let accChart = null;
+let prepChart = null;
+
+function dateKey(d){
+  return d.toISOString().slice(0,10);
+}
+
+function fmtLabel(d){
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return days[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()];
+}
+
+function fmtShort(d){
+  return (d.getMonth()+1)+'/'+(d.getDate());
+}
+
+async function fetchSheet(sheetName){
+  const url = `https://docs.google.com/spreadsheets/d/${SS_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  return json.table;
+}
+
+function parseData(table){
+  const rows = [];
+  const cols = table.cols.map(c=>c.label);
+  table.rows.forEach(r=>{
+    const obj={};
+    cols.forEach((c,i)=>{
+      obj[c] = r.c[i] ? r.c[i].v : null;
+    });
+    rows.push(obj);
+  });
+  return rows;
+}
+
+function aggregateByDateSite(rows){
+  const map = {};
+  rows.forEach(r=>{
+    if(!r.Date||!r.Site) return;
+    let d = r.Date;
+    if(typeof d === 'string') d = d.slice(0,10);
+    else if(d && d.getTime) d = dateKey(d);
+    else {
+      // gviz date format: Date(year,month,day)
+      try {
+        const m = String(d).match(/Date\((\d+),(\d+),(\d+)\)/);
+        if(m) d = `${m[1]}-${String(parseInt(m[2])+1).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+      } catch(e){}
+    }
+    const key = d+'|'+r.Site;
+    if(!map[key]) map[key]={date:d, site:r.Site, revenue:0, refund:0, adjRefund:0, orders:0};
+    map[key].revenue += parseFloat(r.Revenue)||0;
+    map[key].refund += parseFloat(r.Refund)||0;
+    map[key].adjRefund += parseFloat(r.Adjusted_Refund)||0;
+    map[key].orders += parseInt(r.Orders)||0;
+  });
+  return Object.values(map);
+}
+
+function parsePrepData(table){
+  const rows = [];
+  if(!table||!table.rows) return rows;
+  table.rows.forEach(r=>{
+    if(!r.c||!r.c[0]||!r.c[0].v) return;
+    let d = r.c[0].v;
+    try {
+      const m = String(d).match(/Date\((\d+),(\d+),(\d+)\)/);
+      if(m) d = `${m[1]}-${String(parseInt(m[2])+1).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+    } catch(e){}
+    rows.push({
+      date: String(d).slice(0,10),
+      Battersea: r.c[1]?parseFloat(r.c[1].v)||null:null,
+      Shoreditch: r.c[2]?parseFloat(r.c[2].v)||null:null,
+      'Tower Bridge': r.c[3]?parseFloat(r.c[3].v)||null:null
+    });
+  });
+  return rows;
+}
+
+function getBreakType(dateStr){
+  // Read from Rota if available, fallback to single full day = full break
+  return 'full';
+}
+
+function breakTag(type){
+  if(type==='none') return '<span class="break-tag tag-none">No break</span>';
+  if(type==='half') return '<span class="break-tag tag-half">30 min break</span>';
+  return '<span class="break-tag tag-full">1h break</span>';
+}
+
+function satColor(minPer){
+  if(minPer<=9) return 'bar-high';
+  if(minPer<=13) return 'bar-warn';
+  return 'bar-ok';
+}
+
+function satWidth(minPer){
+  return Math.round(Math.max(5,Math.min(100,(20-minPer)/20*100)))+'%';
+}
+
+function getLast7Dates(){
+  const arr=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(currentDate);
+    d.setDate(currentDate.getDate()-i);
+    arr.push(dateKey(d));
+  }
+  return arr;
+}
+
+function getLast30Dates(){
+  const arr=[];
+  for(let i=29;i>=0;i--){
+    const d=new Date(currentDate);
+    d.setDate(currentDate.getDate()-i);
+    arr.push(dateKey(d));
+  }
+  return arr;
+}
+
+function buildAccData(dates){
+  return SITES.map(site=>{
+    return dates.map(dt=>{
+      const row = allData.find(r=>r.date===dt&&r.site===site);
+      if(!row||!row.revenue) return null;
+      return +((row.adjRefund/row.revenue)*100).toFixed(2);
+    });
+  });
+}
+
+function buildPrepChartData(dates){
+  return SITES.map(site=>{
+    return dates.map(dt=>{
+      const row = prepData.find(r=>r.date===dt);
+      return row ? row[site] : null;
+    });
+  });
+}
+
+function makeChartDatasets(siteData, spanGaps){
+  return SITES.map((s,i)=>({
+    label:s,
+    data:siteData[i],
+    borderColor:COLORS[s],
+    backgroundColor:COLORS[s]+'20',
+    tension:0.35,
+    fill:false,
+    pointRadius:3,
+    pointHoverRadius:5,
+    borderWidth:2,
+    spanGaps: spanGaps||false
+  }));
+}
+
+function renderChart(canvasId, labels, datasets, yFmt, existing){
+  const ctx = document.getElementById(canvasId);
+  if(!ctx) return null;
+  if(existing){ existing.destroy(); }
+  return new Chart(ctx,{
+    type:'line',
+    data:{labels, datasets},
+    options:{
+      responsive:true,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+(ctx.parsed.y!=null?yFmt(ctx.parsed.y):'—')}}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:10},maxTicksLimit:7,color:'#aaa'}},
+        y:{
+          grid:{color:'rgba(0,0,0,0.05)'},
+          ticks:{font:{size:10},color:'#aaa',callback:v=>yFmt(v)},
+        }
+      }
+    }
+  });
+}
+
+function renderDailySection(dayData){
+  const key = dateKey(currentDate);
+  const todaySites = dayData.filter(r=>r.date===key);
+  
+  let totalRev=0, totalOrders=0;
+  SITES.forEach(s=>{
+    const r=todaySites.find(x=>x.site===s);
+    if(r){totalRev+=r.revenue;totalOrders+=r.orders;}
+  });
+
+  let html = '';
+
+  if(todaySites.length===0){
+    html += '<div class="no-data">No data for this date</div>';
+  } else {
+    html += `
+    <div class="summary-grid">
+      <div class="s-card">
+        <div class="s-label">Total revenue</div>
+        <div class="s-val">£${totalRev.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
+        <div class="s-sub">3 sites</div>
+      </div>
+      <div class="s-card">
+        <div class="s-label">Total orders</div>
+        <div class="s-val">${totalOrders||'—'}</div>
+        <div class="s-sub">all platforms</div>
+      </div>
+    </div>`;
+
+    SITES.forEach(site=>{
+      const r = todaySites.find(x=>x.site===site);
+      if(!r) return;
+      const hours = SITE_HOURS[site];
+      const aov = r.orders>0?(r.revenue/r.orders).toFixed(1):'—';
+      const minPer = r.orders>0?(hours*60/r.orders).toFixed(1):'—';
+      const bType = getBreakType(key);
+      html += `
+      <div class="site-card">
+        <div class="site-header">
+          <span class="site-name">${site}</span>
+          ${breakTag(bType)}
+        </div>
+        <div class="site-body">
+          <div class="site-metric">
+            <div class="m-label">Revenue</div>
+            <div class="m-val">£${r.revenue.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
+            <div class="m-sub">today</div>
+          </div>
+          <div class="site-metric">
+            <div class="m-label">Orders</div>
+            <div class="m-val">${r.orders||'—'}</div>
+            <div class="m-sub">today</div>
+          </div>
+          <div class="site-metric">
+            <div class="m-label">Avg order</div>
+            <div class="m-val">£${aov}</div>
+            <div class="m-sub">per order</div>
+          </div>
+        </div>
+        <div class="sat-row">
+          <span class="sat-label">Saturation</span>
+          <div class="sat-bar-wrap"><div class="sat-bar ${satColor(parseFloat(minPer)||99)}" style="width:${minPer!=='—'?satWidth(parseFloat(minPer)):'0%'}"></div></div>
+          <span class="sat-val">${minPer} min/order</span>
+        </div>
+      </div>`;
+    });
+  }
+  return html;
+}
+
+function renderTrendSections(){
+  return `
+  <div class="section-title">Inaccuracy rate</div>
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="legend">
+        ${SITES.map(s=>`<div class="leg-item"><div class="leg-dot" style="background:${COLORS[s]}"></div>${s}</div>`).join('')}
+      </div>
+      <div class="tab-row">
+        <button class="tab-btn active" id="acc-7" onclick="switchTab('acc',7)">7d</button>
+        <button class="tab-btn" id="acc-30" onclick="switchTab('acc',30)">30d</button>
+      </div>
+    </div>
+    <canvas id="accChart" height="160"></canvas>
+  </div>
+
+  <div class="section-title">Prep speed</div>
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="legend">
+        ${SITES.map(s=>`<div class="leg-item"><div class="leg-dot" style="background:${COLORS[s]}"></div>${s}</div>`).join('')}
+      </div>
+      <div class="tab-row">
+        <button class="tab-btn active" id="prep-7" onclick="switchTab('prep',7)">7d</button>
+        <button class="tab-btn" id="prep-30" onclick="switchTab('prep',30)">30d</button>
+      </div>
+    </div>
+    <canvas id="prepChart" height="160"></canvas>
+  </div>`;
+}
+
+let accDays=7, prepDays=7;
+
+function switchTab(type, days){
+  if(type==='acc'){
+    accDays=days;
+    document.getElementById('acc-7').classList.toggle('active',days===7);
+    document.getElementById('acc-30').classList.toggle('active',days===30);
+    const dates=(days===7?getLast7Dates():getLast30Dates());
+    const labels=dates.map(d=>{const x=new Date(d+'T00:00:00');return fmtShort(x);});
+    accChart.data.labels=labels;
+    accChart.data.datasets=makeChartDatasets(buildAccData(dates),true);
+    accChart.update();
+  } else {
+    prepDays=days;
+    document.getElementById('prep-7').classList.toggle('active',days===7);
+    document.getElementById('prep-30').classList.toggle('active',days===30);
+    const dates=(days===7?getLast7Dates():getLast30Dates());
+    const labels=dates.map(d=>{const x=new Date(d+'T00:00:00');return fmtShort(x);});
+    prepChart.data.labels=labels;
+    prepChart.data.datasets=makeChartDatasets(buildPrepChartData(dates),true);
+    prepChart.update();
+  }
+}
+
+function changeDay(dir){
+  currentDate.setDate(currentDate.getDate()+dir);
+  renderAll();
+}
+
+function onDatePick(val){
+  if(val){ currentDate=new Date(val+'T00:00:00'); renderAll(); }
+}
+
+function renderAll(){
+  document.getElementById('date-lbl').textContent = fmtLabel(currentDate);
+  document.getElementById('date-input').value = dateKey(currentDate);
+
+  const app = document.getElementById('app');
+  app.innerHTML = renderDailySection(allData) + renderTrendSections();
+
+  const dates7 = getLast7Dates();
+  const labels7 = dates7.map(d=>{const x=new Date(d+'T00:00:00');return fmtShort(x);});
+
+  accChart = renderChart('accChart', labels7,
+    makeChartDatasets(buildAccData(dates7),true),
+    v=>v.toFixed(1)+'%', accChart);
+
+  prepChart = renderChart('prepChart', labels7,
+    makeChartDatasets(buildPrepChartData(dates7),true),
+    v=>v.toFixed(1)+'m', prepChart);
+
+  accDays=7; prepDays=7;
+}
+
+async function init(){
+  document.getElementById('date-lbl').textContent = fmtLabel(currentDate);
+  try {
+    const [dataTable, prepTable] = await Promise.all([
+      fetchSheet('Data'),
+      fetchSheet('PrepTime')
+    ]);
+    const rawData = parseData(dataTable);
+    allData = aggregateByDateSite(rawData);
+    prepData = parsePrepData(prepTable);
+    renderAll();
+  } catch(e){
+    document.getElementById('app').innerHTML = `<div class="error-msg">Failed to load data: ${e.message}</div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
