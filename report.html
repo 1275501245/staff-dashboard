@@ -281,7 +281,7 @@ function renderDailySection(dayData){
   let totalRev=0, totalOrders=0;
   SITES.forEach(s=>{
     const r=todaySites.find(x=>x.site===s);
-    if(r){totalRev+=r.revenue;totalOrders+=r.orders;}
+    if(r){totalRev+=r.revenue;totalOrders+=(r.orders||0);}
   });
 
   let html = '';
@@ -307,8 +307,9 @@ function renderDailySection(dayData){
       const r = todaySites.find(x=>x.site===site);
       if(!r) return;
       const hours = SITE_HOURS[site];
-      const aov = r.orders>0?(r.revenue/r.orders).toFixed(1):'—';
-      const minPer = r.orders>0?(hours*60/r.orders).toFixed(1):'—';
+      const orders = r.orders!=null ? r.orders : 0;
+      const aov = orders>0?(r.revenue/orders).toFixed(1):'—';
+      const minPer = orders>0?(hours*60/orders).toFixed(1):'—';
       const bType = getBreakType(minPer);
       html += `
       <div class="site-card">
@@ -324,7 +325,7 @@ function renderDailySection(dayData){
           </div>
           <div class="site-metric">
             <div class="m-label">Orders</div>
-            <div class="m-val">${r.orders||'—'}</div>
+            <div class="m-val">${orders||'—'}</div>
             <div class="m-sub">today</div>
           </div>
           <div class="site-metric">
@@ -486,23 +487,21 @@ async function init(){
     ]);
     const rawOps = parseData(opsTable);
     allData = rawOps.map(r=>{
-      let d = r.Date||r.date;
-      try{ const m=String(d).match(/Date\((\d+),(\d+),(\d+)\)/); if(m) d=`${m[1]}-${String(parseInt(m[2])+1).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`; }catch(e){}
+      let d = r.Date||r.date||'';
+      const s = String(d).trim();
+      let dateStr = s.slice(0,10);
+      const ordersRaw = r.Orders!==undefined ? r.Orders : (r.orders!==undefined ? r.orders : '');
+      const ordersVal = ordersRaw!=='' ? parseInt(ordersRaw) : null;
+      const prepRaw = r.PrepTime!==undefined ? r.PrepTime : (r.prepTime!==undefined ? r.prepTime : '');
       return {
-        date: String(d).slice(0,10),
-        site: r.Site||r.site||'',
-        orders: parseInt(r.Orders||r.orders)||0,
+        date: dateStr,
+        site: (r.Site||r.site||'').trim(),
+        orders: ordersVal,
         revenue: parseFloat(r.Revenue||r.revenue)||0,
-        prepTime: r.PrepTime||r.prepTime||null,
+        prepTime: prepRaw!==''?parseFloat(prepRaw):null,
         adjRefund: 0
       };
     });
-    // Debug: show first 3 rows
-    document.getElementById('app').innerHTML = `<div class="error-msg" style="color:#333;background:#f9f9f9;border-color:#ddd">
-      Loaded ${allData.length} rows<br>
-      First: ${JSON.stringify(allData[0])}<br>
-      Today key: ${dateKey(currentDate)}
-    </div>`;
     hoursData = parseHoursData(hoursTable);
     renderAll();
   } catch(e){
