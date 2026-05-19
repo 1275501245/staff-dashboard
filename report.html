@@ -55,6 +55,8 @@ input[type=date]{position:absolute;opacity:0;pointer-events:none;width:0;height:
 .no-data{text-align:center;padding:32px 16px;color:#bbb;font-size:13px}
 .loading{text-align:center;padding:40px;color:#bbb;font-size:13px}
 .error-msg{background:#fef0f0;border:1px solid #f5c6c6;border-radius:8px;padding:12px;margin:12px 0;font-size:12px;color:#c0392b}
+.break-note{margin-top:20px;padding:12px 14px;background:#fafaf8;border:1px solid #e8e8e4;border-radius:10px;font-size:11px;color:#999;line-height:1.7}
+.break-note span{color:#666;font-weight:500}
 </style>
 </head>
 <body>
@@ -71,6 +73,10 @@ input[type=date]{position:absolute;opacity:0;pointer-events:none;width:0;height:
 
 <div class="content">
   <div id="app"><div class="loading">Loading...</div></div>
+  <div class="break-note">
+    <span>Break policy (based on saturation):</span><br>
+    ≤ 10 min/order → No break &nbsp;·&nbsp; 11–14 min/order → 30 min break &nbsp;·&nbsp; ≥ 15 min/order → 1h break
+  </div>
 </div>
 
 <script>
@@ -165,8 +171,11 @@ function parsePrepData(table){
   return rows;
 }
 
-function getBreakType(dateStr){
-  // Read from Rota if available, fallback to single full day = full break
+function getBreakType(minPer){
+  const m = parseFloat(minPer);
+  if(isNaN(m)) return 'full';
+  if(m <= 10) return 'none';
+  if(m <= 14) return 'half';
   return 'full';
 }
 
@@ -219,8 +228,8 @@ function buildAccData(dates){
 function buildPrepChartData(dates){
   return SITES.map(site=>{
     return dates.map(dt=>{
-      const row = prepData.find(r=>r.date===dt);
-      return row ? row[site] : null;
+      const row = allData.find(r=>r.date===dt&&r.site===site);
+      return row&&row.prepTime?parseFloat(row.prepTime):null;
     });
   });
 }
@@ -300,7 +309,7 @@ function renderDailySection(dayData){
       const hours = SITE_HOURS[site];
       const aov = r.orders>0?(r.revenue/r.orders).toFixed(1):'—';
       const minPer = r.orders>0?(hours*60/r.orders).toFixed(1):'—';
-      const bType = getBreakType(key);
+      const bType = getBreakType(minPer);
       html += `
       <div class="site-card">
         <div class="site-header">
@@ -329,6 +338,7 @@ function renderDailySection(dayData){
           <div class="sat-bar-wrap"><div class="sat-bar ${satColor(parseFloat(minPer)||99)}" style="width:${minPer!=='—'?satWidth(parseFloat(minPer)):'0%'}"></div></div>
           <span class="sat-val">${minPer} min/order</span>
         </div>
+        ${renderStaffRows(currentDate, site)}
       </div>`;
     });
   }
@@ -420,16 +430,74 @@ function renderAll(){
   accDays=7; prepDays=7;
 }
 
+let hoursData = [];
+
+function parseHoursData(table){
+  const rows = [];
+  if(!table||!table.rows) return rows;
+  const cols = table.cols.map(c=>c.label);
+  table.rows.forEach(r=>{
+    if(!r.c) return;
+    const obj={};
+    cols.forEach((c,i)=>{ obj[c] = r.c[i]?r.c[i].v:null; });
+    if(!obj.date||!obj.site) return;
+    let d = obj.date;
+    try{ const m=String(d).match(/Date\((\d+),(\d+),(\d+)\)/); if(m) d=`${m[1]}-${String(parseInt(m[2])+1).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`; }catch(e){}
+    rows.push({
+      date: String(d).slice(0,10),
+      staffName: obj.staffName||'',
+      site: obj.site||'',
+      clockIn: obj.clockIn||'',
+      clockOut: obj.clockOut||'',
+      workedMins: parseInt(obj.workedMins)||0,
+      hasBreak: obj.hasBreak==='yes'||obj.hasBreak===true,
+      breakMins: parseInt(obj.breakMins)||0,
+      paidMins: parseInt(obj.paidMins)||0,
+      off: obj.off==='yes'||obj.off===true
+    });
+  });
+  return rows;
+}
+
+function renderStaffRows(date, site){
+  const key = dateKey(date);
+  const staff = hoursData.filter(r=>r.date===key&&r.site===site&&r.workedMins>0);
+  if(!staff.length) return '';
+  let html = '<div style="border-top:1px solid #f0f0ec;padding:10px 14px;background:#fff">';
+  staff.forEach(s=>{
+    const hrs = (s.paidMins/60).toFixed(1);
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:12px">
+      <span style="color:#555;font-weight:500">${s.staffName}</span>
+      <span style="color:#aaa">${s.clockIn||'—'} – ${s.clockOut||'—'}</span>
+      <span style="color:#1a1a1a;font-weight:600">${hrs}h paid</span>
+      <span style="font-size:11px;padding:2px 7px;border-radius:10px;${s.hasBreak?'background:#f0faf4;color:#1e8449':'background:#fafaf8;color:#aaa'}">${s.hasBreak?`${s.breakMins}min break`:'no break'}</span>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
 async function init(){
   document.getElementById('date-lbl').textContent = fmtLabel(currentDate);
   try {
-    const [dataTable, prepTable] = await Promise.all([
-      fetchSheet('Data'),
-      fetchSheet('PrepTime')
+    const [opsTable, hoursTable] = await Promise.all([
+      fetchSheet('Operations'),
+      fetchSheet('DailyHours')
     ]);
-    const rawData = parseData(dataTable);
-    allData = aggregateByDateSite(rawData);
-    prepData = parsePrepData(prepTable);
+    const rawOps = parseData(opsTable);
+    allData = rawOps.map(r=>{
+      let d = r.Date||r.date;
+      try{ const m=String(d).match(/Date\((\d+),(\d+),(\d+)\)/); if(m) d=`${m[1]}-${String(parseInt(m[2])+1).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`; }catch(e){}
+      return {
+        date: String(d).slice(0,10),
+        site: r.Site||r.site||'',
+        orders: parseInt(r.Orders||r.orders)||0,
+        revenue: parseFloat(r.Revenue||r.revenue)||0,
+        prepTime: r.PrepTime||r.prepTime||null,
+        adjRefund: 0
+      };
+    });
+    hoursData = parseHoursData(hoursTable);
     renderAll();
   } catch(e){
     document.getElementById('app').innerHTML = `<div class="error-msg">Failed to load data: ${e.message}</div>`;
