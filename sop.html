@@ -1,190 +1,157 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SOP · Standards & Procedures</title>
+<title>SOP · 菜品手册</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; }
-  .page { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
-
-  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 8px; }
-  .back-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #666; text-decoration: none; }
-  .back-btn svg { width: 16px; height: 16px; }
-  .meta { display: flex; align-items: center; gap: 8px; }
-  .badge { font-size: 11px; padding: 2px 9px; border-radius: 6px; font-weight: 500; background: #eee; color: #555; }
-
-  .lang-toggle { display: flex; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
-  .lang-btn { padding: 4px 14px; font-size: 12px; font-weight: 500; background: transparent; color: #888; border: none; cursor: pointer; }
-  .lang-btn.active { background: #1a1a1a; color: #fff; }
-
-  h1 { font-size: 20px; font-weight: 600; margin-bottom: 3px; }
-  .sub { font-size: 12px; color: #888; margin-bottom: 1.25rem; }
-
-  .warn { background: #fff3f3; border-left: 3px solid #cc3333; padding: 10px 14px; font-size: 13px; color: #cc3333; font-weight: 500; margin-bottom: 1.25rem; border-radius: 0 6px 6px 0; }
-
-  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.25rem; }
-  .tab { padding: 5px 14px; border-radius: 999px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid #ddd; background: #fff; color: #666; transition: all 0.15s; }
-  .tab.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
-
-  .section { margin-bottom: 1.25rem; }
-  .section-label { font-size: 12px; color: #888; margin-bottom: 8px; padding-left: 2px; }
-  .card { border: 1px solid #e5e5e5; border-radius: 12px; background: #fff; overflow: hidden; }
-  .item { padding: 12px 16px; border-top: 1px solid #f0f0f0; font-size: 13px; color: #1a1a1a; line-height: 1.7; display: flex; gap: 10px; align-items: flex-start; }
-  .item:first-child { border-top: none; }
-  .item-dot { width: 5px; height: 5px; border-radius: 50%; background: #ccc; flex-shrink: 0; margin-top: 7px; }
-
-  .loading { text-align: center; padding: 2rem; color: #888; font-size: 13px; }
-  .error { text-align: center; padding: 2rem; color: #cc3333; font-size: 13px; }
-
-  .ft { font-size: 11px; color: #aaa; padding-top: 0.75rem; border-top: 1px solid #eee; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; margin-top: 1.5rem; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;min-height:100vh}
+.page{max-width:680px;margin:0 auto;padding:1.25rem 1rem 5rem}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.back{display:flex;align-items:center;gap:4px;font-size:13px;color:#666;text-decoration:none}
+.back svg{width:16px;height:16px}
+.lang-toggle{display:flex;border:1px solid #ddd;border-radius:8px;overflow:hidden}
+.lang-btn{padding:4px 12px;font-size:12px;font-weight:500;background:transparent;color:#888;border:none;cursor:pointer}
+.lang-btn.active{background:#1a1a1a;color:#fff}
+.cats{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;margin-bottom:1.25rem;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cat{padding:5px 14px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid #e0e0e0;background:#fff;color:#666;white-space:nowrap;flex-shrink:0;transition:all 0.15s}
+.cat.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.sub-label{font-size:12px;color:#888;margin-bottom:8px;padding-left:2px}
+.section-group{margin-bottom:1.25rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+.item-card{border:1px solid #e5e5e5;border-radius:12px;background:#fff;padding:12px;cursor:pointer;transition:all 0.15s;text-align:left;width:100%}
+.item-card:hover{background:#f9f9f9}
+.item-card.active{border-color:#1a1a1a}
+.ic-icon{width:32px;height:32px;border-radius:8px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;margin-bottom:8px;font-size:18px}
+.ic-name{font-size:13px;font-weight:500;color:#1a1a1a;line-height:1.3}
+.detail-wrap{margin-top:1rem}
+.detail-card{border:1px solid #e5e5e5;border-radius:12px;background:#fff;overflow:hidden}
+.dc-head{padding:14px 16px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:12px}
+.dc-icon{width:40px;height:40px;border-radius:10px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.dc-name{font-size:16px;font-weight:500;color:#1a1a1a}
+.dc-cat{font-size:12px;color:#888;margin-top:2px}
+.dc-section{padding:14px 16px;border-top:1px solid #f0f0f0}
+.sec-label{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px}
+.sec-text{font-size:13px;color:#1a1a1a;line-height:1.75}
+.loading{text-align:center;padding:3rem;color:#888;font-size:13px}
+.empty{text-align:center;padding:2rem;color:#aaa;font-size:13px}
 </style>
 </head>
 <body>
 <div class="page">
   <div class="topbar">
-    <a href="/index.html" class="back-btn">
+    <a href="/index.html" class="back">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 12L6 8l4-4"/></svg>
-      Back
+      <span id="back-label">返回</span>
     </a>
-    <div class="meta">
-      <span class="badge" id="ver-badge">v1.0</span>
-      <span class="badge" id="date-badge"></span>
-      <div class="lang-toggle">
-        <button class="lang-btn active" onclick="setLang('zh')" id="btn-zh">中文</button>
-        <button class="lang-btn" onclick="setLang('en')" id="btn-en">English</button>
-      </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('zh')" id="btn-zh">中文</button>
+      <button class="lang-btn" onclick="setLang('en')" id="btn-en">English</button>
     </div>
   </div>
-
-  <h1 id="title">员工操作标准手册</h1>
-  <p class="sub" id="sub">当前执行版本 · 如有更新以最新版为准</p>
-
-  <div class="warn" id="warn-text">未按SOP执行 = 未完成工作 = 扣工时。</div>
-
-  <div class="tabs" id="filter-bar">
-    <div class="tab active" onclick="setTab('all')" id="tab-all">All</div>
-  </div>
-
-  <div id="sop-content"><div class="loading">Loading...</div></div>
-
-  <div class="ft">
-    <span id="ft-note">此文件为当前执行版本 · 更新即生效</span>
-    <span id="ft-date"></span>
+  <div class="cats" id="cat-bar"><div style="color:#aaa;font-size:13px;padding:4px 0">Loading...</div></div>
+  <div id="content"><div class="loading">Loading...</div></div>
+  <div class="detail-wrap" id="detail-wrap" style="display:none">
+    <div class="detail-card" id="detail-card"></div>
   </div>
 </div>
-
 <script>
-const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
-const SHEET_NAME = 'SOP';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyh_F4jPG5xRFkaYskJOrvBBui7bx-hCVlK1RPeCSn7PFq_W7F3FvVWtrQtnnX-fWKrbA/exec';
+const SHEET_ID='1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
+const SHEET_NAME='MenuSOP';
+const LABELS={
+  zh:{back:'返回',std:'出品标准',method:'操作方法',storage:'储存方法'},
+  en:{back:'Back',std:'Standards',method:'Method',storage:'Storage'}
+};
+let lang='zh',allItems=[],currentCat='',selectedItem=null;
 
-let lang = 'zh';
-let allItems = [];
-let currentTag = 'all';
-let allTags = [];
-
-async function fetchSOP() {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
-  const res = await fetch(url);
-  const text = await res.text();
-  const json = JSON.parse(text.substring(47, text.length - 2));
-  const rows = json.table.rows;
-  return rows.map(r => ({
-    tag:    r.c[0]?.v || '',
-    tag_en: r.c[1]?.v || '',
-    item:   r.c[2]?.v || '',
-    item_en:r.c[3]?.v || ''
-  })).filter(r => r.tag && r.item && r.tag !== 'Tag' && r.item !== 'Item');
+async function fetchData(){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+  const res=await fetch(url);
+  const text=await res.text();
+  const json=JSON.parse(text.substring(47,text.length-2));
+  return json.table.rows.map(r=>({
+    cat:r.c[0]?.v||'',sub:r.c[1]?.v||'',name:r.c[2]?.v||'',
+    std:r.c[3]?.v||'',method:r.c[4]?.v||'',storage:r.c[5]?.v||''
+  })).filter(r=>r.name&&r.name!=='Name'&&r.cat!=='Category');
 }
 
-function buildTabs() {
-  const bar = document.getElementById('filter-bar');
-  bar.innerHTML = '';
-  const allTab = document.createElement('div');
-  allTab.className = 'tab active';
-  allTab.id = 'tab-all';
-  allTab.textContent = 'All';
-  allTab.onclick = () => setTab('all');
-  bar.appendChild(allTab);
+function catIcon(cat){
+  const map={'自选菜品':'🥩','汤底':'🍲','拌饭':'🍚','小料':'🥄','饮品':'🧋'};
+  return map[cat]||'📋';
+}
 
-  allTags.forEach(t => {
-    const btn = document.createElement('div');
-    btn.className = 'tab';
-    btn.id = 'tab-' + t.tag;
-    btn.textContent = lang === 'zh' ? t.tag : t.tag_en;
-    btn.onclick = () => setTab(t.tag);
-    bar.appendChild(btn);
+function buildCats(){
+  const cats=[...new Set(allItems.map(i=>i.cat))];
+  if(!currentCat)currentCat=cats[0];
+  document.getElementById('cat-bar').innerHTML=cats.map(c=>
+    `<div class="cat${c===currentCat?' active':''}" onclick="setCat('${c}')">${catIcon(c)} ${c}</div>`
+  ).join('');
+}
+
+function renderContent(){
+  const items=allItems.filter(i=>i.cat===currentCat);
+  const bySub={};
+  items.forEach(i=>{const k=i.sub||'';if(!bySub[k])bySub[k]=[];bySub[k].push(i);});
+  const hasSubs=Object.keys(bySub).some(k=>k!=='');
+  let html='';
+  Object.entries(bySub).forEach(([sub,its])=>{
+    if(hasSubs&&sub)html+=`<div class="sub-label">${sub}</div>`;
+    html+=`<div class="section-group"><div class="grid">`;
+    its.forEach(item=>{
+      const a=selectedItem&&selectedItem.name===item.name?' active':'';
+      html+=`<button class="item-card${a}" onclick='selectItem(${JSON.stringify(JSON.stringify(item))})'>
+        <div class="ic-icon">${catIcon(item.cat)}</div>
+        <div class="ic-name">${item.name}</div>
+      </button>`;
+    });
+    html+=`</div></div>`;
   });
+  document.getElementById('content').innerHTML=html||'<div class="empty">暂无内容</div>';
 }
 
-function render() {
-  const items = currentTag === 'all' ? allItems : allItems.filter(i => i.tag === currentTag);
-  if (!items.length) {
-    document.getElementById('sop-content').innerHTML = '<div class="loading">No items found</div>';
-    return;
-  }
-  const byTag = {};
-  items.forEach(i => {
-    if (!byTag[i.tag]) byTag[i.tag] = [];
-    byTag[i.tag].push(i);
-  });
-  document.getElementById('sop-content').innerHTML = Object.entries(byTag).map(([tag, its]) => {
-    const tagObj = allTags.find(t => t.tag === tag);
-    const label = lang === 'zh' ? tag : (tagObj?.tag_en || tag);
-    return `
-      <div class="section">
-        <div class="section-label">${label}</div>
-        <div class="card">
-          ${its.map(i => `
-            <div class="item">
-              <div class="item-dot"></div>
-              <span>${lang === 'zh' ? i.item : i.item_en}</span>
-            </div>
-          `).join('')}
-        </div>
-      </div>`;
-  }).join('');
+function selectItem(jsonStr){
+  selectedItem=JSON.parse(jsonStr);
+  renderContent();
+  renderDetail();
+  document.getElementById('detail-wrap').style.display='block';
+  setTimeout(()=>document.getElementById('detail-wrap').scrollIntoView({behavior:'smooth',block:'nearest'}),50);
 }
 
-function setTab(tag) {
-  currentTag = tag;
-  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-  const active = document.getElementById('tab-' + (tag === 'all' ? 'all' : tag));
-  if (active) active.classList.add('active');
-  render();
+function renderDetail(){
+  if(!selectedItem)return;
+  const L=LABELS[lang];
+  const catDisplay=selectedItem.sub?`${selectedItem.cat} · ${selectedItem.sub}`:selectedItem.cat;
+  document.getElementById('detail-card').innerHTML=`
+    <div class="dc-head">
+      <div class="dc-icon">${catIcon(selectedItem.cat)}</div>
+      <div><div class="dc-name">${selectedItem.name}</div><div class="dc-cat">${catDisplay}</div></div>
+    </div>
+    <div class="dc-section"><div class="sec-label">${L.std}</div><div class="sec-text">${selectedItem.std||'—'}</div></div>
+    <div class="dc-section"><div class="sec-label">${L.method}</div><div class="sec-text">${selectedItem.method||'—'}</div></div>
+    <div class="dc-section"><div class="sec-label">${L.storage}</div><div class="sec-text">${selectedItem.storage||'—'}</div></div>
+  `;
 }
 
-function setLang(l) {
-  lang = l;
-  document.getElementById('btn-zh').classList.toggle('active', l === 'zh');
-  document.getElementById('btn-en').classList.toggle('active', l === 'en');
-  document.getElementById('title').textContent = l === 'zh' ? '员工操作标准手册' : 'Staff Operations Handbook';
-  document.getElementById('sub').textContent = l === 'zh' ? '当前执行版本 · 如有更新以最新版为准' : 'Current version in effect · Always refer to the latest update';
-  document.getElementById('warn-text').textContent = l === 'zh' ? '未按SOP执行 = 未完成工作 = 扣工时。' : 'Not following SOP = work not completed = hours deducted.';
-  document.getElementById('ft-note').textContent = l === 'zh' ? '此文件为当前执行版本 · 更新即生效' : 'Current version in effect · Updates apply immediately';
-  document.getElementById('ft-date').textContent = (l === 'zh' ? '生效日期：' : 'Effective date: ') + new Date().toLocaleDateString(l === 'zh' ? 'zh-CN' : 'en-GB', {year:'numeric',month:'long',day:'numeric'});
-  buildTabs();
-  render();
+function setCat(cat){
+  currentCat=cat;selectedItem=null;
+  document.getElementById('detail-wrap').style.display='none';
+  buildCats();renderContent();
 }
 
-async function init() {
-  try {
-    allItems = await fetchSOP();
-    const tagMap = {};
-    allItems.forEach(i => { if (!tagMap[i.tag]) tagMap[i.tag] = i.tag_en; });
-    allTags = Object.entries(tagMap).map(([tag, tag_en]) => ({tag, tag_en}));
-    buildTabs();
-    render();
-  } catch(e) {
-    document.getElementById('sop-content').innerHTML = `<div class="error">Failed to load: ${e.message}</div>`;
-  }
+function setLang(l){
+  lang=l;
+  document.getElementById('btn-zh').classList.toggle('active',l==='zh');
+  document.getElementById('btn-en').classList.toggle('active',l==='en');
+  document.getElementById('back-label').textContent=LABELS[l].back;
+  if(selectedItem)renderDetail();
 }
 
-const d = new Date().toLocaleDateString('zh-CN', {year:'numeric',month:'long',day:'numeric'});
-document.getElementById('date-badge').textContent = d;
-document.getElementById('ft-date').textContent = '生效日期：' + d;
+async function init(){
+  try{allItems=await fetchData();buildCats();renderContent();}
+  catch(e){document.getElementById('content').innerHTML=`<div class="empty">加载失败: ${e.message}</div>`;}
+}
 init();
 </script>
 </body>
