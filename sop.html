@@ -96,7 +96,7 @@ async function fetchSOP() {
     tag_en: r.c[1]?.v || '',
     item:   r.c[2]?.v || '',
     item_en:r.c[3]?.v || ''
-  })).filter(r => r.tag && r.item);
+  })).filter(r => r.tag && r.item && r.tag !== 'Tag' && r.item !== 'Item');
 }
 
 function buildTabs() {
