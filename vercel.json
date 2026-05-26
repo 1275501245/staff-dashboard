@@ -17,6 +17,7 @@
     { "src": "/hours", "dest": "/hours.html" },
     { "src": "/closing", "dest": "/closing.html" },
     { "src": "/todo", "dest": "/todo.html" },
-    { "src": "/report", "dest": "/report.html" }
+    { "src": "/report", "dest": "/report.html" },
+    { "src": "/sop", "dest": "/sop.html" }
   ]
 }
