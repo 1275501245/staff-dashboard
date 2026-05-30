@@ -20,19 +20,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 .rota-table { width: 100%; border-collapse: collapse; font-size: 11px; background: #fff; border-radius: 14px; overflow: hidden; border: 1px solid #efefef; }
 
-.rota-table th { background: #f9f9f9; color: #666; font-weight: 600; padding: 8px 6px; text-align: center; border-bottom: 1px solid #efefef; border-right: 1px solid #f0f0f0; white-space: nowrap; font-size: 10px; }
+.rota-table th { background: #f9f9f9; color: #666; font-weight: 600; padding: 8px 10px; text-align: center; border-bottom: 1px solid #efefef; border-right: 1px solid #f0f0f0; white-space: nowrap; font-size: 11px; }
 .rota-table th:last-child { border-right: none; }
 .rota-table th.today { background: #1a1a1a; color: #fff; }
 
-.rota-table td { padding: 7px 6px; border-bottom: 1px solid #f5f5f5; border-right: 1px solid #f5f5f5; vertical-align: middle; text-align: center; }
+.rota-table td { padding: 7px 10px; border-bottom: 1px solid #f5f5f5; border-right: 1px solid #f5f5f5; vertical-align: middle; text-align: center; white-space: nowrap; }
 .rota-table td:last-child { border-right: none; }
 .rota-table tr:last-child td { border-bottom: none; }
 
 .kitchen-cell { background: #f9f9f9; font-weight: 600; font-size: 11px; color: #555; writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); padding: 10px 6px; text-align: center; border-right: 2px solid #e8e8e8; white-space: nowrap; }
 
-.name-cell { text-align: left; font-weight: 500; color: #1a1a1a; padding-left: 8px; white-space: nowrap; font-size: 12px; }
+.name-cell { text-align: left; font-weight: 500; color: #1a1a1a; padding-left: 10px; white-space: nowrap; font-size: 12px; }
 
-.shift-cell { border-radius: 6px; padding: 3px 4px; font-size: 10px; line-height: 1.4; }
+.shift-cell { border-radius: 6px; padding: 3px 8px; font-size: 11px; line-height: 1.4; white-space: nowrap; }
 
 .off { color: #bbb; font-size: 10px; }
 .dash { color: #ddd; }
@@ -123,7 +123,7 @@ async function init() {
     thead += '<th style="text-align:left;padding-left:8px;">Name</th>';
     dateHeaders.forEach((h, i) => {
       const isToday = i === todayColOffset;
-      thead += `<th class="${isToday ? 'today' : ''}">${h.day}<br><span style="font-weight:400;opacity:0.7">${h.date.slice(5)}</span></th>`;
+      thead += `<th class="${isToday ? 'today' : ''}" style="white-space:nowrap">${h.day} ${h.date.slice(5)}</th>`;
     });
     thead += '</tr></thead>';
 
