@@ -14,6 +14,7 @@
     { "src": "/admin", "dest": "/admin-home.html" },
     { "src": "/purchase-orders", "dest": "/purchase-orders.html" },
     { "src": "/todo", "dest": "/todo.html" },
-    { "src": "/rota", "dest": "/rota.html" }
+    { "src": "/rota", "dest": "/rota.html" },
+    { "src": "/opening", "dest": "/opening.html" }
   ]
 }
