@@ -6,78 +6,154 @@
 <title>Rota</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; display: flex; flex-direction: column; height: 100vh; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
 .header { background: #fff; border-bottom: 1px solid #efefef; padding: 14px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 .back { width: 30px; height: 30px; border-radius: 50%; background: #f5f5f5; border: none; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #999; text-decoration: none; flex-shrink: 0; }
-.header-info { flex: 1; }
 .header-title { font-size: 16px; font-weight: 600; }
 .header-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
 
-.scroll-wrap { flex: 1; overflow: auto; padding: 14px 16px 30px; }
+.table-container {
+  flex: 1;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
-.week-label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; padding: 0 2px; }
+table {
+  border-collapse: collapse;
+  font-size: 11px;
+  background: #fff;
+  min-width: 100%;
+}
 
-.rota-table { width: 100%; border-collapse: collapse; font-size: 11px; background: #fff; border-radius: 14px; overflow: hidden; border: 1px solid #efefef; }
+/* Sticky header row */
+thead tr th {
+  position: sticky;
+  top: 0;
+  background: #f9f9f9;
+  z-index: 3;
+  padding: 9px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 2px solid #e8e8e8;
+  border-right: 1px solid #efefef;
+  white-space: nowrap;
+  text-align: center;
+}
+thead tr th.today {
+  background: #1a1a1a;
+  color: #fff;
+}
 
-.rota-table th { background: #f9f9f9; color: #666; font-weight: 600; padding: 8px 10px; text-align: center; border-bottom: 1px solid #efefef; border-right: 1px solid #f0f0f0; white-space: nowrap; font-size: 11px; }
-.rota-table th:last-child { border-right: none; }
-.rota-table th.today { background: #1a1a1a; color: #fff; }
+/* Sticky kitchen col */
+.col-kitchen {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #f5f5f5;
+  min-width: 28px;
+  max-width: 28px;
+  border-right: 2px solid #e0e0e0;
+}
+thead tr th.col-kitchen {
+  z-index: 4;
+  background: #f9f9f9;
+}
 
-.rota-table td { padding: 7px 10px; border-bottom: 1px solid #f5f5f5; border-right: 1px solid #f5f5f5; vertical-align: middle; text-align: center; white-space: nowrap; }
-.rota-table td:last-child { border-right: none; }
-.rota-table tr:last-child td { border-bottom: none; }
+/* Sticky name col */
+.col-name {
+  position: sticky;
+  left: 28px;
+  z-index: 2;
+  background: #fff;
+  min-width: 80px;
+  border-right: 1px solid #e8e8e8;
+  text-align: left;
+  padding-left: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  font-size: 12px;
+}
+thead tr th.col-name {
+  z-index: 4;
+  background: #f9f9f9;
+  text-align: left;
+}
 
-.kitchen-cell { background: #f9f9f9; font-weight: 600; font-size: 11px; color: #555; writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); padding: 10px 6px; text-align: center; border-right: 2px solid #e8e8e8; white-space: nowrap; }
+tbody tr td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f5f5f5;
+  border-right: 1px solid #f5f5f5;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr td:last-child { border-right: none; }
 
-.name-cell { text-align: left; font-weight: 500; color: #1a1a1a; padding-left: 10px; white-space: nowrap; font-size: 12px; }
+.kitchen-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #888;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  display: block;
+  text-align: center;
+  width: 100%;
+}
 
-.shift-cell { border-radius: 6px; padding: 3px 8px; font-size: 11px; line-height: 1.4; white-space: nowrap; }
+.chip {
+  display: inline-block;
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.chip-shoreditch  { background: #e8effe; color: #3a5fc8; }
+.chip-battersea   { background: #fde8ea; color: #c8303a; }
+.chip-tower       { background: #e6f4ee; color: #2a7a52; }
+.chip-off         { color: #bbb; font-size: 11px; }
+.chip-dash        { color: #ddd; }
+.chip-time        { color: #444; }
 
-.off { color: #bbb; font-size: 10px; }
-.dash { color: #ddd; }
-
-/* Site colors - muted */
-.site-shoreditch { background: #e8effe; color: #3a5fc8; font-weight: 500; white-space: nowrap; }
-.site-battersea { background: #fde8ea; color: #c8303a; font-weight: 500; white-space: nowrap; }
-.site-towerbridge { background: #e6f4ee; color: #2a7a52; font-weight: 500; white-space: nowrap; }
-
-.time-cell { color: #444; font-size: 10px; white-space: nowrap; }
-
-.loading { text-align: center; padding: 40px; color: #aaa; font-size: 13px; }
-.error { text-align: center; padding: 40px; color: #e05c2a; font-size: 13px; }
+.loading { padding: 40px; text-align: center; color: #aaa; font-size: 13px; }
 </style>
 </head>
 <body>
 
 <div class="header">
   <a class="back" href="/home">←</a>
-  <div class="header-info">
+  <div>
     <div class="header-title">Rota</div>
     <div class="header-sub" id="week-range">Loading…</div>
   </div>
 </div>
 
-<div class="scroll-wrap">
+<div class="table-container">
   <div id="content"><div class="loading">Loading rota…</div></div>
 </div>
 
 <script>
 const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
-const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-function todayDay() { return new Date().getDay(); }
+function todayColOffset() {
+  const d = new Date().getDay(); // 0=Sun
+  return d === 0 ? 6 : d - 1; // Mon=0...Sun=6
+}
 
-function classifyCell(val) {
-  if (!val || val === '-') return { cls: 'dash', text: '—' };
-  const v = String(val).trim();
-  if (v === 'OFF') return { cls: 'off', text: 'OFF' };
-  const lower = v.toLowerCase();
-  if (lower.includes('shoreditch')) return { cls: 'site-shoreditch', text: v };
-  if (lower.includes('battersea') || lower.includes('nine elms') || lower.includes('sw8')) return { cls: 'site-battersea', text: v };
-  if (lower.includes('tower bridge') || lower.includes('se16')) return { cls: 'site-towerbridge', text: v };
-  // time pattern like 1030-1930
-  if (/^\d{3,4}-\d{3,4}/.test(v)) return { cls: 'time-cell', text: v };
+function classify(val) {
+  const v = String(val || '').trim();
+  if (!v || v === '-') return { cls: 'chip-dash', text: '—' };
+  if (v === 'OFF') return { cls: 'chip-off', text: 'OFF' };
+  const l = v.toLowerCase();
+  if (l.includes('shoreditch')) return { cls: 'chip chip-shoreditch', text: v };
+  if (l.includes('battersea') || l.includes('nine elms')) return { cls: 'chip chip-battersea', text: v };
+  if (l.includes('tower bridge')) return { cls: 'chip chip-tower', text: v };
+  if (/^\d{3,4}[-–]\d{3,4}/.test(v)) return { cls: 'chip-time', text: v };
   return { cls: '', text: v };
 }
 
@@ -87,97 +163,72 @@ async function fetchSheet(name) {
   const text = await res.text();
   const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
   if (!json.table?.rows?.length) return [];
-  return json.table.rows.map(r =>
-    (r.c || []).map(cell => cell?.v ?? cell?.f ?? '')
-  );
+  return json.table.rows.map(r => (r.c || []).map(c => c?.v ?? c?.f ?? ''));
 }
 
 async function init() {
   try {
     const rows = await fetchSheet('Rota');
-    if (!rows.length) { document.getElementById('content').innerHTML = '<div class="error">No data found</div>'; return; }
+    if (!rows.length) { document.getElementById('content').innerHTML = '<div class="loading">No data</div>'; return; }
 
-    // Row 0 = day headers (Mon, Tue...), Row 1 = dates, Row 2+ = staff
     const dayRow = rows[0] || [];
     const dateRow = rows[1] || [];
+    const todayOff = todayColOffset();
 
-    // Build date headers (cols 2-8 = Mon-Sun)
-    const dateHeaders = [];
-    for (let c = 2; c <= 8; c++) {
-      dateHeaders.push({ day: String(dayRow[c] || ''), date: String(dateRow[c] || '') });
-    }
+    // Week range subtitle
+    const dates = [2,3,4,5,6,7,8].map(i => String(dateRow[i] || ''));
+    document.getElementById('week-range').textContent = (dates[0] + ' — ' + dates[6]).replace(/\s+/g,' ');
 
-    // Week range for subtitle
-    const firstDate = dateHeaders[0]?.date || '';
-    const lastDate = dateHeaders[dateHeaders.length-1]?.date || '';
-    document.getElementById('week-range').textContent = firstDate + ' — ' + lastDate;
-
-    // Today highlight (col index 2=Mon...8=Sun, JS day 0=Sun,1=Mon...)
-    const jsDay = todayDay(); // 0=Sun
-    // Map JS day to col offset: Mon=0...Sun=6
-    const todayColOffset = jsDay === 0 ? 6 : jsDay - 1;
-
-    // Build thead
+    // Build header
     let thead = '<thead><tr>';
-    thead += '<th style="width:28px"></th>'; // kitchen
-    thead += '<th style="text-align:left;padding-left:8px;">Name</th>';
-    dateHeaders.forEach((h, i) => {
-      const isToday = i === todayColOffset;
-      thead += `<th class="${isToday ? 'today' : ''}" style="white-space:nowrap">${h.day} ${h.date.slice(5)}</th>`;
-    });
+    thead += '<th class="col-kitchen"></th>';
+    thead += '<th class="col-name">Name</th>';
+    for (let i = 0; i < 7; i++) {
+      const day = String(dayRow[i+2] || '');
+      const date = String(dateRow[i+2] || '').slice(5);
+      const isToday = i === todayOff;
+      thead += `<th class="${isToday ? 'today' : ''}">${day}<br><span style="font-weight:400;font-size:10px;opacity:0.75">${date}</span></th>`;
+    }
     thead += '</tr></thead>';
 
-    // Build tbody — group by kitchen (col A)
-    let tbody = '<tbody>';
-    let currentKitchen = '';
-    let kitchenRowCount = 0;
-    let kitchenStartIdx = 0;
-
-    // First pass: find kitchen groups
+    // Group rows by kitchen
     const dataRows = rows.slice(2);
     const groups = [];
     let cur = null;
-    dataRows.forEach((row, i) => {
+    dataRows.forEach(row => {
       const kitchen = String(row[0] || '').trim();
       const name = String(row[1] || '').trim();
       if (!name) return;
-      if (kitchen) {
-        if (cur) groups.push(cur);
-        cur = { kitchen, members: [] };
-      }
-      if (cur) cur.members.push(row);
-      else cur = { kitchen: '', members: [row] };
+      if (kitchen) { if (cur) groups.push(cur); cur = { kitchen, members: [] }; }
+      if (!cur) cur = { kitchen: '', members: [] };
+      cur.members.push(row);
     });
     if (cur) groups.push(cur);
 
+    let tbody = '<tbody>';
     groups.forEach(group => {
       group.members.forEach((row, mi) => {
         const name = String(row[1] || '').trim();
         if (!name) return;
         tbody += '<tr>';
-        // Kitchen cell — only on first member, rowspan
         if (mi === 0) {
-          tbody += `<td class="kitchen-cell" rowspan="${group.members.length}">${group.kitchen}</td>`;
+          tbody += `<td class="col-kitchen" rowspan="${group.members.length}"><span class="kitchen-label">${group.kitchen}</span></td>`;
         }
-        tbody += `<td class="name-cell">${name}</td>`;
+        tbody += `<td class="col-name">${name}</td>`;
         for (let c = 2; c <= 8; c++) {
-          const val = String(row[c] || '').trim();
-          const { cls, text } = classifyCell(val);
-          tbody += `<td><span class="shift-cell ${cls}">${text}</span></td>`;
+          const { cls, text } = classify(row[c]);
+          tbody += `<td><span class="${cls}">${text}</span></td>`;
         }
         tbody += '</tr>';
       });
     });
-
     tbody += '</tbody>';
 
-    document.getElementById('content').innerHTML = `<table class="rota-table">${thead}${tbody}</table>`;
-
+    document.getElementById('content').innerHTML = `<table>${thead}${tbody}</table>`;
   } catch(e) {
-    document.getElementById('content').innerHTML = `<div class="error">Failed to load: ${e.message}</div>`;
+    document.getElementById('content').innerHTML = `<div class="loading">Failed: ${e.message}</div>`;
   }
 }
-
 init();
 </script>
 </body>
