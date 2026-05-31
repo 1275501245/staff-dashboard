@@ -231,19 +231,42 @@ async function fetchSheet(sheetName) {
 
 function parseCSV(text) {
   const rows = [];
-  const lines = text.split('\n');
-  for (const line of lines) {
-    if (!line.trim()) continue;
+  let i = 0;
+  while (i < text.length) {
     const cells = [];
-    let inQ = false, cur = '';
-    for (let i = 0; i < line.length; i++) {
-      const c = line[i];
-      if (c === '"') { inQ = !inQ; }
-      else if (c === ',' && !inQ) { cells.push(cur.trim()); cur = ''; }
-      else { cur += c; }
+    let cur = '';
+    // parse one row (may span multiple lines if fields are quoted)
+    while (i < text.length) {
+      if (text[i] === '"') {
+        // quoted field
+        i++;
+        while (i < text.length) {
+          if (text[i] === '"') {
+            if (text[i+1] === '"') { cur += '"'; i += 2; }
+            else { i++; break; }
+          } else {
+            // include newlines inside quotes but replace with space
+            if (text[i] === '\n' || text[i] === '\r') cur += ' ';
+            else cur += text[i];
+            i++;
+          }
+        }
+      } else if (text[i] === ',') {
+        cells.push(cur.trim());
+        cur = '';
+        i++;
+      } else if (text[i] === '\r') {
+        i++;
+      } else if (text[i] === '\n') {
+        i++;
+        break; // end of row
+      } else {
+        cur += text[i];
+        i++;
+      }
     }
     cells.push(cur.trim());
-    rows.push(cells);
+    if (cells.some(c => c)) rows.push(cells);
   }
   return rows;
 }
@@ -251,8 +274,8 @@ function parseCSV(text) {
 function siteClass(site) {
   const s = (site || '').toLowerCase().replace(/\s/g, '');
   if (s.includes('shoreditch'))   return 'site-shoreditch';
-  if (s.includes('battersea') || s.includes('nineelms')) return 'site-battersea';
-  if (s.includes('tower'))        return 'site-towerbridge';
+  if (s.includes('battersea') || s.includes('nineelms') || s.includes('nineelm') || s.includes('\u5df4\u7279\u897f')) return 'site-battersea';
+  if (s.includes('tower') || s.includes('\u5357\u533a'))  return 'site-towerbridge';
   return '';
 }
 
@@ -357,7 +380,9 @@ function buildTable(rows) {
 
       // Site cell with rowspan
       if (isFirst) {
-        tbody += `<td class="col-site ${sc}" rowspan="${group.rows.length}">${group.site}</td>`;
+        // Simplify site label: take first meaningful word
+  const siteDisplay = group.site.split(/[\s,\(（]/)[0].trim() || group.site;
+  tbody += `<td class="col-site ${sc}" rowspan="${group.rows.length}">${siteDisplay}</td>`;
       }
 
       // Name
