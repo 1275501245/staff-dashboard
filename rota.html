@@ -2,235 +2,397 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rota</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; background: #f5f5f5; }
 
-.header { background: #fff; border-bottom: 1px solid #efefef; padding: 14px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-.back { width: 30px; height: 30px; border-radius: 50%; background: #f5f5f5; border: none; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #999; text-decoration: none; flex-shrink: 0; }
-.header-title { font-size: 16px; font-weight: 600; }
-.header-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+/* Top bar */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.topbar h1 { font-size: 15px; font-weight: 600; color: #111; flex: 1; }
+.week-toggle { display: flex; gap: 6px; }
+.week-btn {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  background: #f5f5f5;
+  color: #555;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.week-btn.active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
 
-.table-container {
-  flex: 1;
+/* Table wrapper — scrollable */
+.table-wrap {
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
 
 table {
-  border-collapse: collapse;
-  font-size: 10px;
-  background: #fff;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: max-content;
   min-width: 100%;
 }
 
-/* Sticky header row */
-thead tr th {
-  position: sticky;
-  top: 0;
-  background: #f9f9f9;
-  z-index: 3;
-  padding: 5px 6px;
-  font-size: 10px;
-  font-weight: 600;
-  color: #555;
-  border-bottom: 2px solid #e8e8e8;
-  border-right: 1px solid #efefef;
-  white-space: nowrap;
-  text-align: center;
-}
-thead tr th.today {
-  background: #1a1a1a;
-  color: #fff;
-}
-
-/* Sticky kitchen col */
-.col-kitchen {
+/* ── Sticky columns ── */
+/* col 0: site label */
+td.col-site, th.col-site {
   position: sticky;
   left: 0;
-  z-index: 2;
-  background: #f5f5f5;
-  min-width: 28px;
-  max-width: 28px;
-  border-right: 2px solid #e0e0e0;
+  z-index: 20;
+  min-width: 90px;
+  max-width: 90px;
 }
-thead tr th.col-kitchen {
-  z-index: 4;
-  background: #f9f9f9;
-}
-
-/* Sticky name col */
-.col-name {
+/* col 1: name */
+td.col-name, th.col-name {
   position: sticky;
-  left: 28px;
-  z-index: 2;
-  background: #fff;
-  min-width: 70px;
-  border-right: 1px solid #e8e8e8;
-  text-align: left;
-  padding: 4px 6px 4px 8px;
-  font-weight: 500;
-  white-space: nowrap;
+  left: 90px;
+  z-index: 20;
+  min-width: 80px;
+  max-width: 80px;
+}
+
+/* ── Sticky rows ── */
+thead tr th {
+  position: sticky;
+  z-index: 30;
+}
+thead tr:first-child th { top: 0; }
+thead tr:last-child th  { top: 36px; } /* height of first header row */
+
+/* col stickiness in thead needs higher z-index */
+thead th.col-site { z-index: 40; }
+thead th.col-name { z-index: 40; }
+
+/* ── Header styles ── */
+thead tr:first-child th {
+  background: #1a1a1a;
+  color: #fff;
   font-size: 11px;
-}
-thead tr th.col-name {
-  z-index: 4;
-  background: #f9f9f9;
-  text-align: left;
-}
-
-tbody tr td {
-  padding: 4px 6px;
-  border-bottom: 1px solid #f5f5f5;
-  border-right: 1px solid #f5f5f5;
-  white-space: nowrap;
+  font-weight: 600;
   text-align: center;
-  vertical-align: middle;
-  line-height: 1.2;
+  padding: 8px 10px;
+  border-right: 1px solid #333;
+  height: 36px;
+  white-space: nowrap;
 }
-tbody tr:last-child td { border-bottom: none; }
-tbody tr td:last-child { border-right: none; }
+thead tr:first-child th.col-site,
+thead tr:first-child th.col-name {
+  background: #1a1a1a;
+}
+thead tr:first-child th.th-thu {
+  background: #2a1a00;
+  color: #ffd580;
+  font-style: italic;
+}
 
-.kitchen-label {
+thead tr:last-child th {
+  background: #f0f0f0;
+  color: #666;
+  font-size: 10px;
+  font-weight: 500;
+  text-align: center;
+  padding: 5px 10px;
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 2px solid #ccc;
+  height: 30px;
+}
+thead tr:last-child th.col-site,
+thead tr:last-child th.col-name {
+  background: #f0f0f0;
+}
+thead tr:last-child th.th-thu {
+  background: #fff8e6;
+  color: #a06000;
+}
+
+/* ── Body cells ── */
+tbody td {
+  font-size: 11px;
+  padding: 7px 10px;
+  border-right: 1px solid #e8e8e8;
+  border-bottom: 1px solid #f0f0f0;
+  text-align: center;
+  white-space: nowrap;
+  background: #fff;
+  min-width: 110px;
+}
+
+/* site label cell */
+td.col-site {
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  border-right: 2px solid #ccc;
+  letter-spacing: 0.3px;
+  background: #fff;
+}
+td.col-site.site-shoreditch { background: #e8f4ff; color: #1565C0; border-left: 3px solid #1E88E5; }
+td.col-site.site-battersea  { background: #fff8e1; color: #E65100; border-left: 3px solid #FB8C00; }
+td.col-site.site-towerbridge{ background: #e8f5e9; color: #2E7D32; border-left: 3px solid #43A047; }
+
+/* name cell */
+td.col-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #222;
+  text-align: left;
+  border-right: 2px solid #ddd;
+  background: #fafafa;
+  padding-left: 10px;
+}
+
+/* day cells */
+td.day-cell { color: #333; }
+td.day-off  { color: #bbb; font-style: italic; background: #fafafa; }
+td.day-dash { color: #ddd; background: #fafafa; }
+td.day-thu  { background: #fffbf0; }
+
+/* cross-site badge */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
   font-size: 10px;
   font-weight: 600;
-  color: #888;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  transform: rotate(180deg);
-  white-space: nowrap;
-  display: block;
-  text-align: center;
-  width: 100%;
+  letter-spacing: 0.2px;
 }
+.badge-shoreditch   { background: #dbeafe; color: #1d4ed8; }
+.badge-battersea    { background: #fef3c7; color: #b45309; }
+.badge-towerbridge  { background: #d1fae5; color: #065f46; }
 
-.chip {
-  display: inline-block;
-  border-radius: 4px;
-  padding: 1px 5px;
-  font-size: 10px;
-  white-space: nowrap;
-}
-.chip-shoreditch  { background: #e8effe; color: #3a5fc8; }
-.chip-battersea   { background: #fde8ea; color: #c8303a; }
-.chip-tower       { background: #e6f4ee; color: #2a7a52; }
-.chip-off         { color: #bbb; font-size: 10px; }
-.chip-dash        { color: #ddd; }
-.chip-time        { color: #444; }
+/* row alternate */
+tbody tr:nth-child(even) td { background: #fcfcfc; }
+tbody tr:nth-child(even) td.col-name { background: #f5f5f5; }
+tbody tr:nth-child(even) td.day-off,
+tbody tr:nth-child(even) td.day-dash { background: #f7f7f7; }
 
-.loading { padding: 40px; text-align: center; color: #aaa; font-size: 13px; }
+/* site group row separator */
+tr.site-separator td { border-top: 3px solid #ddd; }
+
+.loading { padding: 40px; text-align: center; color: #999; font-size: 14px; }
+.error   { padding: 40px; text-align: center; color: #c00; font-size: 14px; }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <a class="back" href="/home">←</a>
-  <div>
-    <div class="header-title">Rota</div>
-    <div class="header-sub" id="week-range">Loading…</div>
+<div class="topbar">
+  <h1>Rota</h1>
+  <div class="week-toggle">
+    <button class="week-btn active" id="btn-this" onclick="switchWeek('Rota', this)">This Week</button>
+    <button class="week-btn" id="btn-next" onclick="switchWeek('Rota_Next', this)">Next Week</button>
   </div>
 </div>
 
-<div class="table-container">
-  <div id="content"><div class="loading">Loading rota…</div></div>
+<div class="table-wrap">
+  <div id="content" class="loading">Loading rota…</div>
 </div>
 
 <script>
 const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
-const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+let currentSheet = 'Rota';
 
-function todayColOffset() {
-  const d = new Date().getDay(); // 0=Sun
-  return d === 0 ? 6 : d - 1; // Mon=0...Sun=6
+function switchWeek(sheetName, btn) {
+  currentSheet = sheetName;
+  document.querySelectorAll('.week-btn').forEach(b => {
+    b.classList.remove('active');
+  });
+  btn.classList.add('active');
+  document.getElementById('content').innerHTML = '<div class="loading">Loading…</div>';
+  loadRota(sheetName);
 }
 
-function classify(val) {
-  const v = String(val || '').trim();
-  if (!v || v === '-') return { cls: 'chip-dash', text: '—' };
-  if (v === 'OFF') return { cls: 'chip-off', text: 'OFF' };
-  const l = v.toLowerCase();
-  if (l.includes('shoreditch')) return { cls: 'chip chip-shoreditch', text: v };
-  if (l.includes('battersea') || l.includes('nine elms')) return { cls: 'chip chip-battersea', text: v };
-  if (l.includes('tower bridge')) return { cls: 'chip chip-tower', text: v };
-  if (/^\d{3,4}[-–]\d{3,4}/.test(v)) return { cls: 'chip-time', text: v };
-  return { cls: '', text: v };
-}
-
-async function fetchSheet(name) {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}&headers=0`;
+async function fetchSheet(sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
   const res = await fetch(url);
+  if (!res.ok) throw new Error('Failed to fetch sheet');
   const text = await res.text();
-  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
-  if (!json.table?.rows?.length) return [];
-  return json.table.rows.map(r => (r.c || []).map(c => c?.v ?? c?.f ?? ''));
+  return parseCSV(text);
 }
 
-async function init() {
-  try {
-    const rows = await fetchSheet('Rota');
-    if (!rows.length) { document.getElementById('content').innerHTML = '<div class="loading">No data</div>'; return; }
-
-    const dayRow = rows[0] || [];
-    const dateRow = rows[1] || [];
-    const todayOff = todayColOffset();
-
-    // Week range subtitle
-    const dates = [2,3,4,5,6,7,8].map(i => String(dateRow[i] || ''));
-    document.getElementById('week-range').textContent = (dates[0] + ' — ' + dates[6]).replace(/\s+/g,' ');
-
-    // Build header
-    let thead = '<thead><tr>';
-    thead += '<th class="col-kitchen"></th>';
-    thead += '<th class="col-name">Name</th>';
-    for (let i = 0; i < 7; i++) {
-      const day = String(dayRow[i+2] || '');
-      const date = String(dateRow[i+2] || '').slice(5);
-      const isToday = i === todayOff;
-      thead += `<th class="${isToday ? 'today' : ''}">${day}<br><span style="font-weight:400;font-size:10px;opacity:0.75">${date}</span></th>`;
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.split('\n');
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const cells = [];
+    let inQ = false, cur = '';
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { cells.push(cur.trim()); cur = ''; }
+      else { cur += c; }
     }
-    thead += '</tr></thead>';
+    cells.push(cur.trim());
+    rows.push(cells);
+  }
+  return rows;
+}
 
-    // Group rows by kitchen
-    const dataRows = rows.slice(2);
-    const groups = [];
-    let cur = null;
-    dataRows.forEach(row => {
-      const kitchen = String(row[0] || '').trim();
-      const name = String(row[1] || '').trim();
-      if (!name) return;
-      if (kitchen) { if (cur) groups.push(cur); cur = { kitchen, members: [] }; }
-      if (!cur) cur = { kitchen: '', members: [] };
-      cur.members.push(row);
-    });
-    if (cur) groups.push(cur);
+function siteClass(site) {
+  const s = (site || '').toLowerCase().replace(/\s/g, '');
+  if (s.includes('shoreditch'))   return 'site-shoreditch';
+  if (s.includes('battersea') || s.includes('nineelms')) return 'site-battersea';
+  if (s.includes('tower'))        return 'site-towerbridge';
+  return '';
+}
 
-    let tbody = '<tbody>';
-    groups.forEach(group => {
-      group.members.forEach((row, mi) => {
-        const name = String(row[1] || '').trim();
-        if (!name) return;
-        tbody += '<tr>';
-        if (mi === 0) {
-          tbody += `<td class="col-kitchen" rowspan="${group.members.length}"><span class="kitchen-label">${group.kitchen}</span></td>`;
-        }
-        tbody += `<td class="col-name">${name}</td>`;
-        for (let c = 2; c <= 8; c++) {
-          const { cls, text } = classify(row[c]);
-          tbody += `<td><span class="${cls}">${text}</span></td>`;
-        }
-        tbody += '</tr>';
+function badgeClass(val) {
+  const v = (val || '').toLowerCase().replace(/\s/g, '');
+  if (v.includes('shoreditch'))   return 'badge-shoreditch';
+  if (v.includes('battersea'))    return 'badge-battersea';
+  if (v.includes('tower'))        return 'badge-towerbridge';
+  return '';
+}
+
+function renderCell(val, colIdx) {
+  // col 0 = site, col 1 = name — handled separately
+  const v = (val || '').trim();
+  const vl = v.toLowerCase();
+
+  // Thursday = col 5 (0-indexed: site, name, mon, tue, wed, thu, fri, sat, sun)
+  const isThu = (colIdx === 5);
+  const thuClass = isThu ? ' day-thu' : '';
+
+  if (!v || v === '-') {
+    return `<td class="day-cell day-dash${thuClass}">–</td>`;
+  }
+  if (vl === 'off') {
+    return `<td class="day-cell day-off${thuClass}">OFF</td>`;
+  }
+  // cross-site badge?
+  if (vl.includes('shoreditch') || vl.includes('battersea') || vl.includes('tower')) {
+    const bc = badgeClass(v);
+    return `<td class="day-cell${thuClass}"><span class="badge ${bc}">${v}</span></td>`;
+  }
+  // normal shift time
+  return `<td class="day-cell${thuClass}">${v}</td>`;
+}
+
+function buildTable(rows) {
+  // rows[0] = header (,Name,Monday,Tuesday,...)
+  // rows[1] = dates (,,2026/05/25,...)
+  // rows[2+] = data
+
+  const dayHeaders = rows[0].slice(2); // Mon..Sun
+  const dateRow    = rows[1].slice(2); // dates
+
+  // detect thursday index (0-based among day cols)
+  const thuIdx = dayHeaders.findIndex(h => h.toLowerCase().includes('thursday') || h.toLowerCase().includes('thu'));
+
+  // Build thead
+  let thead = '<thead>';
+  // Row 1: Site | Name | Mon | Tue | Wed | Thu Promotion | Fri | Sat | Sun
+  thead += '<tr>';
+  thead += '<th class="col-site">Site</th>';
+  thead += '<th class="col-name">Name</th>';
+  dayHeaders.forEach((h, i) => {
+    const isThu = (i === thuIdx);
+    const cls = isThu ? ' th-thu' : '';
+    thead += `<th class="col-day${cls}">${h}</th>`;
+  });
+  thead += '</tr>';
+  // Row 2: dates
+  thead += '<tr>';
+  thead += '<th class="col-site"></th>';
+  thead += '<th class="col-name"></th>';
+  dateRow.forEach((d, i) => {
+    const isThu = (i === thuIdx);
+    const cls = isThu ? ' th-thu' : '';
+    thead += `<th class="col-day${cls}">${d}</th>`;
+  });
+  thead += '</tr>';
+  thead += '</thead>';
+
+  // Build tbody — track current site
+  let tbody = '<tbody>';
+  let currentSite = '';
+  let siteRowspan = {};
+  let firstSite = true;
+
+  const dataRows = rows.slice(2).filter(r => r.some(c => c.trim()));
+
+  // Pre-pass: count rows per site for rowspan
+  let siteGroups = [];
+  let curGroup = null;
+  for (const row of dataRows) {
+    const siteVal = (row[0] || '').trim();
+    if (siteVal) {
+      if (curGroup) siteGroups.push(curGroup);
+      curGroup = { site: siteVal, rows: [row] };
+    } else if (curGroup) {
+      curGroup.rows.push(row);
+    }
+  }
+  if (curGroup) siteGroups.push(curGroup);
+
+  siteGroups.forEach((group, gi) => {
+    const sc = siteClass(group.site);
+    group.rows.forEach((row, ri) => {
+      const isFirst = (ri === 0);
+      const isSeparator = (gi > 0 && isFirst);
+      const name = (row[1] || '').trim();
+      const days = row.slice(2);
+
+      tbody += `<tr${isSeparator ? ' class="site-separator"' : ''}>`;
+
+      // Site cell with rowspan
+      if (isFirst) {
+        tbody += `<td class="col-site ${sc}" rowspan="${group.rows.length}">${group.site}</td>`;
+      }
+
+      // Name
+      tbody += `<td class="col-name">${name}</td>`;
+
+      // Day cells
+      days.forEach((val, di) => {
+        // colIdx: 0=site,1=name,2=mon... so di+2
+        tbody += renderCell(val, di + 2);
       });
-    });
-    tbody += '</tbody>';
 
-    document.getElementById('content').innerHTML = `<table>${thead}${tbody}</table>`;
+      tbody += '</tr>';
+    });
+  });
+
+  tbody += '</tbody>';
+
+  return `<table>${thead}${tbody}</table>`;
+}
+
+async function loadRota(sheetName) {
+  const el = document.getElementById('content');
+  try {
+    const rows = await fetchSheet(sheetName);
+    if (!rows || rows.length < 3) {
+      el.innerHTML = '<div class="error">No data found in sheet: ' + sheetName + '</div>';
+      return;
+    }
+    el.innerHTML = buildTable(rows);
   } catch(e) {
-    document.getElementById('content').innerHTML = `<div class="loading">Failed: ${e.message}</div>`;
+    el.innerHTML = '<div class="error">Error loading rota: ' + e.message + '</div>';
   }
 }
-init();
+
+loadRota('Rota');
 </script>
 </body>
 </html>
