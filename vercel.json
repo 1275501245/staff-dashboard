@@ -16,7 +16,7 @@
     { "src": "/todo", "dest": "/todo.html" },
     { "src": "/rota", "dest": "/rota.html" },
     { "src": "/opening", "dest": "/opening.html" },
-    { "src": "/topping-guide", "dest": "/topping-guide.html" }
+    { "src": "/sop", "dest": "/sop.html" },
     { "src": "/topping-guide", "dest": "/topping-guide.html" }
   ]
 }
