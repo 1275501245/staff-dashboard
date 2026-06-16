@@ -1,3 +1,14 @@
+
+vercel.json
+
+第
+1
+頁
+(
+共
+1
+頁)
+100%
 {
   "routes": [
     { "src": "/", "dest": "/home.html" },
@@ -17,6 +28,7 @@
     { "src": "/rota", "dest": "/rota.html" },
     { "src": "/opening", "dest": "/opening.html" },
     { "src": "/sop", "dest": "/sop.html" },
-    { "src": "/soup-base-guide", "dest": "/soup-base-guide.html" },
+    { "src": "/soup-base-guide", "dest": "/soup-base-guide.html" }
   ]
 }
+目前顯示的是「vercel.json」。
