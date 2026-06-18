@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Account Info — Admin</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: #f5f5f7; color: #1c1c1e; min-height: 100vh; padding-bottom: 40px; }
+  .header { background: #fff; padding: 20px; border-bottom: 1px solid #e5e5ea; position: sticky; top: 0; z-index: 100; }
+  .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+  .back-btn { width: 32px; height: 32px; border-radius: 50%; background: #f2f2f7; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; text-decoration: none; color: #1c1c1e; flex-shrink: 0; }
+  .header-title { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .header-sub { font-size: 13px; color: #8e8e93; margin-top: 4px; margin-left: 44px; }
+  .content { max-width: 720px; margin: 0 auto; padding: 24px 16px 0; }
+  .account-card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .account-name { font-size: 18px; font-weight: 700; letter-spacing: -0.2px; margin-bottom: 2px; }
+  .account-url { font-size: 13px; color: #007aff; text-decoration: none; word-break: break-all; }
+  .account-url:hover { text-decoration: underline; }
+  .details-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px 24px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #f2f2f7; }
+  .detail-item { display: flex; flex-direction: column; gap: 2px; }
+  .detail-label { font-size: 11px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.3px; }
+  .detail-value { font-size: 15px; font-weight: 600; color: #1c1c1e; word-break: break-all; }
+  .empty-state { text-align: center; padding: 60px 20px; color: #aeaeb2; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <a href="/admin" class="back-btn">←</a>
+    <div class="header-title">Account Info</div>
+  </div>
+  <div class="header-sub" id="last-updated">账号信息</div>
+</div>
+
+<div class="content" id="accounts-root">
+  <div class="empty-state">Loading...</div>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz1XhM7Cn5qSJdvgVh0wolvMpJ8Ea5Elp57VRk2AjTOB2bbWlI3h8wQr9EzBP0wLrc0zQ/exec';
+
+function parseDetails(str) {
+  if (!str) return [];
+  return str.split('|').map(pair => {
+    const idx = pair.indexOf(':');
+    if (idx === -1) return { label: '', value: pair.trim() };
+    return { label: pair.slice(0, idx).trim(), value: pair.slice(idx + 1).trim() };
+  }).filter(d => d.value);
+}
+
+function render(accounts) {
+  const root = document.getElementById('accounts-root');
+  if (!accounts.length) {
+    root.innerHTML = '<div class="empty-state">No accounts yet</div>';
+    return;
+  }
+  root.innerHTML = '';
+  accounts.forEach(acc => {
+    const card = document.createElement('div');
+    card.className = 'account-card';
+
+    let html = `<div class="account-name">${acc.platform}</div>`;
+    if (acc.url) {
+      html += `<a class="account-url" href="${acc.url}" target="_blank">${acc.url}</a>`;
+    }
+
+    const details = parseDetails(acc.details);
+    if (details.length) {
+      html += '<div class="details-grid">';
+      details.forEach(d => {
+        html += `<div class="detail-item">
+          ${d.label ? `<div class="detail-label">${d.label}</div>` : ''}
+          <div class="detail-value">${d.value}</div>
+        </div>`;
+      });
+      html += '</div>';
+    }
+
+    card.innerHTML = html;
+    root.appendChild(card);
+  });
+}
+
+fetch(`${SCRIPT_URL}?action=getAccounts`)
+  .then(r => r.json())
+  .then(data => {
+    render(data.accounts || []);
+    document.getElementById('last-updated').textContent =
+      `账号信息 · Last updated: ${new Date().toLocaleString('en-GB')}`;
+  })
+  .catch(() => {
+    document.getElementById('accounts-root').innerHTML = '<div class="empty-state">Failed to load</div>';
+  });
+</script>
+</body>
+</html>
