@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soup Base Guide · Mini Hot Pot</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F5F0E8;color:#1a1a1a;min-height:100vh}
+.page{max-width:680px;margin:0 auto;padding:1.25rem 1rem 4rem}
+.topbar{display:flex;align-items:center;margin-bottom:1.25rem}
+.back{display:flex;align-items:center;gap:4px;font-size:13px;color:#666;text-decoration:none}
+.back svg{width:16px;height:16px}
+.header{border-bottom:1.5px solid #2C2C2A;padding-bottom:12px;margin-bottom:20px}
+.header h1{font-size:20px;font-weight:700;color:#2C2C2A;letter-spacing:-0.3px;line-height:1.3}
+.header .sub{font-size:12px;color:#888780;margin-top:4px;line-height:1.5}
+.card{margin:0 auto 14px;background:#fff;border-radius:14px;border:0.5px solid #D3D1C7;overflow:hidden}
+.card-header{padding:14px 20px}
+.card-header h2{font-size:17px;font-weight:700;color:#fff;letter-spacing:-0.2px}
+.card-body{padding:0}
+
+/* blocks */
+.block{padding:14px 20px}
+.block+.block{border-top:1px solid rgba(0,0,0,0.06)}
+.block-ingredients{background:#fff}
+.block-container{background:#F5F0E8}
+.block-steps{background:#FFF8F5}
+.block-seasoning{background:#FAECE7}
+.block-note{background:#F5F0E8}
+
+.block-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+
+.ingredient-list{list-style:none}
+.ingredient-list li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,0.06);font-size:13px;color:#2C2C2A;line-height:1.4}
+.ingredient-list li:last-child{border-bottom:none}
+.ingredient-list li span:first-child{flex:1}
+.ingredient-list li span:last-child{font-weight:600;white-space:nowrap;text-align:right}
+
+.step-list{list-style:none}
+.step-list li{display:flex;gap:10px;align-items:flex-start;padding:5px 0;font-size:14px;color:#2C2C2A;line-height:1.4}
+.step-num{flex-shrink:0;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+
+.container-badge{display:inline-block;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px}
+
+.note-box{font-size:12px;color:#5F5E5A;line-height:1.5}
+.note-box b{color:#2C2C2A}
+
+.simple-tag{display:inline-block;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;margin-right:6px;margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a href="/sop" class="back">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 12L6 8l4-4"/></svg>
+      Back
+    </a>
+  </div>
+
+  <div class="header">
+    <h1>Soup Base Guide — Mini Hot Pot</h1>
+    <div class="sub">Tomato · Veg &amp; Mushroom · Spicy · Spicy Tomato · Spicy Sesame Dry Mix</div>
+  </div>
+
+  <!-- 1. Spicy Soup Base -->
+  <div class="card">
+    <div class="card-header" style="background:#993C1D;"><h2>Spicy Soup Base</h2></div>
+    <div class="card-body">
+      <div class="block block-ingredients">
+        <div class="block-label" style="color:#993C1D;">Ingredients</div>
+        <ul class="ingredient-list">
+          <li><span>Haidilao Beef Tallow Spicy Seasoning</span><span style="color:#993C1D;">1 pack (480g)</span></li>
+          <li><span>Spicy Flavour Hot Pot Soup Base</span><span style="color:#993C1D;">1 pack (400g)</span></li>
+          <li><span>Hot Pot Seasoning</span><span style="color:#993C1D;">1 pack (22g)</span></li>
+          <li><span>Pork Bone Paste</span><span style="color:#993C1D;">50g</span></li>
+          <li><span>Water</span><span style="color:#993C1D;">2400 ml</span></li>
+        </ul>
+      </div>
+      <div class="block block-container">
+        <div class="block-label" style="color:#993C1D;">Container</div>
+        <span class="container-badge" style="color:#993C1D;background:#FAECE7;">Stainless Steel Pot</span>
+      </div>
+      <div class="block block-steps">
+        <div class="block-label" style="color:#993C1D;">Steps</div>
+        <ul class="step-list">
+          <li><span class="step-num" style="background:#FAECE7;color:#993C1D;">1</span><span>Make pork bone paste first (see card below).</span></li>
+          <li><span class="step-num" style="background:#FAECE7;color:#993C1D;">2</span><span>Measure 2400ml water into the pot.</span></li>
+          <li><span class="step-num" style="background:#FAECE7;color:#993C1D;">3</span><span>Add all packs and the pork bone paste.</span></li>
+          <li><span class="step-num" style="background:#FAECE7;color:#993C1D;">4</span><span>Heat on induction stove.</span></li>
+          <li><span class="step-num" style="background:#FAECE7;color:#993C1D;">5</span><span>Stir often, don't let it stick.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Pork Bone Paste -->
+  <div class="card">
+    <div class="card-header" style="background:#BA7517;"><h2>Pork Bone Paste — for Spicy Soup Base</h2></div>
+    <div class="card-body">
+      <div class="block block-ingredients">
+        <div class="block-label" style="color:#BA7517;">Ingredients</div>
+        <ul class="ingredient-list">
+          <li><span>Tonkotsu Ramen Soup 1610 (White Pork Soup)</span><span style="color:#BA7517;">1 pack (1kg)</span></li>
+          <li><span>Water</span><span style="color:#BA7517;">400 ml</span></li>
+        </ul>
+      </div>
+      <div class="block block-steps">
+        <div class="block-label" style="color:#BA7517;">Steps</div>
+        <ul class="step-list">
+          <li><span class="step-num" style="background:#FAECDA;color:#BA7517;">1</span><span>Mix the pork soup pack with water.</span></li>
+          <li><span class="step-num" style="background:#FAECDA;color:#BA7517;">2</span><span>Stir until smooth.</span></li>
+          <li><span class="step-num" style="background:#FAECDA;color:#BA7517;">3</span><span>Use 50g of this paste in the Spicy Soup Base.</span></li>
+        </ul>
+      </div>
+      <div class="block block-note">
+        <div class="note-box"><b>Note:</b> Sub-recipe for Spicy Soup Base only. Not served on its own.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Tomato Soup Base -->
+  <div class="card">
+    <div class="card-header" style="background:#A32D2D;"><h2>Tomato Soup Base</h2></div>
+    <div class="card-body">
+      <div class="block block-ingredients">
+        <div class="block-label" style="color:#A32D2D;">Ingredients</div>
+        <ul class="ingredient-list">
+          <li><span>Tomato Risotto Soup Packet Base</span><span style="color:#A32D2D;">6 packs (135g each)</span></li>
+          <li><span>Water</span><span style="color:#A32D2D;">2400 ml</span></li>
+        </ul>
+      </div>
+      <div class="block block-container">
+        <div class="block-label" style="color:#A32D2D;">Container</div>
+        <span class="container-badge" style="color:#A32D2D;background:#FAECE7;">Stainless Steel Pot</span>
+      </div>
+      <div class="block block-steps">
+        <div class="block-label" style="color:#A32D2D;">Steps</div>
+        <ul class="step-list">
+          <li><span class="step-num" style="background:#FAECE7;color:#A32D2D;">1</span><span>Measure water.</span></li>
+          <li><span class="step-num" style="background:#FAECE7;color:#A32D2D;">2</span><span>Add all 6 packs.</span></li>
+          <li><span class="step-num" style="background:#FAECE7;color:#A32D2D;">3</span><span>Heat on induction stove.</span></li>
+          <li><span class="step-num" style="background:#FAECE7;color:#A32D2D;">4</span><span>Stir often, don't let it stick.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Veg & Mushroom Soup Base -->
+  <div class="card">
+    <div class="card-header" style="background:#3B6D11;"><h2>Veg &amp; Mushroom Soup Base</h2></div>
+    <div class="card-body">
+      <div class="block block-ingredients">
+        <div class="block-label" style="color:#3B6D11;">Ingredients</div>
+        <ul class="ingredient-list">
+          <li><span>Veg &amp; Mushroom Soup Packet Base</span><span style="color:#3B6D11;">1 pack</span></li>
+          <li><span>Water</span><span style="color:#3B6D11;">900 ml</span></li>
+        </ul>
+      </div>
+      <div class="block block-container">
+        <div class="block-label" style="color:#3B6D11;">Container</div>
+        <span class="container-badge" style="color:#3B6D11;background:#EAF3DE;">Stainless Steel Pot</span>
+      </div>
+      <div class="block block-steps">
+        <div class="block-label" style="color:#3B6D11;">Steps</div>
+        <ul class="step-list">
+          <li><span class="step-num" style="background:#EAF3DE;color:#3B6D11;">1</span><span>Measure water.</span></li>
+          <li><span class="step-num" style="background:#EAF3DE;color:#3B6D11;">2</span><span>Add the soup packet.</span></li>
+          <li><span class="step-num" style="background:#EAF3DE;color:#3B6D11;">3</span><span>Heat on induction stove.</span></li>
+          <li><span class="step-num" style="background:#EAF3DE;color:#3B6D11;">4</span><span>Stir often, don't let it stick.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Spicy Sesame Dry Mix -->
+  <div class="card">
+    <div class="card-header" style="background:#D85A30;"><h2>Spicy Sesame Dry Mix</h2></div>
+    <div class="card-body">
+      <div class="block block-ingredients">
+        <div class="block-label" style="color:#D85A30;">Ingredients</div>
+        <ul class="ingredient-list">
+          <li><span>Peanut and Sesame Sauce</span><span style="color:#D85A30;">1 kg</span></li>
+          <li><span>Water</span><span style="color:#D85A30;">1000 ml</span></li>
+        </ul>
+      </div>
+      <div class="block block-container">
+        <div class="block-label" style="color:#D85A30;">Container</div>
+        <span class="container-badge" style="color:#D85A30;background:#FAECE7;">Blender</span>
+      </div>
+      <div class="block block-steps">
+        <div class="block-label" style="color:#D85A30;">Steps</div>
+        <ul class="step-list">
+          <li><span class="step-num" style="background:#FAECE7;color:#D85A30;">1</span><span>Pour sauce and water into the blender.</span></li>
+          <li><span class="step-num" style="background:#FAECE7;color:#D85A30;">2</span><span>Blend until smooth paste, no lumps.</span></li>
+          <li><span class="step-num" style="background:#FAECE7;color:#D85A30;">3</span><span>Pour paste over ingredients.</span></li>
+          <li><span class="step-num" style="background:#FAECE7;color:#D85A30;">4</span><span>Add all seasoning on top.</span></li>
+        </ul>
+      </div>
+      <div class="block block-seasoning">
+        <div class="block-label" style="color:#D85A30;">Seasoning</div>
+        <ul class="ingredient-list">
+          <li><span>Sesame Oil</span><span style="color:#D85A30;">1 full hot pot ladle</span></li>
+          <li><span>Pepper Oil</span><span style="color:#D85A30;">2 pumps</span></li>
+          <li><span>Chilli Oil</span><span style="color:#D85A30;">1 full hot pot ladle</span></li>
+          <li><span>Chilli Powder</span><span style="color:#D85A30;">1 white spoon</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Spicy Tomato Soup Base -->
+  <div class="card">
+    <div class="card-header" style="background:#E24B4A;"><h2>Spicy Tomato Soup Base</h2></div>
+    <div class="card-body">
+      <div class="block block-ingredients">
+        <div class="block-label" style="color:#E24B4A;">Ingredients</div>
+        <ul class="ingredient-list">
+          <li><span>Tomato Soup Base</span><span style="color:#E24B4A;">full portion</span></li>
+          <li><span>Chilli Oil</span><span style="color:#E24B4A;">1 hot pot ladle</span></li>
+          <li><span>Chilli Powder</span><span style="color:#E24B4A;">1 spoon</span></li>
+        </ul>
+      </div>
+      <div class="block block-steps">
+        <div class="block-label" style="color:#E24B4A;">Steps</div>
+        <ul class="step-list">
+          <li><span class="step-num" style="background:#FAECE7;color:#E24B4A;">1</span><span>Fill the box with tomato soup base.</span></li>
+          <li><span class="step-num" style="background:#FAECE7;color:#E24B4A;">2</span><span>Add 1 hot pot ladle of chilli oil.</span></li>
+          <li><span class="step-num" style="background:#FAECE7;color:#E24B4A;">3</span><span>Add 1 spoon of chilli powder.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
