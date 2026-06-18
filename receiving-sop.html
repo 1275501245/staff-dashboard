@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Receiving SOP · Mini Hot Pot</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F5F0E8;color:#1a1a1a;min-height:100vh}
+.page{max-width:680px;margin:0 auto;padding:1.25rem 1rem 4rem}
+.topbar{display:flex;align-items:center;margin-bottom:1.25rem}
+.back{display:flex;align-items:center;gap:4px;font-size:13px;color:#666;text-decoration:none}
+.back svg{width:16px;height:16px}
+.header{border-bottom:1.5px solid #2C2C2A;padding-bottom:12px;margin-bottom:20px}
+.header h1{font-size:20px;font-weight:700;color:#2C2C2A;letter-spacing:-0.3px;line-height:1.3}
+.header .sub{font-size:12px;color:#888780;margin-top:4px}
+
+.card{margin:0 auto 12px;background:#fff;border-radius:14px;border:0.5px solid #D3D1C7;overflow:hidden}
+.card-header{padding:12px 18px;display:flex;align-items:center;gap:12px}
+.card-header h2{font-size:15px;font-weight:700;color:#fff;letter-spacing:-0.1px}
+.step-badge{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+
+.block{padding:14px 18px}
+.block+.block{border-top:1px solid rgba(0,0,0,0.05)}
+.block-label{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px}
+
+.rule-list{list-style:none}
+.rule-list li{display:flex;align-items:flex-start;gap:10px;padding:5px 0;font-size:13px;color:#2C2C2A;line-height:1.5;border-bottom:0.5px solid rgba(0,0,0,0.05)}
+.rule-list li:last-child{border-bottom:none}
+.rule-dot{flex-shrink:0;width:6px;height:6px;border-radius:50%;margin-top:6px}
+
+.alert-box{border-radius:8px;padding:10px 14px;font-size:12px;font-weight:600;line-height:1.5;margin-top:2px}
+
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-right:4px}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a href="/sop" class="back">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 12L6 8l4-4"/></svg>
+      Back
+    </a>
+  </div>
+
+  <div class="header">
+    <h1>Goods Receiving — Photo Checklist</h1>
+    <div class="sub">5 required photo types on every delivery</div>
+  </div>
+
+  <!-- 1. Goods Photo -->
+  <div class="card">
+    <div class="card-header" style="background:#2C5F8A;">
+      <div class="step-badge">1</div>
+      <h2>Goods Photo</h2>
+    </div>
+    <div class="block" style="background:#F0F5FA;">
+      <div class="block-label" style="color:#2C5F8A;">Requirements</div>
+      <ul class="rule-list">
+        <li><span class="rule-dot" style="background:#2C5F8A;"></span><span>Photograph <b>all</b> incoming goods upon arrival.</span></li>
+        <li><span class="rule-dot" style="background:#2C5F8A;"></span><span>Items must <b>not be covered or obstructed</b> — product type and quantity must be clearly identifiable in the photo.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 2. Delivery Note Photo -->
+  <div class="card">
+    <div class="card-header" style="background:#3B6D11;">
+      <div class="step-badge">2</div>
+      <h2>Delivery Note Photo</h2>
+    </div>
+    <div class="block" style="background:#F2F7EE;">
+      <div class="block-label" style="color:#3B6D11;">Requirements</div>
+      <ul class="rule-list">
+        <li><span class="rule-dot" style="background:#3B6D11;"></span><span>All items on the delivery note must be <b>ticked off</b> before signing.</span></li>
+        <li><span class="rule-dot" style="background:#3B6D11;"></span><span>Receiver's <b>name must be written</b> on the note before taking the photo.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 3. Temperature Check Photo -->
+  <div class="card">
+    <div class="card-header" style="background:#993C1D;">
+      <div class="step-badge">3</div>
+      <h2>Frozen Goods Temperature Photo</h2>
+    </div>
+    <div class="block" style="background:#FFF8F5;">
+      <div class="block-label" style="color:#993C1D;">Requirements</div>
+      <ul class="rule-list">
+        <li><span class="rule-dot" style="background:#993C1D;"></span><span>Frozen goods temperature must be <b>below −15°C</b>.</span></li>
+        <li><span class="rule-dot" style="background:#993C1D;"></span><span><b>3 or fewer</b> frozen product types — randomly check and photograph <b>1 item</b>.</span></li>
+        <li><span class="rule-dot" style="background:#993C1D;"></span><span><b>More than 3</b> frozen product types — randomly check and photograph <b>3 items</b>.</span></li>
+      </ul>
+    </div>
+    <div class="block" style="background:#FAECE7;">
+      <div class="alert-box" style="background:#fff;border:1px solid #F5C4B3;color:#993C1D;">
+        ⚠️ Temperature probe must be visible and reading must be clearly legible in the photo.
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Re-weighing Photo -->
+  <div class="card">
+    <div class="card-header" style="background:#6B4E9B;">
+      <div class="step-badge">4</div>
+      <h2>Re-weighing Photo</h2>
+    </div>
+    <div class="block" style="background:#F7F4FC;">
+      <div class="block-label" style="color:#6B4E9B;">When to apply</div>
+      <ul class="rule-list">
+        <li><span class="rule-dot" style="background:#6B4E9B;"></span><span>Applies to <b>fresh produce sold by weight</b> where the packaging does not state a specific quantity — primarily <b>Pak Choi</b>.</span></li>
+      </ul>
+    </div>
+    <div class="block" style="background:#F0EBF8;">
+      <div class="block-label" style="color:#6B4E9B;">How to photograph</div>
+      <ul class="rule-list">
+        <li><span class="rule-dot" style="background:#6B4E9B;"></span><span>Place the item <b>including its packaging box</b> on the digital scale.</span></li>
+        <li><span class="rule-dot" style="background:#6B4E9B;"></span><span>Photograph the scale display showing the <b>weight in grams</b>.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 5. Quality Check Photo -->
+  <div class="card">
+    <div class="card-header" style="background:#BA7517;">
+      <div class="step-badge">5</div>
+      <h2>Quality Check Photo</h2>
+    </div>
+    <div class="block" style="background:#FFFBF0;">
+      <div class="block-label" style="color:#BA7517;">What to check</div>
+      <ul class="rule-list">
+        <li><span class="rule-dot" style="background:#BA7517;"></span><span><b>Cabbage</b> — check for excessive black spots.</span></li>
+        <li><span class="rule-dot" style="background:#BA7517;"></span><span><b>Pak Choi</b> — check for excessive rotten or damaged leaves.</span></li>
+        <li><span class="rule-dot" style="background:#BA7517;"></span><span><b>All other fresh produce</b> — check for any obvious quality issues.</span></li>
+      </ul>
+    </div>
+    <div class="block" style="background:#FFF3D6;">
+      <div class="alert-box" style="background:#fff;border:1px solid #F0D080;color:#BA7517;">
+        ⚠️ If any quality issue is found — photograph and report to management <b>on the same day as delivery</b>, without delay.
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
