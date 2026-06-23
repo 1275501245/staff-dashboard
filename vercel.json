@@ -16,6 +16,7 @@
     { "src": "/rota", "dest": "/rota.html" },
     { "src": "/sop", "dest": "/sop.html" },
     { "src": "/receiving-sop", "dest": "/receiving-sop.html" },
-    { "src": "/soup-base-guide", "dest": "/soup-base-guide.html" }
+    { "src": "/soup-base-guide", "dest": "/soup-base-guide.html" },
+    { "src": "/operations-rota", "dest": "/operations-rota.html" }
   ]
 }
