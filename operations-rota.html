@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Operations Rota</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; }
+.container { max-width: 480px; margin: 0 auto; padding: 20px 16px 60px; }
+
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+.back { font-size: 13px; color: #888; text-decoration: none; display: flex; align-items: center; gap: 4px; }
+.back:active { opacity: 0.6; }
+.page-title { font-size: 18px; font-weight: 600; }
+
+.week-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.week-btn { background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 5px 12px; font-size: 13px; cursor: pointer; color: #1a1a1a; }
+.week-btn:active { background: #f0f0f0; }
+.week-label { flex: 1; text-align: center; font-size: 13px; color: #666; }
+
+.person-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.person-tab { padding: 5px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid #e0e0e0; color: #666; background: white; }
+.person-tab.active { background: #EEEDFE; color: #3C3489; border-color: #AFA9EC; font-weight: 500; }
+
+.stat-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.stat { background: white; border-radius: 10px; padding: 10px 12px; flex: 1; border: 1px solid #efefef; }
+.stat-val { font-size: 18px; font-weight: 600; color: #1a1a1a; }
+.stat-lab { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+.day-block { margin-bottom: 10px; background: white; border-radius: 12px; border: 1px solid #efefef; overflow: hidden; }
+.day-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; background: #fafafa; border-bottom: 1px solid #f0f0f0; }
+.day-label { font-size: 13px; font-weight: 500; }
+.day-date { font-size: 12px; color: #aaa; }
+
+.shift-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border-bottom: 1px solid #f5f5f5; }
+.shift-row:last-child { border-bottom: none; }
+.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.dot-站岗 { background: #7F77DD; }
+.dot-检查培训 { background: #1D9E75; }
+.dot-线上 { background: #378ADD; }
+
+.shift-main { flex: 1; }
+.shift-site { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.shift-time { font-size: 12px; color: #888; }
+.shift-note { font-size: 11px; color: #aaa; margin-top: 3px; font-style: italic; }
+
+.tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; flex-shrink: 0; white-space: nowrap; }
+.tag-站岗 { background: #EEEDFE; color: #3C3489; }
+.tag-检查培训 { background: #E1F5EE; color: #085041; }
+.tag-线上 { background: #E6F1FB; color: #0C447C; }
+
+.shift-hours { font-size: 12px; color: #aaa; min-width: 28px; text-align: right; margin-top: 2px; flex-shrink: 0; }
+
+.loading { text-align: center; padding: 40px 0; color: #aaa; font-size: 14px; }
+.empty-day { padding: 12px 14px; font-size: 13px; color: #bbb; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="topbar">
+    <a class="back" href="/admin">‹ Admin</a>
+    <span class="page-title">Operations Rota</span>
+  </div>
+
+  <div class="week-nav">
+    <button class="week-btn" id="prevWeek">‹</button>
+    <span class="week-label" id="weekLabel">Loading...</span>
+    <button class="week-btn" id="nextWeek">›</button>
+  </div>
+
+  <div class="person-tabs" id="personTabs"></div>
+
+  <div class="stat-row" id="statRow">
+    <div class="stat"><div class="stat-val">—</div><div class="stat-lab">站岗</div></div>
+    <div class="stat"><div class="stat-val">—</div><div class="stat-lab">检查/培训</div></div>
+    <div class="stat"><div class="stat-val">—</div><div class="stat-lab">线上</div></div>
+  </div>
+
+  <div id="dayList"><div class="loading">Loading...</div></div>
+
+</div>
+
+<script>
+const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
+const SHEET_NAME = 'Operations Rota';
+const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+const DAYS = ['周日','周一','周二','周三','周四','周五','周六'];
+
+let allData = [];
+let people = [];
+let activePerson = '';
+let weekOffset = 0;
+
+function getWeekStart(offset) {
+  const now = new Date();
+  const day = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1) + offset * 7);
+  monday.setHours(0,0,0,0);
+  return monday;
+}
+
+function formatDate(d) {
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
+function formatDisplay(d) {
+  return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getTypeKey(type) {
+  if (!type) return '线上';
+  if (type === '站岗') return '站岗';
+  if (type === '线上') return '线上';
+  return '检查培训';
+}
+
+function getTagClass(type) {
+  return 'tag-' + getTypeKey(type);
+}
+
+function getDotClass(type) {
+  return 'dot-' + getTypeKey(type);
+}
+
+function getTagLabel(type) {
+  if (type === '站岗') return '站岗';
+  if (type === '线上') return '线上';
+  return '检查/培训';
+}
+
+function formatTime(t) {
+  if (!t || t === '' || t === '—') return null;
+  const s = String(t).replace(':','');
+  if (s.length < 3) return null;
+  const h = s.slice(0, s.length === 3 ? 1 : 2);
+  const m = s.slice(-2);
+  return `${h.padStart(2,'0')}:${m}`;
+}
+
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.split('\n');
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let c of line) {
+      if (c === '"') { inQ = !inQ; continue; }
+      if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else cur += c;
+    }
+    cols.push(cur.trim());
+    if (cols[0]) rows.push(cols);
+  }
+  return rows;
+}
+
+function render() {
+  const weekStart = getWeekStart(weekOffset);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 6);
+  document.getElementById('weekLabel').textContent = `${formatDisplay(weekStart)} – ${formatDisplay(weekEnd)}`;
+
+  const weekDates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + i);
+    weekDates.push(formatDate(d));
+  }
+
+  const filtered = allData.filter(r => r[0] === activePerson && weekDates.includes(r[3]));
+
+  let soloH = 0, otherH = 0, onlineH = 0;
+  filtered.forEach(r => {
+    const h = parseFloat(r[7]);
+    if (isNaN(h)) return;
+    const k = getTypeKey(r[1]);
+    if (k === '站岗') soloH += h;
+    else if (k === '检查培训') otherH += h;
+    else onlineH += h;
+  });
+
+  const statRow = document.getElementById('statRow');
+  statRow.innerHTML = `
+    <div class="stat"><div class="stat-val">${soloH > 0 ? soloH+'h' : '—'}</div><div class="stat-lab">站岗</div></div>
+    <div class="stat"><div class="stat-val">${otherH > 0 ? otherH+'h' : '—'}</div><div class="stat-lab">检查/培训</div></div>
+    <div class="stat"><div class="stat-val">${onlineH > 0 ? onlineH+'h' : '—'}</div><div class="stat-lab">线上</div></div>
+  `;
+
+  const byDate = {};
+  filtered.forEach(r => {
+    if (!byDate[r[3]]) byDate[r[3]] = [];
+    byDate[r[3]].push(r);
+  });
+
+  const dayList = document.getElementById('dayList');
+  dayList.innerHTML = '';
+
+  weekDates.forEach((date, i) => {
+    const rows = byDate[date];
+    if (!rows || rows.length === 0) return;
+
+    const d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + i);
+    const dayLabel = DAYS[d.getDay()];
+
+    const block = document.createElement('div');
+    block.className = 'day-block';
+
+    let html = `<div class="day-header"><span class="day-label">${dayLabel}</span><span class="day-date">${formatDisplay(d)}</span></div>`;
+
+    rows.forEach(r => {
+      const type = r[1] || '';
+      const site = r[4] || '—';
+      const ts = formatTime(r[5]);
+      const te = formatTime(r[6]);
+      const hours = r[7] || '—';
+      const note = r[8] || '';
+      const timeStr = ts && te ? `${ts} – ${te}` : (r[7] === '—' ? '全天' : '—');
+
+      html += `
+        <div class="shift-row">
+          <span class="dot ${getDotClass(type)}"></span>
+          <div class="shift-main">
+            <div class="shift-site">${site}</div>
+            <div class="shift-time">${timeStr}</div>
+            ${note ? `<div class="shift-note">${note}</div>` : ''}
+          </div>
+          <span class="tag ${getTagClass(type)}">${getTagLabel(type)}</span>
+          <span class="shift-hours">${hours !== '—' ? hours+'h' : '—'}</span>
+        </div>`;
+    });
+
+    block.innerHTML = html;
+    dayList.appendChild(block);
+  });
+
+  if (dayList.innerHTML === '') {
+    dayList.innerHTML = '<div class="loading">本周暂无排班记录</div>';
+  }
+}
+
+function renderTabs() {
+  const tabs = document.getElementById('personTabs');
+  tabs.innerHTML = '';
+  people.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'person-tab' + (p === activePerson ? ' active' : '');
+    btn.textContent = p;
+    btn.onclick = () => { activePerson = p; renderTabs(); render(); };
+    tabs.appendChild(btn);
+  });
+}
+
+async function load() {
+  try {
+    const res = await fetch(URL);
+    const text = await res.text();
+    allData = parseCSV(text);
+    people = [...new Set(allData.map(r => r[0]).filter(Boolean))];
+    if (people.length > 0) activePerson = people[0];
+    renderTabs();
+    render();
+  } catch(e) {
+    document.getElementById('dayList').innerHTML = '<div class="loading">加载失败，请刷新重试</div>';
+  }
+}
+
+document.getElementById('prevWeek').onclick = () => { weekOffset--; render(); };
+document.getElementById('nextWeek').onclick = () => { weekOffset++; render(); };
+
+load();
+</script>
+</body>
+</html>
