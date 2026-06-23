@@ -146,9 +146,11 @@ td.col-site {
   letter-spacing: 0.3px;
   background: #fff;
 }
-td.col-site.site-shoreditch { background: #e8f4ff; color: #1565C0; border-left: 3px solid #1E88E5; }
-td.col-site.site-battersea  { background: #fff8e1; color: #E65100; border-left: 3px solid #FB8C00; }
-td.col-site.site-towerbridge{ background: #e8f5e9; color: #2E7D32; border-left: 3px solid #43A047; }
+td.col-site.site-shoreditch  { background: #e8f4ff; color: #1565C0; border-left: 3px solid #1E88E5; }
+td.col-site.site-battersea   { background: #fff8e1; color: #E65100; border-left: 3px solid #FB8C00; }
+td.col-site.site-towerbridge { background: #e8f5e9; color: #2E7D32; border-left: 3px solid #43A047; }
+td.col-site.site-piccadilly  { background: #f3e8ff; color: #6B21A8; border-left: 3px solid #9333EA; }
+td.col-site.site-brentcross  { background: #ffe8e8; color: #B91C1C; border-left: 3px solid #EF4444; }
 
 /* name cell */
 td.col-name {
@@ -179,6 +181,8 @@ td.day-thu  { background: #fffbf0; }
 .badge-shoreditch   { background: #dbeafe; color: #1d4ed8; }
 .badge-battersea    { background: #fef3c7; color: #b45309; }
 .badge-towerbridge  { background: #d1fae5; color: #065f46; }
+.badge-piccadilly   { background: #ede9fe; color: #6d28d9; }
+.badge-brentcross   { background: #fee2e2; color: #b91c1c; }
 
 /* row alternate */
 tbody tr:nth-child(even) td { background: #fcfcfc; }
@@ -276,6 +280,8 @@ function siteClass(site) {
   if (s.includes('shoreditch'))   return 'site-shoreditch';
   if (s.includes('battersea') || s.includes('nineelms') || s.includes('nineelm') || s.includes('\u5df4\u7279\u897f')) return 'site-battersea';
   if (s.includes('tower') || s.includes('\u5357\u533a'))  return 'site-towerbridge';
+  if (s.includes('piccadilly'))   return 'site-piccadilly';
+  if (s.includes('brentcross') || s.includes('brent'))    return 'site-brentcross';
   return '';
 }
 
@@ -284,6 +290,8 @@ function badgeClass(val) {
   if (v.includes('shoreditch'))   return 'badge-shoreditch';
   if (v.includes('battersea'))    return 'badge-battersea';
   if (v.includes('tower'))        return 'badge-towerbridge';
+  if (v.includes('piccadilly'))   return 'badge-piccadilly';
+  if (v.includes('brentcross') || v.includes('brent')) return 'badge-brentcross';
   return '';
 }
 
@@ -303,7 +311,7 @@ function renderCell(val, colIdx) {
     return `<td class="day-cell day-off${thuClass}">OFF</td>`;
   }
   // cross-site badge?
-  if (vl.includes('shoreditch') || vl.includes('battersea') || vl.includes('tower')) {
+  if (vl.includes('shoreditch') || vl.includes('battersea') || vl.includes('tower') || vl.includes('piccadilly') || vl.includes('brent')) {
     const bc = badgeClass(v);
     return `<td class="day-cell${thuClass}"><span class="badge ${bc}">${v}</span></td>`;
   }
