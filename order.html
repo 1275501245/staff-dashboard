@@ -17,14 +17,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .stat-n { font-size: 24px; font-weight: 700; color: #0f2035; }
 .stat-l { font-size: 11px; color: #aaa; margin-top: 2px; }
 
-/* 站点信息栏 */
 .sites-info { background: white; border-radius: 12px; border: 1px solid #efefef; margin-bottom: 16px; overflow: hidden; }
 .sites-info-title { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: #aaa; text-transform: uppercase; padding: 10px 14px 6px; }
 .site-info-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 14px; border-top: 1px solid #f5f5f5; }
 .site-info-name { font-size: 13px; font-weight: 600; color: #0f2035; min-width: 80px; flex-shrink: 0; padding-top: 1px; }
 .site-info-addr { font-size: 11px; color: #888; line-height: 1.5; }
 
-/* 品项 */
 .section-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: #aaa; text-transform: uppercase; margin-bottom: 8px; }
 .item-card { background: white; border-radius: 12px; border: 1px solid #efefef; margin-bottom: 10px; overflow: hidden; }
 .item-top { display: flex; align-items: flex-start; justify-content: space-between; padding: 12px 14px 8px; gap: 8px; }
@@ -43,12 +41,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .site-unit { font-size: 9px; color: #aaa; margin-top: 2px; }
 .site.has .site-unit { color: #4a7abf; }
 
+.invoice-box { background: white; border-radius: 12px; border: 1px solid #efefef; margin-top: 20px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+.invoice-icon { font-size: 20px; flex-shrink: 0; }
+.invoice-text { flex: 1; }
+.invoice-label { font-size: 10px; color: #aaa; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 3px; }
+.invoice-email { font-size: 13px; font-weight: 600; color: #0f2035; }
+
 .state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 12px; text-align: center; padding: 40px 20px; }
 .state-title { font-size: 17px; font-weight: 600; color: #0f2035; }
 .state-sub { font-size: 13px; color: #aaa; line-height: 1.6; max-width: 260px; }
 .spinner { width: 32px; height: 32px; border: 2.5px solid #efefef; border-top-color: #0f2035; border-radius: 50%; animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.generated { text-align: center; font-size: 11px; color: #ccc; margin-top: 20px; }
+.generated { text-align: center; font-size: 11px; color: #ccc; margin-top: 16px; }
 </style>
 </head>
 <body>
@@ -65,19 +69,17 @@ function renderError(msg){
 }
 
 function renderOrder(data){
-  const {supplierName, orderDate, items, siteMap, generatedAt} = data;
+  const {supplierName, orderDate, items, siteMap, invoiceEmail, generatedAt} = data;
   document.title = supplierName + ' · 开货单';
 
   const totalQty = items.reduce((sum,item) => sum + SITES.reduce((s,site) => s+(Number(item[site])||0), 0), 0);
-
-  // 只显示有数量的站点
   const activeSites = SITES.filter(s => items.some(item => Number(item[s]) > 0));
   const cols = activeSites.length;
   const gridStyle = `grid-template-columns: repeat(${cols}, 1fr)`;
 
-  // 站点信息区
+  // 送货地址
   let siteInfoHtml = '';
-  if (siteMap && Object.keys(siteMap).length > 0) {
+  if (siteMap && activeSites.some(s => siteMap[s])) {
     const rows = activeSites.map(site => {
       const info = siteMap[site] || { name: site, address: '' };
       return `<div class="site-info-row">
@@ -92,20 +94,18 @@ function renderOrder(data){
   }
 
   // 品项
-  let itemsHtml = items.map(item => {
+  const itemsHtml = items.map(item => {
     const siteHeaders = activeSites.map(site => {
       const info = siteMap && siteMap[site] ? siteMap[site] : { name: site };
       return `<div class="sh">${esc(info.name)}</div>`;
     }).join('');
-
     const siteCells = activeSites.map(site => {
       const qty = item[site]; const has = qty && Number(qty) > 0;
       return `<div class="site ${has?'has':''}">
         <div class="site-qty">${has ? qty : '—'}</div>
-        ${has ? `<div class="site-unit">${esc(item.Unit)}</div>` : ''}
+        ${has ? `<div class="site-unit">${esc(item.SupplierUnit)}</div>` : ''}
       </div>`;
     }).join('');
-
     return `<div class="item-card">
       <div class="item-top">
         <div>
@@ -118,6 +118,16 @@ function renderOrder(data){
       <div class="sites" style="${gridStyle}">${siteCells}</div>
     </div>`;
   }).join('');
+
+  // 发票邮箱
+  const invoiceHtml = invoiceEmail ? `
+    <div class="invoice-box">
+      <div class="invoice-icon">✉️</div>
+      <div class="invoice-text">
+        <div class="invoice-label">Please send invoice to</div>
+        <div class="invoice-email">${esc(invoiceEmail)}</div>
+      </div>
+    </div>` : '';
 
   document.getElementById('app').innerHTML = `
     <div class="header">
@@ -133,6 +143,7 @@ function renderOrder(data){
       ${siteInfoHtml}
       <div class="section-label">订单明细</div>
       ${itemsHtml}
+      ${invoiceHtml}
       <div class="generated">生成于 ${esc(generatedAt)}</div>
     </div>`;
 }
