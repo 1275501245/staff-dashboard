@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>开货单</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; }
+.header { background: #0f2035; padding: 20px 16px 16px; border-bottom: 2px solid #c9a84c; }
+.header-label { font-size: 10px; letter-spacing: 0.12em; color: #c9a84c; margin-bottom: 6px; text-transform: uppercase; }
+.header-name { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+.header-date { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 6px; }
+.container { max-width: 480px; margin: 0 auto; padding: 16px 16px 60px; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat { background: white; border-radius: 12px; border: 1px solid #efefef; padding: 12px 14px; text-align: center; }
+.stat-n { font-size: 24px; font-weight: 700; color: #0f2035; }
+.stat-l { font-size: 11px; color: #aaa; margin-top: 2px; }
+.item-card { background: white; border-radius: 12px; border: 1px solid #efefef; margin-bottom: 10px; overflow: hidden; }
+.item-top { display: flex; align-items: flex-start; justify-content: space-between; padding: 12px 14px 10px; gap: 8px; }
+.item-name { font-size: 14px; font-weight: 600; color: #0f2035; line-height: 1.3; }
+.item-sku { font-size: 11px; color: #aaa; margin-top: 2px; }
+.item-spec { font-size: 11px; color: #666; background: #f5f5f5; border-radius: 6px; padding: 3px 8px; white-space: nowrap; flex-shrink: 0; }
+.sites-header { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 10px 14px 6px; }
+.sh { font-size: 9px; color: #aaa; text-align: center; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; }
+.sites { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 0 14px 12px; }
+.site { border-radius: 8px; padding: 6px 4px; text-align: center; border: 1px solid #efefef; background: #fafafa; }
+.site.has { background: #e8f0fb; border-color: #b8d0f0; }
+.site-loc { font-size: 9px; color: #aaa; line-height: 1.3; margin-bottom: 3px; font-weight: 500; }
+.site.has .site-loc { color: #1a4a8a; }
+.site-qty { font-size: 17px; font-weight: 700; color: #ccc; line-height: 1; }
+.site.has .site-qty { color: #0f2035; }
+.site-unit { font-size: 9px; color: #aaa; margin-top: 1px; }
+.site.has .site-unit { color: #4a7abf; }
+.state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 12px; text-align: center; padding: 40px 20px; }
+.state-title { font-size: 17px; font-weight: 600; color: #0f2035; }
+.state-sub { font-size: 13px; color: #aaa; line-height: 1.6; max-width: 260px; }
+.spinner { width: 32px; height: 32px; border: 2.5px solid #efefef; border-top-color: #0f2035; border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.generated { text-align: center; font-size: 11px; color: #ccc; margin-top: 20px; }
+</style>
+</head>
+<body>
+<div id="app"><div class="state"><div class="spinner"></div></div></div>
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweEtCG92d6a2cfO7FzSTFgnP8e5FE1NPrgqNIlDRul1TnN2wzx3Ovbu85E5k-oUsdh/exec';
+const SITES = ['Shoreditch','Tower Bridge','Battersea','Brent Cross'];
+const SHORT  = ['SHO','TWB','BAT','BXC'];
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function getParam(k){ return new URLSearchParams(window.location.search).get(k)||''; }
+
+function renderError(msg){
+  document.getElementById('app').innerHTML=`<div class="state"><div class="state-title">无法加载</div><div class="state-sub">${msg}</div></div>`;
+}
+
+function renderOrder(data){
+  const {supplierName,orderDate,items,generatedAt}=data;
+  document.title=supplierName+' · 开货单';
+  const totalQty=items.reduce((sum,item)=>sum+SITES.reduce((s,site)=>s+(Number(item[site])||0),0),0);
+  let html=`
+    <div class="header">
+      <div class="header-label">HDL Delivery Kitchen · 开货单</div>
+      <div class="header-name">${esc(supplierName)}</div>
+      <div class="header-date">${esc(orderDate)}</div>
+    </div>
+    <div class="container">
+      <div class="stats">
+        <div class="stat"><div class="stat-n">${items.length}</div><div class="stat-l">品项</div></div>
+        <div class="stat"><div class="stat-n">${totalQty}</div><div class="stat-l">件合计</div></div>
+      </div>
+      <div class="sites-header">${SHORT.map(s=>`<div class="sh">${s}</div>`).join('')}</div>`;
+
+  items.forEach(item=>{
+    html+=`
+      <div class="item-card">
+        <div class="item-top">
+          <div>
+            <div class="item-name">${esc(item.SupplierProductName||item.MyName)}</div>
+            <div class="item-sku">${esc(item.SKU||'—')}</div>
+          </div>
+          ${item.Spec?`<div class="item-spec">${esc(item.Spec)}</div>`:''}
+        </div>
+        <div class="sites">${SITES.map((site,i)=>{
+          const qty=item[site]; const has=qty&&Number(qty)>0;
+          return `<div class="site ${has?'has':''}">
+            <div class="site-loc">${SHORT[i]}</div>
+            <div class="site-qty">${has?qty:'—'}</div>
+            ${has?`<div class="site-unit">${esc(item.Unit||'')}</div>`:''}
+          </div>`;
+        }).join('')}</div>
+      </div>`;
+  });
+
+  html+=`<div class="generated">生成于 ${esc(generatedAt)}</div></div>`;
+  document.getElementById('app').innerHTML=html;
+}
+
+async function init(){
+  const supplier=getParam('supplier');
+  if(!supplier){ renderError('链接无效，请联系管理员。'); return; }
+  try{
+    const res=await fetch(`${APPS_SCRIPT_URL}?action=getOrder&supplier=${encodeURIComponent(supplier)}`);
+    const data=await res.json();
+    if(data.error){ renderError(data.error); return; }
+    renderOrder(data);
+  }catch(e){ renderError('加载失败，请稍后重试。'); }
+}
+init();
+</script>
+</body>
+</html>
