@@ -8,7 +8,6 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; background: #f5f5f5; }
 
-/* Top bar */
 .topbar {
   position: sticky;
   top: 0;
@@ -40,7 +39,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
   border-color: #111;
 }
 
-/* Table wrapper — scrollable */
 .table-wrap {
   overflow: auto;
   -webkit-overflow-scrolling: touch;
@@ -53,8 +51,7 @@ table {
   min-width: 100%;
 }
 
-/* ── Sticky columns ── */
-/* col 0: site label */
+/* Sticky columns */
 td.col-site, th.col-site {
   position: sticky;
   left: 0;
@@ -62,7 +59,6 @@ td.col-site, th.col-site {
   min-width: 90px;
   max-width: 90px;
 }
-/* col 1: name */
 td.col-name, th.col-name {
   position: sticky;
   left: 90px;
@@ -71,19 +67,18 @@ td.col-name, th.col-name {
   max-width: 80px;
 }
 
-/* ── Sticky rows ── */
+/* Sticky rows */
 thead tr th {
   position: sticky;
   z-index: 30;
 }
 thead tr:first-child th { top: 0; }
-thead tr:last-child th  { top: 36px; } /* height of first header row */
+thead tr:last-child th  { top: 36px; }
 
-/* col stickiness in thead needs higher z-index */
 thead th.col-site { z-index: 40; }
 thead th.col-name { z-index: 40; }
 
-/* ── Header styles ── */
+/* Header row 1 */
 thead tr:first-child th {
   background: #1a1a1a;
   color: #fff;
@@ -104,7 +99,14 @@ thead tr:first-child th.th-thu {
   color: #ffd580;
   font-style: italic;
 }
+/* Site Hours column header */
+thead tr:first-child th.col-site-total {
+  background: #1e1030;
+  color: #c4b5fd;
+  border-left: 2px solid #6d28d9;
+}
 
+/* Header row 2 (dates) */
 thead tr:last-child th {
   background: #f0f0f0;
   color: #666;
@@ -124,8 +126,13 @@ thead tr:last-child th.th-thu {
   background: #fff8e6;
   color: #a06000;
 }
+thead tr:last-child th.col-site-total {
+  background: #ede9fe;
+  color: #6d28d9;
+  border-left: 2px solid #c4b5fd;
+}
 
-/* ── Body cells ── */
+/* Body cells */
 tbody td {
   font-size: 11px;
   padding: 7px 10px;
@@ -184,9 +191,44 @@ td.day-thu  { background: #fffbf0; }
 .badge-piccadilly   { background: #ede9fe; color: #6d28d9; }
 .badge-brentcross   { background: #fee2e2; color: #b91c1c; }
 
+/* individual total cell */
+td.col-ind-total {
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+  min-width: 55px;
+  background: #fafafa;
+}
+td.col-ind-total-empty {
+  min-width: 55px;
+  background: #fafafa;
+  color: #ddd;
+}
+
+/* site total cell — NEW */
+td.col-site-total {
+  min-width: 80px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  vertical-align: middle;
+  background: #f5f3ff;
+  color: #5b21b6;
+  border-left: 2px solid #ddd6fe;
+}
+td.col-site-total-empty {
+  min-width: 80px;
+  background: #faf9ff;
+  border-left: 2px solid #ede9fe;
+}
+
 /* row alternate */
 tbody tr:nth-child(even) td { background: #fcfcfc; }
 tbody tr:nth-child(even) td.col-name { background: #f5f5f5; }
+tbody tr:nth-child(even) td.col-ind-total,
+tbody tr:nth-child(even) td.col-ind-total-empty { background: #f5f5f5; }
+tbody tr:nth-child(even) td.col-site-total { background: #f0ecff; }
+tbody tr:nth-child(even) td.col-site-total-empty { background: #f7f5ff; }
 tbody tr:nth-child(even) td.day-off,
 tbody tr:nth-child(even) td.day-dash { background: #f7f7f7; }
 
@@ -214,12 +256,11 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 <script>
 const SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
 let currentSheet = 'Rota';
+let agencySet = new Set();
 
 function switchWeek(sheetName, btn) {
   currentSheet = sheetName;
-  document.querySelectorAll('.week-btn').forEach(b => {
-    b.classList.remove('active');
-  });
+  document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('content').innerHTML = '<div class="loading">Loading…</div>';
   loadRota(sheetName);
@@ -239,17 +280,14 @@ function parseCSV(text) {
   while (i < text.length) {
     const cells = [];
     let cur = '';
-    // parse one row (may span multiple lines if fields are quoted)
     while (i < text.length) {
       if (text[i] === '"') {
-        // quoted field
         i++;
         while (i < text.length) {
           if (text[i] === '"') {
             if (text[i+1] === '"') { cur += '"'; i += 2; }
             else { i++; break; }
           } else {
-            // include newlines inside quotes but replace with space
             if (text[i] === '\n' || text[i] === '\r') cur += ' ';
             else cur += text[i];
             i++;
@@ -263,7 +301,7 @@ function parseCSV(text) {
         i++;
       } else if (text[i] === '\n') {
         i++;
-        break; // end of row
+        break;
       } else {
         cur += text[i];
         i++;
@@ -275,13 +313,28 @@ function parseCSV(text) {
   return rows;
 }
 
+async function fetchAgencyStaff() {
+  try {
+    const rows = await fetchSheet('Staff');
+    const set = new Set();
+    for (let i = 1; i < rows.length; i++) {
+      const name = (rows[i][0] || '').trim();
+      const type = (rows[i][1] || '').trim();
+      if (type === 'Agency' && name) set.add(name);
+    }
+    return set;
+  } catch(e) {
+    return new Set();
+  }
+}
+
 function siteClass(site) {
   const s = (site || '').toLowerCase().replace(/\s/g, '');
   if (s.includes('shoreditch'))   return 'site-shoreditch';
-  if (s.includes('battersea') || s.includes('nineelms') || s.includes('nineelm') || s.includes('\u5df4\u7279\u897f')) return 'site-battersea';
-  if (s.includes('tower') || s.includes('\u5357\u533a'))  return 'site-towerbridge';
+  if (s.includes('battersea') || s.includes('nineelms') || s.includes('nineelm')) return 'site-battersea';
+  if (s.includes('tower'))        return 'site-towerbridge';
   if (s.includes('piccadilly'))   return 'site-piccadilly';
-  if (s.includes('brentcross') || s.includes('brent'))    return 'site-brentcross';
+  if (s.includes('brentcross') || s.includes('brent')) return 'site-brentcross';
   return '';
 }
 
@@ -296,11 +349,8 @@ function badgeClass(val) {
 }
 
 function renderCell(val, colIdx) {
-  // col 0 = site, col 1 = name — handled separately
   const v = (val || '').trim();
   const vl = v.toLowerCase();
-
-  // Thursday = col 5 (0-indexed: site, name, mon, tue, wed, thu, fri, sat, sun)
   const isThu = (colIdx === 5);
   const thuClass = isThu ? ' day-thu' : '';
 
@@ -310,60 +360,61 @@ function renderCell(val, colIdx) {
   if (vl === 'off') {
     return `<td class="day-cell day-off${thuClass}">OFF</td>`;
   }
-  // cross-site badge?
   if (vl.includes('shoreditch') || vl.includes('battersea') || vl.includes('tower') || vl.includes('piccadilly') || vl.includes('brent')) {
     const bc = badgeClass(v);
     return `<td class="day-cell${thuClass}"><span class="badge ${bc}">${v}</span></td>`;
   }
-  // normal shift time
   return `<td class="day-cell${thuClass}">${v}</td>`;
 }
 
-function buildTable(rows) {
-  // rows[0] = header (,Name,Monday,Tuesday,...)
-  // rows[1] = dates (,,2026/05/25,...)
+// Parse hours from Total Hours column — handles "43", "36.25", etc.
+function parseHours(val) {
+  if (!val) return 0;
+  const v = val.trim();
+  const n = parseFloat(v);
+  return isNaN(n) ? 0 : n;
+}
+
+function buildTable(rows, agency) {
+  // rows[0] = header row: ['', 'Name', 'Monday', ..., 'Total Hours']
+  // rows[1] = date row
   // rows[2+] = data
 
-  const dayHeaders = rows[0].slice(2); // Mon..Sun
-  const dateRow    = rows[1].slice(2); // dates
+  const allHeaders = rows[0];
+  // Find Total Hours column index
+  const totalHoursIdx = allHeaders.findIndex(h => h.toLowerCase().includes('total'));
 
-  // detect thursday index (0-based among day cols)
+  // Day headers: cols 2 up to (but not including) Total Hours col
+  const dayEndIdx = totalHoursIdx > 0 ? totalHoursIdx : allHeaders.length;
+  const dayHeaders = allHeaders.slice(2, dayEndIdx);
+  const dateRow    = rows[1].slice(2, dayEndIdx);
+
   const thuIdx = dayHeaders.findIndex(h => h.toLowerCase().includes('thursday') || h.toLowerCase().includes('thu'));
 
   // Build thead
-  let thead = '<thead>';
-  // Row 1: Site | Name | Mon | Tue | Wed | Thu Promotion | Fri | Sat | Sun
-  thead += '<tr>';
+  let thead = '<thead><tr>';
   thead += '<th class="col-site">Site</th>';
   thead += '<th class="col-name">Name</th>';
   dayHeaders.forEach((h, i) => {
-    const isThu = (i === thuIdx);
-    const cls = isThu ? ' th-thu' : '';
+    const cls = (i === thuIdx) ? ' th-thu' : '';
     thead += `<th class="col-day${cls}">${h}</th>`;
   });
-  thead += '</tr>';
-  // Row 2: dates
-  thead += '<tr>';
+  thead += '<th class="col-ind-total">Hrs</th>';
+  thead += '<th class="col-site-total">Site Hours</th>';
+  thead += '</tr><tr>';
   thead += '<th class="col-site"></th>';
   thead += '<th class="col-name"></th>';
   dateRow.forEach((d, i) => {
-    const isThu = (i === thuIdx);
-    const cls = isThu ? ' th-thu' : '';
+    const cls = (i === thuIdx) ? ' th-thu' : '';
     thead += `<th class="col-day${cls}">${d}</th>`;
   });
-  thead += '</tr>';
-  thead += '</thead>';
+  thead += '<th class="col-ind-total">hrs</th>';
+  thead += '<th class="col-site-total">hrs</th>';
+  thead += '</tr></thead>';
 
-  // Build tbody — track current site
-  let tbody = '<tbody>';
-  let currentSite = '';
-  let siteRowspan = {};
-  let firstSite = true;
-
+  // Group rows by site
   const dataRows = rows.slice(2).filter(r => r.some(c => c.trim()));
-
-  // Pre-pass: count rows per site for rowspan
-  let siteGroups = [];
+  const siteGroups = [];
   let curGroup = null;
   for (const row of dataRows) {
     const siteVal = (row[0] || '').trim();
@@ -376,50 +427,77 @@ function buildTable(rows) {
   }
   if (curGroup) siteGroups.push(curGroup);
 
+  // Build tbody
+  let tbody = '<tbody>';
+
   siteGroups.forEach((group, gi) => {
     const sc = siteClass(group.site);
+    const siteDisplay = group.site.split(/[\s,\(（]/)[0].trim() || group.site;
+
+    // Calculate site total: only agency staff, from Total Hours column
+    let siteTotal = 0;
+    group.rows.forEach(row => {
+      const name = (row[1] || '').trim();
+      if (agency.has(name) && totalHoursIdx > 0) {
+        siteTotal += parseHours(row[totalHoursIdx]);
+      }
+    });
+    const siteTotalDisplay = siteTotal > 0
+      ? `<span style="font-size:18px;font-weight:700">${siteTotal}</span><br><span style="font-size:9px;font-weight:400;color:#7c3aed;letter-spacing:0.3px">hrs / week</span>`
+      : '–';
+
     group.rows.forEach((row, ri) => {
       const isFirst = (ri === 0);
       const isSeparator = (gi > 0 && isFirst);
       const name = (row[1] || '').trim();
-      const days = row.slice(2);
+      const days = row.slice(2, dayEndIdx);
+      const indHours = totalHoursIdx > 0 ? (row[totalHoursIdx] || '').trim() : '';
 
       tbody += `<tr${isSeparator ? ' class="site-separator"' : ''}>`;
 
-      // Site cell with rowspan
       if (isFirst) {
-        // Simplify site label: take first meaningful word
-  const siteDisplay = group.site.split(/[\s,\(（]/)[0].trim() || group.site;
-  tbody += `<td class="col-site ${sc}" rowspan="${group.rows.length}">${siteDisplay}</td>`;
+        tbody += `<td class="col-site ${sc}" rowspan="${group.rows.length}">${siteDisplay}</td>`;
       }
 
-      // Name
       tbody += `<td class="col-name">${name}</td>`;
 
-      // Day cells
       days.forEach((val, di) => {
-        // colIdx: 0=site,1=name,2=mon... so di+2
         tbody += renderCell(val, di + 2);
       });
+
+      // Individual hours
+      if (indHours) {
+        tbody += `<td class="col-ind-total">${indHours}</td>`;
+      } else {
+        tbody += `<td class="col-ind-total-empty">–</td>`;
+      }
+
+      // Site total — only on first row, rowspan
+      if (isFirst) {
+        tbody += `<td class="col-site-total" rowspan="${group.rows.length}">${siteTotalDisplay}</td>`;
+      }
 
       tbody += '</tr>';
     });
   });
 
   tbody += '</tbody>';
-
   return `<table>${thead}${tbody}</table>`;
 }
 
 async function loadRota(sheetName) {
   const el = document.getElementById('content');
   try {
-    const rows = await fetchSheet(sheetName);
+    const [rows, agency] = await Promise.all([
+      fetchSheet(sheetName),
+      agencySet.size > 0 ? Promise.resolve(agencySet) : fetchAgencyStaff()
+    ]);
+    if (agency.size > 0) agencySet = agency;
     if (!rows || rows.length < 3) {
       el.innerHTML = '<div class="error">No data found in sheet: ' + sheetName + '</div>';
       return;
     }
-    el.innerHTML = buildTable(rows);
+    el.innerHTML = buildTable(rows, agencySet);
   } catch(e) {
     el.innerHTML = '<div class="error">Error loading rota: ' + e.message + '</div>';
   }
