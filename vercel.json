@@ -20,6 +20,6 @@
     { "src": "/operations-rota", "dest": "/operations-rota.html" },
     { "src": "/orders", "dest": "/orders.html" },
     { "src": "/order", "dest": "/order.html" },
-    { "src": "/policy", "dest": "/policy.html" }
+    { "src": "/working-handbook", "dest": "/working-handbook.html" }
   ]
 }
