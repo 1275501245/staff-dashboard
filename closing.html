@@ -2,177 +2,214 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Closing — Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Closing Checklist</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: #f5f5f7; color: #1c1c1e; min-height: 100vh; padding-bottom: 40px; }
-  .header { background: #fff; padding: 16px 20px 12px; border-bottom: 1px solid #e5e5ea; position: sticky; top: 0; z-index: 100; }
-  .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-  .back-btn { width: 32px; height: 32px; border-radius: 50%; background: #f2f2f7; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; text-decoration: none; color: #1c1c1e; flex-shrink: 0; }
-  .header-titles { flex: 1; }
-  .header-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
-  .header-date { font-size: 13px; color: #8e8e93; margin-top: 1px; }
-  .progress-bar-wrap { background: #f2f2f7; border-radius: 100px; height: 6px; overflow: hidden; }
-  .progress-bar-fill { height: 100%; border-radius: 100px; background: #1c1c1e; transition: width 0.4s ease; width: 0%; }
-  .progress-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  .progress-text { font-size: 12px; color: #8e8e93; font-weight: 500; }
-  .done-badge { font-size: 12px; font-weight: 600; color: #34c759; opacity: 0; transition: opacity 0.3s; }
-  .done-badge.visible { opacity: 1; }
-  .content { padding: 20px 16px 0; }
-  .section-group { background: #fff; border-radius: 16px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-  .section-header { padding: 16px 16px 0; }
-  .section-title { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; margin-bottom: 10px; }
-  .links-row { display: flex; gap: 8px; padding-bottom: 12px; flex-wrap: wrap; min-height: 0; }
-  .link-btn { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: #1c1c1e; background: #f2f2f7; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; text-decoration: none; transition: background 0.15s; }
-  .link-btn:active { background: #e5e5ea; }
-  .link-icon { width: 12px; height: 12px; opacity: 0.4; }
-  .section-divider { height: 1px; background: #f2f2f7; }
-  .task-row { display: flex; align-items: center; gap: 14px; padding: 14px 16px; cursor: pointer; transition: background 0.1s; border-bottom: 1px solid #f2f2f7; }
-  .task-row:last-child { border-bottom: none; }
-  .task-row:active { background: #f9f9f9; }
-  .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #d1d1d6; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; background: transparent; }
-  .check-circle svg { width: 13px; height: 13px; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; fill: none; opacity: 0; transition: opacity 0.15s; }
-  .task-row.done .check-circle { background: #1c1c1e; border-color: #1c1c1e; }
-  .task-row.done .check-circle svg { opacity: 1; }
-  .task-label { font-size: 15px; color: #1c1c1e; transition: color 0.2s; flex: 1; line-height: 1.4; }
-  .task-row.done .task-label { color: #aeaeb2; text-decoration: line-through; }
-  .save-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1c1c1e; color: #fff; font-size: 13px; font-weight: 500; padding: 10px 20px; border-radius: 100px; transition: transform 0.3s ease; z-index: 999; white-space: nowrap; }
-  .save-toast.show { transform: translateX(-50%) translateY(0); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f4f3f0;
+  color: #1a1917;
+  padding: 16px;
+  padding-bottom: 40px;
+}
+
+.header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+.back-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1.5px solid #e0ddd8; background: #fff;
+  font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: #555; flex-shrink: 0; text-decoration: none;
+}
+.header-text h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+.header-text p  { font-size: 12px; color: #888; margin-top: 1px; }
+
+.progress-wrap {
+  background: #fff; border-radius: 14px; border: 1px solid #e8e6e1;
+  padding: 14px 16px; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.progress-track { flex: 1; height: 7px; background: #ede9e3; border-radius: 99px; overflow: hidden; }
+.progress-fill  { height: 100%; background: #2a7a4b; border-radius: 99px; transition: width 0.35s ease; width: 0%; }
+.progress-label { font-size: 13px; font-weight: 600; color: #555; white-space: nowrap; }
+
+.section-header {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: #999;
+  padding: 0 4px; margin: 20px 0 8px;
+}
+.urgent .section-header { color: #bf3b10; }
+
+.category-card {
+  background: #fff; border: 1.5px solid #e8e6e1;
+  border-radius: 14px; margin-bottom: 10px; overflow: hidden;
+  transition: border-color 0.25s, background 0.25s;
+}
+.urgent .category-card          { border-color: #f5c0aa; background: #fff8f5; }
+.urgent .category-card.done     { background: #f0faf4; border-color: #a8d5bc; }
+.category-card.done             { background: #f0faf4; border-color: #a8d5bc; }
+
+.cat-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; gap: 12px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; user-select: none;
+}
+.cat-title { font-size: 15px; font-weight: 600; letter-spacing: -0.2px; line-height: 1.2; }
+.urgent .cat-title              { color: #bf3b10; }
+.urgent .category-card.done .cat-title { color: #2a7a4b; }
+.category-card.done .cat-title  { color: #2a7a4b; }
+.cat-count { font-size: 12px; color: #aaa; margin-top: 2px; }
+
+.check-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid #d0cdc8; background: transparent;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.2s; -webkit-tap-highlight-color: transparent;
+}
+.check-btn svg { display: none; }
+.category-card.done .check-btn  { background: #2a7a4b; border-color: #2a7a4b; }
+.category-card.done .check-btn svg { display: block; }
+
+.item-list { border-top: 1px solid #f0ece6; padding: 4px 16px 14px; }
+.item-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 6px 0; border-bottom: 1px solid #f5f3f0;
+  font-size: 13px; line-height: 1.5; color: #555;
+}
+.item-row:last-child { border-bottom: none; padding-bottom: 0; }
+.item-dot { width: 5px; height: 5px; border-radius: 50%; background: #ccc; flex-shrink: 0; margin-top: 7px; }
+.category-card.done .item-row { color: #7ab898; }
+.category-card.done .item-dot { background: #a8d5bc; }
+
+.done-banner {
+  display: none; background: linear-gradient(135deg, #2a7a4b, #3a9a5c);
+  color: #fff; border-radius: 14px; padding: 18px 20px;
+  text-align: center; margin-bottom: 16px;
+}
+.done-banner.visible { display: block; }
+.done-banner h2 { font-size: 17px; font-weight: 700; }
+.done-banner p  { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+
+.state-msg { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; line-height: 1.6; }
+.state-msg .emoji { font-size: 32px; display: block; margin-bottom: 10px; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="header-top">
-    <a href="/admin" class="back-btn">←</a>
-    <div class="header-titles">
-      <div class="header-title">Closing Checklist</div>
-      <div class="header-date" id="today-date"></div>
-    </div>
-  </div>
-  <div class="progress-label">
-    <span class="progress-text" id="progress-text">0 / 11 completed</span>
-    <span class="done-badge" id="done-badge">✓ Closing Done</span>
-  </div>
-  <div class="progress-bar-wrap">
-    <div class="progress-bar-fill" id="progress-bar"></div>
+  <a class="back-btn" href="/home">&#8592;</a>
+  <div class="header-text">
+    <h1>Closing Checklist</h1>
+    <p>Complete all tasks before leaving</p>
   </div>
 </div>
 
-<div class="content" id="checklist-root"></div>
-<div class="save-toast" id="save-toast">Saved</div>
+<div class="progress-wrap">
+  <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+  <div class="progress-label" id="plabel">0 / 0</div>
+</div>
+
+<div class="done-banner" id="done-banner">
+  <h2>✓ All Done!</h2>
+  <p>All closing tasks completed. Safe travels!</p>
+</div>
+
+<div id="content">
+  <div class="state-msg"><span class="emoji">⏳</span>Loading checklist…</div>
+</div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4qCEv2G7RwSWcI1iWJorrd5BdcKtlb9IgM7lZcsD8g-uq9Mp0zwCXrW14Zt4I9lILTg/exec';
-
-const SECTIONS = [
-  { id: 'hours',    title: '工时 Staff Hours',        tasks: [{ id: 'hours_check', label: '核对工时' }, { id: 'hours_entry', label: '录入工时' }] },
-  { id: 'delivery', title: '收货确认 Delivery Check',  tasks: [{ id: 'delivery_check', label: '核对图片、收货单、发票' }, { id: 'delivery_issues', label: '整理质量问题、退款、供应商反馈' }, { id: 'delivery_invoice', label: '发票录入' }] },
-  { id: 'review',   title: 'Deliveroo 评价回复',       tasks: [{ id: 'review_reply', label: '回复今日店铺评价' }] },
-  { id: 'refund',   title: '绩效管理 Refund',           tasks: [{ id: 'refund_dispute', label: 'Refund 检查并提交 Dispute' }, { id: 'refund_malicious', label: '恶意退款整理' }, { id: 'refund_platforms', label: '两个平台 Refund 数据整理' }, { id: 'refund_staff', label: '对应员工与销售额整理' }, { id: 'refund_sync', label: '完成绩效系统同步' }] },
-];
+const SHEET_ID   = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
+const SHEET_NAME = 'Closing';
 
 const state = {};
-const linksBySection = {};
-const todayKey = new Date().toISOString().slice(0, 10);
+let totalCats = 0;
 
-const d = new Date();
-const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-document.getElementById('today-date').textContent = `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+async function load() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&headers=1`;
+  try {
+    const res  = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);?\s*$/)[1]);
+    const rows = json.table.rows
+      .map(r => ({
+        section:  (r.c[0]?.v || '').trim(),
+        category: (r.c[1]?.v || '').trim(),
+        item:     (r.c[2]?.v || '').trim(),
+      }))
+      .filter(r => r.category && r.item);
+    render(rows);
+  } catch (e) {
+    document.getElementById('content').innerHTML =
+      '<div class="state-msg"><span class="emoji">⚠️</span>Failed to load checklist.<br>Check your connection and try again.</div>';
+  }
+}
 
-function buildUI() {
-  const root = document.getElementById('checklist-root');
-  root.innerHTML = '';
-  SECTIONS.forEach(section => {
-    const group = document.createElement('div');
-    group.className = 'section-group';
-
-    const header = document.createElement('div');
-    header.className = 'section-header';
-    const title = document.createElement('div');
-    title.className = 'section-title';
-    title.textContent = section.title;
-    header.appendChild(title);
-
-    const linksRow = document.createElement('div');
-    linksRow.className = 'links-row';
-    linksRow.id = 'links-' + section.id;
-    const sectionLinks = linksBySection[section.id] || [];
-    sectionLinks.forEach(link => {
-      const a = document.createElement('a');
-      a.className = 'link-btn';
-      a.href = link.url;
-      a.target = '_blank';
-      a.innerHTML = `<svg class="link-icon" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 1h4v4M5 7l6-6M2 3h3M2 3v7h7V7"/></svg>${link.label}`;
-      linksRow.appendChild(a);
-    });
-    if (sectionLinks.length) header.appendChild(linksRow);
-
-    group.appendChild(header);
-    group.appendChild(Object.assign(document.createElement('div'), {className: 'section-divider'}));
-
-    section.tasks.forEach(task => {
-      const row = document.createElement('div');
-      row.className = 'task-row' + (state[task.id] ? ' done' : '');
-      row.innerHTML = `<div class="check-circle"><svg viewBox="0 0 13 10"><polyline points="1.5,5 5,8.5 11.5,1.5"/></svg></div><div class="task-label">${task.label}</div>`;
-      row.addEventListener('click', () => {
-        state[task.id] = !state[task.id];
-        row.classList.toggle('done', state[task.id]);
-        updateProgress();
-        saveToSheet();
-      });
-      group.appendChild(row);
-    });
-
-    root.appendChild(group);
+function render(rows) {
+  const sectionMap = {};
+  const sectionOrder = [];
+  rows.forEach(({ section, category, item }) => {
+    if (!sectionMap[section]) { sectionMap[section] = {}; sectionOrder.push(section); }
+    if (!sectionMap[section][category]) sectionMap[section][category] = [];
+    sectionMap[section][category].push(item);
   });
-}
 
-function updateProgress() {
-  const total = SECTIONS.reduce((s, sec) => s + sec.tasks.length, 0);
-  const done = Object.values(state).filter(Boolean).length;
-  document.getElementById('progress-text').textContent = `${done} / ${total} completed`;
-  document.getElementById('progress-bar').style.width = `${(done / total) * 100}%`;
-  document.getElementById('done-badge').classList.toggle('visible', done === total);
-}
+  let cardIdx = 0;
+  totalCats = 0;
+  sectionOrder.forEach(s => totalCats += Object.keys(sectionMap[s]).length);
 
-let saveTimer;
-function saveToSheet() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'saveClosing', date: todayKey, tasks: state }) })
-      .then(() => { const t = document.getElementById('save-toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 1800); })
-      .catch(() => {});
-  }, 600);
-}
-
-async function init() {
-  // Load links and today's state in parallel
-  const [linksRes, stateRes] = await Promise.allSettled([
-    fetch(`${SCRIPT_URL}?action=getLinks`).then(r => r.json()),
-    fetch(`${SCRIPT_URL}?action=getClosing&date=${todayKey}`).then(r => r.json())
-  ]);
-
-  if (linksRes.status === 'fulfilled' && linksRes.value.links) {
-    linksRes.value.links.forEach(l => {
-      if (!linksBySection[l.section]) linksBySection[l.section] = [];
-      linksBySection[l.section].push(l);
+  let html = '';
+  sectionOrder.forEach(sec => {
+    const isUrgent = /urgent/i.test(sec);
+    const label    = isUrgent ? '⚠️ ' + sec : sec;
+    html += `<div class="${isUrgent ? 'urgent' : ''}"><div class="section-header">${label}</div>`;
+    Object.entries(sectionMap[sec]).forEach(([cat, items]) => {
+      const idx = cardIdx++;
+      state[idx] = false;
+      html += `
+        <div class="category-card" id="card-${idx}">
+          <div class="cat-header" onclick="toggle(${idx})">
+            <div>
+              <div class="cat-title">${cat}</div>
+              <div class="cat-count">${items.length} item${items.length !== 1 ? 's' : ''}</div>
+            </div>
+            <button class="check-btn" onclick="toggle(${idx});event.stopPropagation()">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2 7L5.5 10.5L12 3.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          <div class="item-list">
+            ${items.map(i => `<div class="item-row"><span class="item-dot"></span><span>${i}</span></div>`).join('')}
+          </div>
+        </div>`;
     });
-  }
+    html += `</div>`;
+  });
 
-  if (stateRes.status === 'fulfilled' && stateRes.value.tasks) {
-    Object.assign(state, stateRes.value.tasks);
-  }
-
-  buildUI();
+  document.getElementById('content').innerHTML = html;
   updateProgress();
 }
 
-buildUI();
-updateProgress();
-init();
+function toggle(idx) {
+  state[idx] = !state[idx];
+  document.getElementById('card-' + idx).classList.toggle('done', state[idx]);
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = Object.values(state).filter(Boolean).length;
+  const pct  = totalCats ? (done / totalCats) * 100 : 0;
+  document.getElementById('pfill').style.width  = pct + '%';
+  document.getElementById('plabel').textContent = `${done} / ${totalCats}`;
+  document.getElementById('done-banner').classList.toggle('visible', done === totalCats && totalCats > 0);
+}
+
+load();
 </script>
 </body>
 </html>
