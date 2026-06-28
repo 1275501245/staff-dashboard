@@ -34,24 +34,26 @@ body {
   display: flex; align-items: center; gap: 12px;
 }
 .progress-track { flex: 1; height: 7px; background: #ede9e3; border-radius: 99px; overflow: hidden; }
-.progress-fill  { height: 100%; background: #2a7a4b; border-radius: 99px; transition: width 0.35s ease; width: 0%; }
+.progress-fill  { height: 100%; background: #2a6fa8; border-radius: 99px; transition: width 0.35s ease; width: 0%; }
 .progress-label { font-size: 13px; font-weight: 600; color: #555; white-space: nowrap; }
 
-.section-header {
-  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
-  text-transform: uppercase; color: #999;
-  padding: 0 4px; margin: 20px 0 8px;
+.section-divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: 28px 0 12px;
 }
-.urgent .section-header { color: #bf3b10; }
+.section-divider-line { flex: 1; height: 1px; background: #e0ddd8; }
+.section-divider-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase; padding: 5px 14px; border-radius: 99px;
+  white-space: nowrap; background: #1a1917; color: #fff;
+}
 
 .category-card {
   background: #fff; border: 1.5px solid #e8e6e1;
   border-radius: 14px; margin-bottom: 10px; overflow: hidden;
   transition: border-color 0.25s, background 0.25s;
 }
-.urgent .category-card          { border-color: #f5c0aa; background: #fff8f5; }
-.urgent .category-card.done     { background: #f0faf4; border-color: #a8d5bc; }
-.category-card.done             { background: #f0faf4; border-color: #a8d5bc; }
+.category-card.done { background: #f0faf4; border-color: #a8d5bc; }
 
 .cat-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -59,9 +61,7 @@ body {
   -webkit-tap-highlight-color: transparent; user-select: none;
 }
 .cat-title { font-size: 15px; font-weight: 600; letter-spacing: -0.2px; line-height: 1.2; }
-.urgent .cat-title              { color: #bf3b10; }
-.urgent .category-card.done .cat-title { color: #2a7a4b; }
-.category-card.done .cat-title  { color: #2a7a4b; }
+.category-card.done .cat-title { color: #2a7a4b; }
 .cat-count { font-size: 12px; color: #aaa; margin-top: 2px; }
 
 .check-btn {
@@ -86,7 +86,7 @@ body {
 .category-card.done .item-dot { background: #a8d5bc; }
 
 .done-banner {
-  display: none; background: linear-gradient(135deg, #2a7a4b, #3a9a5c);
+  display: none; background: #1a5e9a;
   color: #fff; border-radius: 14px; padding: 18px 20px;
   text-align: center; margin-bottom: 16px;
 }
@@ -104,7 +104,7 @@ body {
   <a class="back-btn" href="/home">&#8592;</a>
   <div class="header-text">
     <h1>Opening Checklist</h1>
-    <p>Must be completed by 11:00</p>
+    <p>Complete all tasks before service starts</p>
   </div>
 </div>
 
@@ -114,19 +114,18 @@ body {
 </div>
 
 <div class="done-banner" id="done-banner">
-  <h2>✓ Kitchen Ready!</h2>
-  <p>All opening tasks completed.</p>
+  <h2>&#10003; Kitchen Ready!</h2>
+  <p>All opening tasks complete. Have a great service!</p>
 </div>
 
 <div id="content">
-  <div class="state-msg"><span class="emoji">⏳</span>Loading checklist…</div>
+  <div class="state-msg"><span class="emoji">&#9203;</span>Loading checklist&#8230;</div>
 </div>
 
 <script>
 const SHEET_ID   = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
 const SHEET_NAME = 'Opening';
 
-// state[index] = true/false  (index = order of category cards)
 const state = {};
 let totalCats = 0;
 
@@ -146,12 +145,11 @@ async function load() {
     render(rows);
   } catch (e) {
     document.getElementById('content').innerHTML =
-      '<div class="state-msg"><span class="emoji">⚠️</span>Failed to load checklist.<br>Check your connection and try again.</div>';
+      '<div class="state-msg"><span class="emoji">&#9888;&#65039;</span>Failed to load checklist.<br>Check your connection and try again.</div>';
   }
 }
 
 function render(rows) {
-  // Build ordered structure: [ { section, isUrgent, cats: [ {cat, items[]} ] } ]
   const sectionMap = {};
   const sectionOrder = [];
   rows.forEach(({ section, category, item }) => {
@@ -166,9 +164,12 @@ function render(rows) {
 
   let html = '';
   sectionOrder.forEach(sec => {
-    const isUrgent = /urgent/i.test(sec);
-    const label    = isUrgent ? '⚠️ Must Be Finished Before 11:00' : sec;
-    html += `<div class="${isUrgent ? 'urgent' : ''}"><div class="section-header">${label}</div>`;
+    html += `<div>
+      <div class="section-divider">
+        <div class="section-divider-line"></div>
+        <div class="section-divider-label">${sec}</div>
+        <div class="section-divider-line"></div>
+      </div>`;
     Object.entries(sectionMap[sec]).forEach(([cat, items]) => {
       const idx = cardIdx++;
       state[idx] = false;
