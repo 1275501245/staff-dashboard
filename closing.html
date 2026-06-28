@@ -37,21 +37,26 @@ body {
 .progress-fill  { height: 100%; background: #2a7a4b; border-radius: 99px; transition: width 0.35s ease; width: 0%; }
 .progress-label { font-size: 13px; font-weight: 600; color: #555; white-space: nowrap; }
 
-.section-header {
-  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
-  text-transform: uppercase; color: #555;
-  padding: 6px 10px; margin: 20px 0 8px;
-  background: #e4e1da; border-radius: 8px;
+.section-divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: 28px 0 12px;
 }
-.urgent .section-header { color: #bf3b10; }
+.section-divider-line { flex: 1; height: 1px; background: #e0ddd8; }
+.section-divider-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase; padding: 5px 14px; border-radius: 99px;
+  white-space: nowrap;
+}
+.section-divider-label.normal { background: #1a1917; color: #fff; }
+.section-divider-label.urgent { background: #D85A30; color: #fff; }
 
 .category-card {
   background: #fff; border: 1.5px solid #e8e6e1;
   border-radius: 14px; margin-bottom: 10px; overflow: hidden;
   transition: border-color 0.25s, background 0.25s;
 }
-.urgent .category-card          { border-color: #f5c0aa; background: #fff8f5; }
-.urgent .category-card.done     { background: #f0faf4; border-color: #a8d5bc; }
+.urgent-card                    { border-color: #f5c0aa; background: #fff8f5; }
+.urgent-card.done               { background: #f0faf4; border-color: #a8d5bc; }
 .category-card.done             { background: #f0faf4; border-color: #a8d5bc; }
 
 .cat-header {
@@ -60,8 +65,8 @@ body {
   -webkit-tap-highlight-color: transparent; user-select: none;
 }
 .cat-title { font-size: 15px; font-weight: 600; letter-spacing: -0.2px; line-height: 1.2; }
-.urgent .cat-title              { color: #bf3b10; }
-.urgent .category-card.done .cat-title { color: #2a7a4b; }
+.urgent-card .cat-title         { color: #bf3b10; }
+.urgent-card.done .cat-title    { color: #2a7a4b; }
 .category-card.done .cat-title  { color: #2a7a4b; }
 .cat-count { font-size: 12px; color: #aaa; margin-top: 2px; }
 
@@ -166,13 +171,17 @@ function render(rows) {
   let html = '';
   sectionOrder.forEach(sec => {
     const isUrgent = /urgent/i.test(sec);
-    const label    = isUrgent ? '⚠️ ' + sec : sec;
-    html += `<div class="${isUrgent ? 'urgent' : ''}"><div class="section-header">${label}</div>`;
+    html += `<div>
+      <div class="section-divider">
+        <div class="section-divider-line"></div>
+        <div class="section-divider-label ${isUrgent ? 'urgent' : 'normal'}">${sec}</div>
+        <div class="section-divider-line"></div>
+      </div>`;
     Object.entries(sectionMap[sec]).forEach(([cat, items]) => {
       const idx = cardIdx++;
       state[idx] = false;
       html += `
-        <div class="category-card" id="card-${idx}">
+        <div class="category-card ${isUrgent ? 'urgent-card' : ''}" id="card-${idx}">
           <div class="cat-header" onclick="toggle(${idx})">
             <div>
               <div class="cat-title">${cat}</div>
