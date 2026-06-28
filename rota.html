@@ -94,12 +94,10 @@ thead tr:first-child th.col-site,
 thead tr:first-child th.col-name {
   background: #1a1a1a;
 }
-thead tr:first-child th.th-thu {
-  background: #2a1a00;
-  color: #ffd580;
-  font-style: italic;
+thead tr:first-child th.th-today {
+  background: #1a3a5c;
+  color: #7ec8f7;
 }
-/* Site Hours column header */
 thead tr:first-child th.col-site-total {
   background: #1e1030;
   color: #c4b5fd;
@@ -122,9 +120,9 @@ thead tr:last-child th.col-site,
 thead tr:last-child th.col-name {
   background: #f0f0f0;
 }
-thead tr:last-child th.th-thu {
-  background: #fff8e6;
-  color: #a06000;
+thead tr:last-child th.th-today {
+  background: #e3f2fd;
+  color: #0d47a1;
 }
 thead tr:last-child th.col-site-total {
   background: #ede9fe;
@@ -174,7 +172,7 @@ td.col-name {
 td.day-cell { color: #333; }
 td.day-off  { color: #bbb; font-style: italic; background: #fafafa; }
 td.day-dash { color: #ddd; background: #fafafa; }
-td.day-thu  { background: #fffbf0; }
+td.day-today { background: #e8f4ff !important; }
 
 /* cross-site badge */
 .badge {
@@ -205,7 +203,7 @@ td.col-ind-total-empty {
   color: #ddd;
 }
 
-/* site total cell — NEW */
+/* site total cell */
 td.col-site-total {
   min-width: 80px;
   font-size: 15px;
@@ -237,6 +235,96 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 
 .loading { padding: 40px; text-align: center; color: #999; font-size: 14px; }
 .error   { padding: 40px; text-align: center; color: #c00; font-size: 14px; }
+
+/* refund deduction column */
+td.col-refund {
+  min-width: 60px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  color: #b45309;
+  background: #fffbeb;
+  border-left: 1px solid #fde68a;
+}
+td.col-refund-empty { color: #ddd; background: #fafafa; }
+thead tr:first-child th.col-refund {
+  background: #78350f;
+  color: #fde68a;
+  border-left: 1px solid #92400e;
+}
+thead tr:last-child th.col-refund {
+  background: #fef3c7;
+  color: #92400e;
+  border-left: 1px solid #fde68a;
+}
+tbody tr:nth-child(even) td.col-refund { background: #fef9e7; }
+
+/* ── Staff Hours Cards ── */
+.cards-section {
+  padding: 24px 16px 32px;
+  border-top: 2px solid #e0e0e0;
+  margin-top: 2px;
+}
+.cards-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 10px;
+}
+.staff-card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.staff-card-head {
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.staff-card-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111;
+}
+.staff-card-sub {
+  font-size: 11px;
+  color: #999;
+  margin-top: 1px;
+}
+.card-day-rows { padding: 4px 0; }
+.card-day-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 12px;
+  font-size: 11px;
+}
+.card-day-row.is-today {
+  background: #e8f4ff;
+}
+.card-day-label { color: #999; min-width: 26px; }
+.card-day-val { color: #222; font-weight: 500; text-align: right; }
+.card-day-val.is-off { color: #ccc; font-weight: 400; font-style: italic; }
+.card-day-val.is-today-val { color: #1565C0; }
+.staff-card-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 7px 12px;
+  background: #fafafa;
+  border-top: 1px solid #f0f0f0;
+}
+.card-foot-label { font-size: 11px; color: #999; }
+.card-foot-right { text-align: right; }
+.card-foot-total { font-size: 14px; font-weight: 600; color: #111; }
+.card-foot-deduct { font-size: 10px; color: #c62828; margin-top: 1px; }
 </style>
 </head>
 <body>
@@ -253,16 +341,35 @@ tr.site-separator td { border-top: 3px solid #ddd; }
   <div id="content" class="loading">Loading rota…</div>
 </div>
 
+<div id="cards-section" style="display:none;" class="cards-section">
+  <div class="cards-section-title">Hours this week</div>
+  <div id="cards-grid" class="cards-grid"></div>
+</div>
+
 <script>
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
 let currentSheet = 'Rota';
 let agencySet = new Set();
+
+const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+function getTodayColIdx(dayHeaders) {
+  const today = new Date();
+  const dow = today.getDay(); // 0=Sun,1=Mon,...,6=Sat
+  const dayMap = { 1:'mon', 2:'tue', 3:'wed', 4:'thu', 5:'fri', 6:'sat', 0:'sun' };
+  const todayKey = dayMap[dow];
+  return dayHeaders.findIndex(h => {
+    const hl = h.toLowerCase();
+    return hl.startsWith(todayKey) || hl.includes(todayKey);
+  });
+}
 
 function switchWeek(sheetName, btn) {
   currentSheet = sheetName;
   document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('content').innerHTML = '<div class="loading">Loading…</div>';
+  document.getElementById('cards-section').style.display = 'none';
   loadRota(sheetName);
 }
 
@@ -348,67 +455,62 @@ function badgeClass(val) {
   return '';
 }
 
-function renderCell(val, colIdx) {
+function renderCell(val, isToday) {
   const v = (val || '').trim();
   const vl = v.toLowerCase();
-  const isThu = (colIdx === 5);
-  const thuClass = isThu ? ' day-thu' : '';
+  const todayCls = isToday ? ' day-today' : '';
 
   if (!v || v === '-') {
-    return `<td class="day-cell day-dash${thuClass}">–</td>`;
+    return `<td class="day-cell day-dash${todayCls}">–</td>`;
   }
   if (vl === 'off') {
-    return `<td class="day-cell day-off${thuClass}">OFF</td>`;
+    return `<td class="day-cell day-off${todayCls}">OFF</td>`;
   }
   if (vl.includes('shoreditch') || vl.includes('battersea') || vl.includes('tower') || vl.includes('piccadilly') || vl.includes('brent')) {
     const bc = badgeClass(v);
-    return `<td class="day-cell${thuClass}"><span class="badge ${bc}">${v}</span></td>`;
+    return `<td class="day-cell${todayCls}"><span class="badge ${bc}">${v}</span></td>`;
   }
-  return `<td class="day-cell${thuClass}">${v}</td>`;
+  return `<td class="day-cell${todayCls}">${v}</td>`;
 }
 
-// Parse hours from Total Hours column — handles "43", "36.25", etc.
 function parseHours(val) {
   if (!val) return 0;
-  const v = val.trim();
-  const n = parseFloat(v);
+  const n = parseFloat(val.trim());
   return isNaN(n) ? 0 : n;
 }
 
-function buildTable(rows, agency) {
-  // rows[0] = header row: ['', 'Name', 'Monday', ..., 'Total Hours']
-  // rows[1] = date row
-  // rows[2+] = data
-
+function buildTable(rows, agency, todayIdx) {
   const allHeaders = rows[0];
-  // Find Total Hours column index
-  const totalHoursIdx = allHeaders.findIndex(h => h.toLowerCase().includes('total'));
+  const totalHoursIdx = allHeaders.findIndex(h => h.toLowerCase().includes('total hours'));
+  const refundIdx = allHeaders.findIndex(h => h.toLowerCase().includes('refund'));
 
-  // Day headers: cols 2 up to (but not including) Total Hours col
-  const dayEndIdx = totalHoursIdx > 0 ? totalHoursIdx : allHeaders.length;
+  // Day cols: from col 2 up to (not including) refund or total
+  let dayEndIdx = totalHoursIdx > 0 ? totalHoursIdx : allHeaders.length;
+  if (refundIdx > 0 && refundIdx < dayEndIdx) dayEndIdx = refundIdx;
+
   const dayHeaders = allHeaders.slice(2, dayEndIdx);
   const dateRow    = rows[1].slice(2, dayEndIdx);
-
-  const thuIdx = dayHeaders.findIndex(h => h.toLowerCase().includes('thursday') || h.toLowerCase().includes('thu'));
 
   // Build thead
   let thead = '<thead><tr>';
   thead += '<th class="col-site">Site</th>';
   thead += '<th class="col-name">Name</th>';
   dayHeaders.forEach((h, i) => {
-    const cls = (i === thuIdx) ? ' th-thu' : '';
+    const cls = (i === todayIdx) ? ' th-today' : '';
     thead += `<th class="col-day${cls}">${h}</th>`;
   });
   thead += '<th class="col-ind-total">Hrs</th>';
+  if (refundIdx > 0) thead += '<th class="col-refund">Refund Deduction</th>';
   thead += '<th class="col-site-total">Site Hours</th>';
   thead += '</tr><tr>';
   thead += '<th class="col-site"></th>';
   thead += '<th class="col-name"></th>';
   dateRow.forEach((d, i) => {
-    const cls = (i === thuIdx) ? ' th-thu' : '';
+    const cls = (i === todayIdx) ? ' th-today' : '';
     thead += `<th class="col-day${cls}">${d}</th>`;
   });
   thead += '<th class="col-ind-total">hrs</th>';
+  if (refundIdx > 0) thead += '<th class="col-refund"></th>';
   thead += '<th class="col-site-total">hrs</th>';
   thead += '</tr></thead>';
 
@@ -427,14 +529,12 @@ function buildTable(rows, agency) {
   }
   if (curGroup) siteGroups.push(curGroup);
 
-  // Build tbody
   let tbody = '<tbody>';
 
   siteGroups.forEach((group, gi) => {
     const sc = siteClass(group.site);
     const siteDisplay = group.site.split(/[\s,\(（]/)[0].trim() || group.site;
 
-    // Calculate site total: only agency staff, from Total Hours column
     let siteTotal = 0;
     group.rows.forEach(row => {
       const name = (row[1] || '').trim();
@@ -454,25 +554,28 @@ function buildTable(rows, agency) {
       const indHours = totalHoursIdx > 0 ? (row[totalHoursIdx] || '').trim() : '';
 
       tbody += `<tr${isSeparator ? ' class="site-separator"' : ''}>`;
-
       if (isFirst) {
         tbody += `<td class="col-site ${sc}" rowspan="${group.rows.length}">${siteDisplay}</td>`;
       }
-
       tbody += `<td class="col-name">${name}</td>`;
 
       days.forEach((val, di) => {
-        tbody += renderCell(val, di + 2);
+        tbody += renderCell(val, di === todayIdx);
       });
 
-      // Individual hours
       if (indHours) {
         tbody += `<td class="col-ind-total">${indHours}</td>`;
       } else {
         tbody += `<td class="col-ind-total-empty">–</td>`;
       }
 
-      // Site total — only on first row, rowspan
+      if (refundIdx > 0) {
+        const refundVal = (row[refundIdx] || '').trim();
+        tbody += refundVal
+          ? `<td class="col-refund">${refundVal}</td>`
+          : `<td class="col-refund col-refund-empty">–</td>`;
+      }
+
       if (isFirst) {
         tbody += `<td class="col-site-total" rowspan="${group.rows.length}">${siteTotalDisplay}</td>`;
       }
@@ -483,6 +586,82 @@ function buildTable(rows, agency) {
 
   tbody += '</tbody>';
   return `<table>${thead}${tbody}</table>`;
+}
+
+function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx) {
+  // Collect all agency staff across all sites, deduplicated by name
+  const staffMap = new Map(); // name -> { days: [], totalHours, refundDeduction }
+
+  const allHeaders = rows[0];
+  const totalHoursIdx = allHeaders.findIndex(h => h.toLowerCase().includes('total hours'));
+  const refundIdx = allHeaders.findIndex(h => h.toLowerCase().includes('refund'));
+
+  const dataRows = rows.slice(2).filter(r => r.some(c => c.trim()));
+
+  for (const row of dataRows) {
+    const name = (row[1] || '').trim();
+    if (!name || !agency.has(name)) continue;
+    if (staffMap.has(name)) continue; // first occurrence only (primary site row)
+
+    const days = row.slice(2, dayEndIdx);
+    const totalHours = totalHoursIdx > 0 ? parseHours(row[totalHoursIdx]) : 0;
+    const refund = refundIdx > 0 ? parseHours(row[refundIdx]) : 0;
+
+    staffMap.set(name, { days, totalHours, refund });
+  }
+
+  if (staffMap.size === 0) return;
+
+  const grid = document.getElementById('cards-grid');
+  grid.innerHTML = '';
+
+  staffMap.forEach((data, name) => {
+    const card = document.createElement('div');
+    card.className = 'staff-card';
+
+    const totalStr = data.totalHours > 0 ? `${data.totalHours} hrs` : '–';
+    const subText = data.totalHours > 0 ? `${data.totalHours} hrs this week` : 'no hours recorded';
+
+    let dayRowsHTML = '';
+    dayHeaders.forEach((h, i) => {
+      const val = (data.days[i] || '').trim();
+      const vl = val.toLowerCase();
+      const isToday = (i === todayIdx);
+      const todayRowCls = isToday ? ' is-today' : '';
+      let valHTML = '';
+      if (!val || val === '-') {
+        valHTML = `<span class="card-day-val is-off">–</span>`;
+      } else if (vl === 'off') {
+        valHTML = `<span class="card-day-val is-off">OFF</span>`;
+      } else {
+        valHTML = `<span class="card-day-val${isToday ? ' is-today-val' : ''}">${val}</span>`;
+      }
+      const label = DAY_NAMES[i] || h.slice(0,3);
+      dayRowsHTML += `<div class="card-day-row${todayRowCls}"><span class="card-day-label">${label}</span>${valHTML}</div>`;
+    });
+
+    const deductHTML = data.refund > 0
+      ? `<div class="card-foot-deduct">−${data.refund} refund deduction</div>`
+      : '';
+
+    card.innerHTML = `
+      <div class="staff-card-head">
+        <div class="staff-card-name">${name}</div>
+        <div class="staff-card-sub">${subText}</div>
+      </div>
+      <div class="card-day-rows">${dayRowsHTML}</div>
+      <div class="staff-card-foot">
+        <span class="card-foot-label">Total</span>
+        <div class="card-foot-right">
+          <div class="card-foot-total">${totalStr}</div>
+          ${deductHTML}
+        </div>
+      </div>`;
+
+    grid.appendChild(card);
+  });
+
+  document.getElementById('cards-section').style.display = 'block';
 }
 
 async function loadRota(sheetName) {
@@ -497,7 +676,17 @@ async function loadRota(sheetName) {
       el.innerHTML = '<div class="error">No data found in sheet: ' + sheetName + '</div>';
       return;
     }
-    el.innerHTML = buildTable(rows, agencySet);
+
+    const allHeaders = rows[0];
+    const totalHoursIdx = allHeaders.findIndex(h => h.toLowerCase().includes('total hours'));
+    const refundIdx = allHeaders.findIndex(h => h.toLowerCase().includes('refund'));
+    let dayEndIdx = totalHoursIdx > 0 ? totalHoursIdx : allHeaders.length;
+    if (refundIdx > 0 && refundIdx < dayEndIdx) dayEndIdx = refundIdx;
+    const dayHeaders = allHeaders.slice(2, dayEndIdx);
+    const todayIdx = getTodayColIdx(dayHeaders);
+
+    el.innerHTML = buildTable(rows, agencySet, todayIdx);
+    buildCards(rows, agencySet, dayHeaders, dayEndIdx, todayIdx);
   } catch(e) {
     el.innerHTML = '<div class="error">Error loading rota: ' + e.message + '</div>';
   }
