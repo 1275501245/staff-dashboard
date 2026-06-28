@@ -589,8 +589,8 @@ function buildTable(rows, agency, todayIdx) {
 }
 
 function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx) {
-  // Collect all agency staff across all sites, deduplicated by name
-  const staffMap = new Map(); // name -> { days: [], totalHours, refundDeduction }
+  // Collect all agency staff, summing hours across all sites
+  const staffMap = new Map(); // name -> { days: [], totalHours, refund }
 
   const allHeaders = rows[0];
   const totalHoursIdx = allHeaders.findIndex(h => h.toLowerCase().includes('total hours'));
@@ -601,13 +601,19 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx) {
   for (const row of dataRows) {
     const name = (row[1] || '').trim();
     if (!name || !agency.has(name)) continue;
-    if (staffMap.has(name)) continue; // first occurrence only (primary site row)
 
-    const days = row.slice(2, dayEndIdx);
-    const totalHours = totalHoursIdx > 0 ? parseHours(row[totalHoursIdx]) : 0;
-    const refund = refundIdx > 0 ? parseHours(row[refundIdx]) : 0;
+    const rowHours = totalHoursIdx > 0 ? parseHours(row[totalHoursIdx]) : 0;
+    const rowRefund = refundIdx > 0 ? parseHours(row[refundIdx]) : 0;
 
-    staffMap.set(name, { days, totalHours, refund });
+    if (staffMap.has(name)) {
+      // accumulate hours and refund; keep days from first (primary site) row
+      const existing = staffMap.get(name);
+      existing.totalHours = Math.round((existing.totalHours + rowHours) * 100) / 100;
+      existing.refund = Math.round((existing.refund + rowRefund) * 100) / 100;
+    } else {
+      const days = row.slice(2, dayEndIdx);
+      staffMap.set(name, { days, totalHours: rowHours, refund: rowRefund });
+    }
   }
 
   if (staffMap.size === 0) return;
@@ -620,7 +626,7 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx) {
     card.className = 'staff-card';
 
     const totalStr = data.totalHours > 0 ? `${data.totalHours} hrs` : '–';
-    const subText = data.totalHours > 0 ? `${data.totalHours} hrs this week` : 'no hours recorded';
+    const subText = data.totalHours > 0 ? `${data.totalHours} hrs this week (all sites)` : 'no hours recorded';
 
     let dayRowsHTML = '';
     dayHeaders.forEach((h, i) => {
