@@ -96,29 +96,52 @@ const SHEET_NAME = 'Working Handbook';
 
 let sections = {};
 let sectionOrder = [];
-let activeSection = 0;
+
+// 用和 rota.html 一样的 csv 方式读取
+async function fetchSheet(sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Failed to fetch');
+  return res.text();
+}
+
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.split('\n');
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+        else inQ = !inQ;
+      } else if (ch === ',' && !inQ) {
+        cols.push(cur); cur = '';
+      } else {
+        cur += ch;
+      }
+    }
+    cols.push(cur);
+    rows.push(cols);
+  }
+  return rows;
+}
 
 async function load() {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=838590140&headers=1`;
   try {
-    const res  = await fetch(url);
-    const text = await res.text();
-    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);?\s*$/)[1]);
-    const rows = json.table.rows
-      .map(r => ({
-        section: (r.c[0]?.v || '').trim(),
-        clause:  (r.c[1]?.v || '').trim(),
-        content: (r.c[2]?.v || '').trim(),
-        type:    (r.c[3]?.v || '').trim().toLowerCase(),
-      }))
-      .filter(r => r.clause && r.content);
+    const csv  = await fetchSheet(SHEET_NAME);
+    const rows = parseCSV(csv).slice(1); // skip header
 
-    rows.forEach(row => {
-      if (!sections[row.section]) {
-        sections[row.section] = [];
-        sectionOrder.push(row.section);
-      }
-      sections[row.section].push(row);
+    rows.forEach(r => {
+      const section = (r[0] || '').trim();
+      const clause  = (r[1] || '').trim();
+      const content = (r[2] || '').trim();
+      const type    = (r[3] || '').trim().toLowerCase();
+      if (!clause || !content) return;
+      if (!sections[section]) { sections[section] = []; sectionOrder.push(section); }
+      sections[section].push({ clause, content, type });
     });
 
     renderTabs();
@@ -130,14 +153,12 @@ async function load() {
 }
 
 function renderTabs() {
-  const tabsEl = document.getElementById('tabs');
-  tabsEl.innerHTML = sectionOrder.map((s, i) =>
+  document.getElementById('tabs').innerHTML = sectionOrder.map((s, i) =>
     `<div class="tab ${i===0?'active':''}" onclick="renderSection(${i})">${s}</div>`
   ).join('');
 }
 
 function renderSection(idx) {
-  activeSection = idx;
   document.querySelectorAll('.tab').forEach((t, i) =>
     t.classList.toggle('active', i === idx)
   );
