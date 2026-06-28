@@ -7,6 +7,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f2f2f7;color:#1a1a1a;min-height:100vh}
+
 .site-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;gap:12px}
 .site-screen-title{font-size:20px;font-weight:600;margin-bottom:4px}
 .site-screen-sub{font-size:13px;color:#888;margin-bottom:12px}
@@ -17,7 +18,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 .main{display:none;padding:12px;max-width:600px;margin:0 auto;padding-bottom:40px}
 
-/* Top bar - mobile optimised */
 .top-bar{background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:12px;border:1px solid #e5e5e5}
 .top-bar-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .back-btn{background:none;border:none;cursor:pointer;font-size:14px;color:#007aff;padding:0;display:flex;align-items:center;gap:4px}
@@ -51,18 +51,20 @@ td:nth-child(3){text-align:right}
 tr:last-child td{border-bottom:none}
 tr.done-row td{opacity:0.38}
 tr.done-row .itext{text-decoration:line-through}
+
 .cb{width:20px;height:20px;border-radius:6px;border:1.5px solid #d0d0d0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;background:#fff;flex-shrink:0}
 .cb:hover{border-color:#16a34a;background:#f0fdf4}
 .cb.checked{background:#16a34a;border-color:#16a34a}
 .cb.checked::after{content:'';display:block;width:10px;height:7px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+
 .qty{font-size:11px;color:#888;background:#f5f5f5;border:0.5px solid #e5e5e5;border-radius:20px;padding:2px 7px;white-space:nowrap}
 .qty.na{opacity:0.3}
 
 .csec{background:#fff;border-radius:12px;margin-bottom:10px;border:1px solid #e5e5e5;overflow:hidden}
 .csec-head{display:flex;align-items:center;padding:8px 14px;background:#fafafa;border-bottom:1px solid #f0f0f0;gap:8px}
 .csec-name{font-size:12px;font-weight:600;color:#555;flex:1}
-.grp{margin-bottom:6px;border-radius:10px;overflow:hidden;border:1px solid #eee}
-.grp:last-child{margin-bottom:0}
+.grps{padding:8px;display:flex;flex-direction:column;gap:8px}
+.grp{border-radius:10px;overflow:hidden;border:1px solid #eee}
 .grp-head{padding:7px 12px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:8px}
 .grp-head.pu{background:#EEEDFE;color:#3C3489;border-bottom:1px solid #CECBF6}
 .grp-head.gr{background:#E1F5EE;color:#085041;border-bottom:1px solid #9FE1CB}
@@ -73,16 +75,19 @@ tr.done-row .itext{text-decoration:line-through}
 .mini-track{width:44px;height:4px;background:rgba(0,0,0,0.1);border-radius:4px;overflow:hidden}
 .mini-fill{height:100%;border-radius:4px;transition:width 0.3s}
 .mini-fill.pu{background:#7F77DD}.mini-fill.gr{background:#1D9E75}.mini-fill.bl{background:#3B82C4}.mini-fill.am{background:#D97706}
-.mini-text{font-size:10px;opacity:0.7;min-width:22px;text-align:right}
 .irow{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f5f5f5;cursor:pointer;transition:background 0.1s}
 .irow:last-child{border-bottom:none}
 .irow:hover{background:#fafafa}
 .irow.done-row{opacity:0.38}
 .irow.done-row .itext{text-decoration:line-through}
 .itext{font-size:13px;flex:1}
+
+.state-msg{text-align:center;padding:60px 20px;color:#aaa;font-size:14px;line-height:1.6}
+.state-msg .emoji{font-size:32px;display:block;margin-bottom:10px}
 </style>
 </head>
 <body>
+
 <div class="site-screen" id="site-screen">
   <div class="site-screen-title">Kitchen Prep List</div>
   <div class="site-screen-sub">Select your site to begin</div>
@@ -111,253 +116,229 @@ tr.done-row .itext{text-decoration:line-through}
       </div>
     </div>
   </div>
-
-  <!-- Rice & Soup -->
-  <div class="section">
-    <div class="section-head">
-      <span class="section-name">Rice & Soup</span>
-      <div class="mod-prog"><div class="mod-track"><div class="mod-fill" id="mf-rice" style="width:0%"></div></div><div class="mod-text" id="mp-rice">0%</div></div>
-    </div>
-    <table><thead><tr><th></th><th>Item</th><th>Min. Stock</th></tr></thead>
-    <tbody id="tb-rice">
-      <tr><td><div class="cb" onclick="toggleRow(this,'rice_check')"></div></td><td class="itext">Check rice (if half or less, make a new batch)</td><td><span class="qty">1.5 pot</span></td></tr>
-      <tr><td><div class="cb" onclick="toggleRow(this,'rice_sesame')"></div></td><td class="itext">Sesame Paste</td><td><span class="qty">2 pack</span></td></tr>
-      <tr><td><div class="cb" onclick="toggleRow(this,'rice_spicy')"></div></td><td class="itext">Spicy Soup</td><td><span class="qty">4 portion</span></td></tr>
-      <tr><td><div class="cb" onclick="toggleRow(this,'rice_tomato')"></div></td><td class="itext">Tomato Soup</td><td><span class="qty">4 portion</span></td></tr>
-      <tr><td><div class="cb" onclick="toggleRow(this,'rice_veg')"></div></td><td class="itext">Veg & Mushroom Soup</td><td><span class="qty">2 portion</span></td></tr>
-    </tbody></table>
-  </div>
-
-  <!-- Processing Needed -->
-  <div class="csec">
-    <div class="csec-head">
-      <span class="csec-name">Processing Needed — Priority Order</span>
-      <div class="mod-prog"><div class="mod-track"><div class="mod-fill" id="mf-proc" style="width:0%"></div></div><div class="mod-text" id="mp-proc">0%</div></div>
-    </div>
-    <div style="padding:8px">
-      <div id="grp-proc">
-        <div class="irow" onclick="toggleIrow(this,'proc_luncheon')"><div class="cb"></div><span class="itext">Luncheon Meat</span><span class="qty">10 box</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_potato')"><div class="cb"></div><span class="itext">Potato</span><span class="qty">10 pc</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_cabbage')"><div class="cb"></div><span class="itext">Chinese Cabbage</span><span class="qty">8 pc</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_bokchoi')"><div class="cb"></div><span class="itext">Bok Choi</span><span class="qty">½ box</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_lemon')"><div class="cb"></div><span class="itext">Cut lemons</span><span class="qty">4 pc</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_prawn')"><div class="cb"></div><span class="itext">Prawn Paste</span><span class="qty">4–10 pack</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_thai')"><div class="cb"></div><span class="itext">Thai Basil Pork (Portioned)</span><span class="qty">2 pack</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_pork')"><div class="cb"></div><span class="itext">Pork Belly (Portioned)</span><span class="qty">2 pack</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_garlic')"><div class="cb"></div><span class="itext">Garlic Pork (Portioned)</span><span class="qty">2 pack</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_noodle')"><div class="cb"></div><span class="itext">Separate Sweet Potato Noodles</span><span class="qty">10 pack</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_crab')"><div class="cb"></div><span class="itext">Remove plastic from crab sticks</span><span class="qty">2 pack</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_milk')"><div class="cb"></div><span class="itext">Condensed Milk (Portioned)</span><span class="qty">8–10 portion</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_chilli')"><div class="cb"></div><span class="itext">Chilli Powder (Portioned)</span><span class="qty">8–10 portion</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_duck')"><div class="cb"></div><span class="itext">Duck Blood</span><span class="qty">2 box</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_lettuce')"><div class="cb"></div><span class="itext">Lettuce</span><span class="qty">4–8 pc</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_drylettuce')"><div class="cb"></div><span class="itext">Dried Lettuce Stem</span><span class="qty na">N/A</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_spinach')"><div class="cb"></div><span class="itext">Spinach</span><span class="qty">4–8 pc</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_sprouts')"><div class="cb"></div><span class="itext">Bean Sprouts</span><span class="qty na">N/A</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_daisy')"><div class="cb"></div><span class="itext">Crown Daisy</span><span class="qty na">N/A</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_mushroom')"><div class="cb"></div><span class="itext">Oyster Mushrooms</span><span class="qty na">N/A</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_sweet')"><div class="cb"></div><span class="itext">Sweet Chilli Sauce (Portioned)</span><span class="qty">8–10 portion</span></div>
-        <div class="irow" onclick="toggleIrow(this,'proc_ketchup')"><div class="cb"></div><span class="itext">Ketchup (Portioned)</span><span class="qty">8–10 portion</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Direct Refill -->
-  <div class="csec">
-    <div class="csec-head"><span class="csec-name">Direct Refill / Restock / Defrost</span></div>
-    <div style="padding:8px;display:flex;flex-direction:column;gap:8px">
-      <div class="grp">
-        <div class="grp-head gr"><span class="grp-label">Food Items</span><div class="mini-prog"><div class="mini-track"><div class="mini-fill gr" id="mf-food" style="width:0%"></div></div><div class="mini-text" id="mp-food">0%</div></div></div>
-        <div id="grp-food">
-          <div class="irow" onclick="toggleIrow(this,'food_beef_mar')"><div class="cb"></div><span class="itext">Marinated Beef Slices</span><span class="qty">1 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_basa')"><div class="cb"></div><span class="itext">Basa Fish Fillet</span><span class="qty">1 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_beef_sl')"><div class="cb"></div><span class="itext">Sliced Beef</span><span class="qty">1 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_beefball')"><div class="cb"></div><span class="itext">Juicy Beef Balls</span><span class="qty">4–6 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_fishball')"><div class="cb"></div><span class="itext">Fish Balls</span><span class="qty">4–6 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_lotus')"><div class="cb"></div><span class="itext">Lotus Root Slices</span><span class="qty">4–6 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_bamboo')"><div class="cb"></div><span class="itext">Bamboo Shoots</span><span class="qty">1 box</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_ricecake')"><div class="cb"></div><span class="itext">Hot Pot Rice Cake</span><span class="qty">1 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_sausage')"><div class="cb"></div><span class="itext">Japanese Mini Sausages</span><span class="qty">1 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_dough')"><div class="cb"></div><span class="itext">Mini Dough Sticks</span><span class="qty">1 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_ftofu')"><div class="cb"></div><span class="itext">Frozen Tofu</span><span class="qty">2 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_tofupuff')"><div class="cb"></div><span class="itext">Fried Tofu Puffs</span><span class="qty">1 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_tofuroll')"><div class="cb"></div><span class="itext">Tofu Skin Rolls</span><span class="qty">4 box</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_tofuskin')"><div class="cb"></div><span class="itext">Dried Tofu Skin</span><span class="qty">4 box</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_egg')"><div class="cb"></div><span class="itext">Five-Spice Marinated Egg</span><span class="qty">1 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_chiba')"><div class="cb"></div><span class="itext">Chiba Tofu</span><span class="qty">2–4 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_fishtofu')"><div class="cb"></div><span class="itext">Fish Tofu</span><span class="qty">1 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_fishroe')"><div class="cb"></div><span class="itext">Fish Roe Tofu</span><span class="qty">1–2 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_fishcake')"><div class="cb"></div><span class="itext">Fish Cake / Chikuwa</span><span class="qty">1–2 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_porkball')"><div class="cb"></div><span class="itext">Pork Balls with Chicken Filling</span><span class="qty">1–2 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_aorta')"><div class="cb"></div><span class="itext">Beef Aorta</span><span class="qty na">N/A</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_intestine')"><div class="cb"></div><span class="itext">Braised Pork Intestines</span><span class="qty na">N/A</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_fchicken')"><div class="cb"></div><span class="itext">Fried Chicken</span><span class="qty">1 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_ricestick')"><div class="cb"></div><span class="itext">Traditional Stretchy Rice Cake</span><span class="qty">2–4 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_fennel')"><div class="cb"></div><span class="itext">Fennel Dough Sticks</span><span class="qty">1 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_buns')"><div class="cb"></div><span class="itext">Fried Mini Buns</span><span class="qty">2 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_springroll')"><div class="cb"></div><span class="itext">Fried Spring Rolls</span><span class="qty">1 box</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_crispypork')"><div class="cb"></div><span class="itext">Fried Crispy Pork</span><span class="qty">4–8 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'food_skewer')"><div class="cb"></div><span class="itext">Fried Chicken Skewer</span><span class="qty">2 pack</span></div>
-        </div>
-      </div>
-      <div class="grp">
-        <div class="grp-head bl"><span class="grp-label">Packaging & Supplies</span><div class="mini-prog"><div class="mini-track"><div class="mini-fill bl" id="mf-pkg" style="width:0%"></div></div><div class="mini-text" id="mp-pkg">0%</div></div></div>
-        <div id="grp-pkg">
-          <div class="irow" onclick="toggleIrow(this,'pkg_hotpot')"><div class="cb"></div><span class="itext">Hot pot containers with lids</span><span class="qty">1–3 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'pkg_ricebowl')"><div class="cb"></div><span class="itext">Rice bowl containers with lids</span><span class="qty">1–3 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'pkg_rice')"><div class="cb"></div><span class="itext">Rice containers with lids</span><span class="qty">1–3 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'pkg_snackbox')"><div class="cb"></div><span class="itext">Snack bowl with lid</span><span class="qty">1–3 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'pkg_cling')"><div class="cb"></div><span class="itext">Cling film</span><span class="qty">2 unit</span></div>
-          <div class="irow" onclick="toggleIrow(this,'pkg_chopstick')"><div class="cb"></div><span class="itext">Chopsticks</span><span class="qty">2 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'pkg_paperbag')"><div class="cb"></div><span class="itext">Paper packing bag</span><span class="qty">1 box</span></div>
-          <div class="irow" onclick="toggleIrow(this,'pkg_whitebag')"><div class="cb"></div><span class="itext">White plastic bags</span><span class="qty">1 box</span></div>
-          <div class="irow" onclick="toggleIrow(this,'pkg_blue')"><div class="cb"></div><span class="itext">Blue paper</span><span class="qty">2 roll</span></div>
-          <div class="irow" onclick="toggleIrow(this,'pkg_napkin')"><div class="cb"></div><span class="itext">Napkins</span><span class="qty">1 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'pkg_chips')"><div class="cb"></div><span class="itext">Chips</span><span class="qty">1 box</span></div>
-          <div class="irow" onclick="toggleIrow(this,'pkg_sticker')"><div class="cb"></div><span class="itext">Sealing stickers</span><span class="qty">2 roll</span></div>
-          <div class="irow" onclick="toggleIrow(this,'pkg_printer')"><div class="cb"></div><span class="itext">Printer paper (machine)</span><span class="qty">1 box</span></div>
-          <div class="irow" onclick="toggleIrow(this,'pkg_sponge')"><div class="cb"></div><span class="itext">Washing sponge</span><span class="qty">1 pc</span></div>
-        </div>
-      </div>
-      <div class="grp">
-        <div class="grp-head am"><span class="grp-label">Defrost</span><div class="mini-prog"><div class="mini-track"><div class="mini-fill am" id="mf-def" style="width:0%"></div></div><div class="mini-text" id="mp-def">0%</div></div></div>
-        <div id="grp-def">
-          <div class="irow" onclick="toggleIrow(this,'def_beef_mar')"><div class="cb"></div><span class="itext">Marinated Beef (take to defrost)</span><span class="qty">3 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'def_basa')"><div class="cb"></div><span class="itext">Basa Fish (take to defrost)</span><span class="qty">3 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'def_beef_sl')"><div class="cb"></div><span class="itext">Sliced Beef (take to defrost)</span><span class="qty">3 pack</span></div>
-          <div class="irow" onclick="toggleIrow(this,'def_green')"><div class="cb"></div><span class="itext">Green Balls (take to defrost)</span><span class="qty">4–6 pc</span></div>
-          <div class="irow" onclick="toggleIrow(this,'def_dumpling')"><div class="cb"></div><span class="itext">Rice Dumplings (take to defrost)</span><span class="qty">4–6 pc</span></div>
-          <div class="irow" onclick="toggleIrow(this,'def_prawn')"><div class="cb"></div><span class="itext">Prawn Paste (take to defrost)</span><span class="qty">4–10 pc</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Other Tasks -->
-  <div class="section">
-    <div class="section-head">
-      <span class="section-name">Other Tasks</span>
-      <div class="mod-prog"><div class="mod-track"><div class="mod-fill" id="mf-tasks" style="width:0%"></div></div><div class="mod-text" id="mp-tasks">0%</div></div>
-    </div>
-    <table><thead><tr><th></th><th>Item</th><th></th></tr></thead>
-    <tbody id="tb-tasks">
-      <tr><td><div class="cb" onclick="toggleRow(this,'task_labels')"></div></td><td class="itext">Do labels</td><td></td></tr>
-      <tr><td><div class="cb" onclick="toggleRow(this,'task_clean')"></div></td><td class="itext">Do cleaning</td><td></td></tr>
-    </tbody></table>
+  <div id="content">
+    <div class="state-msg"><span class="emoji">&#9203;</span>Loading prep list&#8230;</div>
   </div>
 </div>
 
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbw28EoWdsH1yOZGlyP012-7GSmNhB3msGzHKD6VFtwtulAzNoUSvaoLY3BOAM5Vx4WXfw/exec';
-let site='',siteLabel='',state={};
-const today=new Date().toISOString().split('T')[0];
-document.getElementById('today-label').textContent=new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+const SHEET_ID   = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
+const SHEET_NAME = 'Prep';
 
-const MODS=[
-  {f:'mf-rice',p:'mp-rice',sel:'#tb-rice .cb',type:'cb'},
-  {f:'mf-proc',p:'mp-proc',sel:'#grp-proc .irow',type:'irow'},
-  {f:'mf-food',p:'mp-food',sel:'#grp-food .irow',type:'irow'},
-  {f:'mf-pkg',p:'mp-pkg',sel:'#grp-pkg .irow',type:'irow'},
-  {f:'mf-def',p:'mp-def',sel:'#grp-def .irow',type:'irow'},
-  {f:'mf-tasks',p:'mp-tasks',sel:'#tb-tasks .cb',type:'cb'},
-];
+// Column indices (0-based after header strip):
+// 0=Section,1=Module,2=Group,3=Item,4=Qty_TB,5=Qty_SH,6=Qty_BA,7=TB,8=SH,9=BA
+const QTY_COL  = { tb: 4, sh: 5, ba: 6 };
+const SHOW_COL = { tb: 7, sh: 8, ba: 9 };
 
-function updateProgress(){
-  let ta=0,da=0;
-  MODS.forEach(m=>{
-    const els=document.querySelectorAll(m.sel);
-    const total=els.length;
-    const done=m.type==='cb'
-      ?document.querySelectorAll(m.sel.replace('.cb','.cb.checked')).length
-      :document.querySelectorAll(m.sel.replace('.irow','.irow.done-row')).length;
-    const pct=total?Math.round(done/total*100):0;
-    document.getElementById(m.f).style.width=pct+'%';
-    document.getElementById(m.p).textContent=pct+'%';
-    ta+=total;da+=done;
+const GROUP_CLASS = {
+  'Food Items':           'gr',
+  'Packaging & Supplies': 'bl',
+  'Defrost':              'am',
+};
+
+let site = '', siteLabel = '';
+let allRows = [];
+
+document.getElementById('today-label').textContent =
+  new Date().toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+
+function selectSite(code, label) {
+  site = code; siteLabel = label;
+  document.getElementById('site-screen').style.display = 'none';
+  document.getElementById('main').style.display = 'block';
+  document.getElementById('site-title').textContent = label + ' — Prep List';
+  allRows.length ? renderForSite() : loadSheet();
+}
+
+function goBack() {
+  document.getElementById('site-screen').style.display = 'flex';
+  document.getElementById('main').style.display = 'none';
+}
+
+async function loadSheet() {
+  setSync('syncing', 'Loading…');
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&headers=1`;
+  try {
+    const res  = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);?\s*$/)[1]);
+    allRows = json.table.rows.map(r => ({
+      section: (r.c[0]?.v || '').trim(),
+      module:  (r.c[1]?.v || '').trim(),
+      group:   (r.c[2]?.v || '').trim(),
+      item:    (r.c[3]?.v || '').trim(),
+      qty_tb:  (r.c[4]?.v || '').toString().trim(),
+      qty_sh:  (r.c[5]?.v || '').toString().trim(),
+      qty_ba:  (r.c[6]?.v || '').toString().trim(),
+      tb:      r.c[7]?.v === true,
+      sh:      r.c[8]?.v === true,
+      ba:      r.c[9]?.v === true,
+    })).filter(r => r.item);
+    setSync('ok', 'Loaded ✓');
+    renderForSite();
+  } catch(e) {
+    setSync('err', 'Failed');
+    document.getElementById('content').innerHTML =
+      '<div class="state-msg"><span class="emoji">&#9888;&#65039;</span>Failed to load.<br>Check your connection and try again.</div>';
+  }
+}
+
+function renderForSite() {
+  const qtyKey  = 'qty_' + site;   // e.g. qty_sh
+  const showKey = site;             // e.g. sh
+
+  const rows = allRows.filter(r => r[showKey] === true);
+
+  // Build structure: module → groups → items
+  const modules = [];
+  const modIdx  = {};
+
+  rows.forEach(r => {
+    if (!modIdx[r.module]) {
+      modIdx[r.module] = { module: r.module, section: r.section, groups: [], grpIdx: {} };
+      modules.push(modIdx[r.module]);
+    }
+    const mod    = modIdx[r.module];
+    const grpKey = r.group || '__';
+    if (!mod.grpIdx[grpKey]) {
+      mod.grpIdx[grpKey] = { group: r.group, items: [] };
+      mod.groups.push(mod.grpIdx[grpKey]);
+    }
+    mod.grpIdx[grpKey].items.push({ item: r.item, qty: r[qtyKey] });
   });
-  const overall=ta?Math.round(da/ta*100):0;
-  document.getElementById('prog-fill').style.width=overall+'%';
-  document.getElementById('prog-text').textContent=overall+'%';
-}
 
-function selectSite(code,label){
-  site=code;siteLabel=label;
-  document.getElementById('site-screen').style.display='none';
-  document.getElementById('main').style.display='block';
-  document.getElementById('site-title').textContent=label+' — Prep List';
-  loadState();
-}
+  let html = '';
+  let mNum = 0;
 
-function goBack(){
-  document.getElementById('site-screen').style.display='flex';
-  document.getElementById('main').style.display='none';
-  state={};resetUI();
-}
+  modules.forEach(mod => {
+    const mId      = 'm' + mNum++;
+    const hasGroups = mod.groups.some(g => g.group);
 
-function resetUI(){
-  document.querySelectorAll('.cb').forEach(el=>{el.classList.remove('checked');if(el.closest('tr'))el.closest('tr').classList.remove('done-row');});
-  document.querySelectorAll('.irow').forEach(el=>{el.classList.remove('done-row');el.querySelector('.cb').classList.remove('checked');});
-  updateProgress();
-}
+    if (!hasGroups) {
+      // Table layout (Rice & Soup, Other Tasks, Processing Needed flat)
+      const items = mod.groups.flatMap(g => g.items);
+      html += `<div class="section" id="${mId}">
+        <div class="section-head">
+          <span class="section-name">${mod.module}</span>
+          <div class="mod-prog"><div class="mod-track"><div class="mod-fill" id="${mId}f" style="width:0%"></div></div><div class="mod-text" id="${mId}t">0%</div></div>
+        </div>
+        <table><thead><tr><th></th><th>Item</th><th>Min. Stock</th></tr></thead><tbody>`;
+      items.forEach((r, i) => {
+        const k  = mId + '_' + i;
+        const na = r.qty === 'N/A';
+        const qtyHtml = r.qty ? `<span class="qty${na?' na':''}">${r.qty}</span>` : '';
+        html += `<tr id="tr${k}"><td><div class="cb" id="cb${k}" onclick="toggleCb('${k}','${mId}')"></div></td><td class="itext">${r.item}</td><td>${qtyHtml}</td></tr>`;
+      });
+      html += `</tbody></table></div>`;
 
-function setSync(cls,txt){
-  const el=document.getElementById('sync');el.className='sync '+cls;el.textContent=txt;
-  if(cls==='ok')setTimeout(()=>{el.textContent='';el.className='sync';},2000);
-}
+    } else {
+      // Grouped irow layout (Direct Refill)
+      html += `<div class="csec" id="${mId}">
+        <div class="csec-head">
+          <span class="csec-name">${mod.module}</span>
+          <div class="mod-prog"><div class="mod-track"><div class="mod-fill" id="${mId}f" style="width:0%"></div></div><div class="mod-text" id="${mId}t">0%</div></div>
+        </div><div class="grps">`;
 
-async function saveItem(key,val){
-  setSync('syncing','Saving...');
-  try{await fetch(SCRIPT_URL+'?action=set&date='+today+'_'+site+'&item='+key+'&checked='+val,{method:'GET',mode:'no-cors'});setSync('ok','Saved ✓');}
-  catch(e){setSync('err','Error');}
-}
-
-async function loadState(){
-  setSync('syncing','Loading...');
-  try{
-    const r=await fetch(SCRIPT_URL+'?action=get&date='+today+'_'+site);
-    state=await r.json()||{};applyState();setSync('ok','Loaded ✓');
-  }catch(e){setSync('err','Offline');applyState();}
-}
-
-function applyState(){
-  document.querySelectorAll('#tb-rice .cb, #tb-tasks .cb').forEach(el=>{
-    const k=el.getAttribute('data-key');
-    if(k&&state[k]){el.classList.add('checked');el.closest('tr').classList.add('done-row');}
+      mod.groups.forEach((grp, gi) => {
+        const gId  = mId + 'g' + gi;
+        const cls  = GROUP_CLASS[grp.group] || 'pu';
+        html += `<div class="grp">`;
+        if (grp.group) {
+          html += `<div class="grp-head ${cls}"><span class="grp-label">${grp.group}</span>
+            <div class="mini-prog"><div class="mini-track"><div class="mini-fill ${cls}" id="${gId}f" style="width:0%"></div></div><div class="mini-text" id="${gId}t">0%</div></div></div>`;
+        }
+        grp.items.forEach((r, i) => {
+          const k  = gId + '_' + i;
+          const na = r.qty === 'N/A';
+          const qtyHtml = r.qty ? `<span class="qty${na?' na':''}">${r.qty}</span>` : '';
+          html += `<div class="irow" id="ir${k}" onclick="toggleIrow('${k}','${mId}','${gId}')">
+            <div class="cb" id="cb${k}"></div><span class="itext">${r.item}</span>${qtyHtml}</div>`;
+        });
+        html += `</div>`;
+      });
+      html += `</div></div>`;
+    }
   });
-  document.querySelectorAll('.irow').forEach(row=>{
-    const k=row.getAttribute('data-key');
-    if(k&&state[k]){row.classList.add('done-row');row.querySelector('.cb').classList.add('checked');}
+
+  document.getElementById('content').innerHTML = html ||
+    '<div class="state-msg"><span class="emoji">&#128203;</span>No items found for this site.</div>';
+  updateAll();
+}
+
+// ── Toggle ────────────────────────────────────────────────────────────────────
+function toggleCb(k, mId) {
+  const cb = document.getElementById('cb' + k);
+  const tr = document.getElementById('tr' + k);
+  cb.classList.toggle('checked');
+  tr.classList.toggle('done-row', cb.classList.contains('checked'));
+  updateMod(mId); updateOverall();
+}
+
+function toggleIrow(k, mId, gId) {
+  const ir   = document.getElementById('ir' + k);
+  const cb   = document.getElementById('cb' + k);
+  const done = !ir.classList.contains('done-row');
+  ir.classList.toggle('done-row', done);
+  cb.classList.toggle('checked', done);
+  updateGrp(gId); updateMod(mId); updateOverall();
+}
+
+// ── Progress ──────────────────────────────────────────────────────────────────
+function pct(done, total) { return total ? Math.round(done / total * 100) : 0; }
+
+function setBar(fillId, textId, p) {
+  const f = document.getElementById(fillId);
+  const t = document.getElementById(textId);
+  if (f) f.style.width = p + '%';
+  if (t) t.textContent = p + '%';
+}
+
+function updateGrp(gId) {
+  const all  = document.querySelectorAll(`[id^="ir${gId}_"]`).length;
+  const done = document.querySelectorAll(`[id^="ir${gId}_"].done-row`).length;
+  setBar(gId + 'f', gId + 't', pct(done, all));
+}
+
+function updateMod(mId) {
+  const all  = document.querySelectorAll(`#${mId} .cb`).length;
+  const done = document.querySelectorAll(`#${mId} .cb.checked`).length;
+  setBar(mId + 'f', mId + 't', pct(done, all));
+}
+
+function updateOverall() {
+  const all  = document.querySelectorAll('#content .cb').length;
+  const done = document.querySelectorAll('#content .cb.checked').length;
+  const p    = pct(done, all);
+  document.getElementById('prog-fill').style.width = p + '%';
+  document.getElementById('prog-text').textContent = p + '%';
+}
+
+function updateAll() {
+  document.querySelectorAll('#content [id^="m"]').forEach(el => {
+    if (!el.id.includes('f') && !el.id.includes('t')) {
+      const mId = el.id;
+      el.querySelectorAll('[id*="g"][id$="f"]').forEach(gf => {
+        const gId = gf.id.replace('f', '');
+        updateGrp(gId);
+      });
+      updateMod(mId);
+    }
   });
-  updateProgress();
+  updateOverall();
 }
 
-function toggleRow(el,key){
-  el.setAttribute('data-key',key);
-  el.classList.toggle('checked');
-  el.closest('tr').classList.toggle('done-row',el.classList.contains('checked'));
-  state[key]=el.classList.contains('checked');
-  updateProgress();saveItem(key,state[key]);
+function resetAll() {
+  if (!confirm('Reset all items for ' + siteLabel + '?')) return;
+  document.querySelectorAll('#content .cb').forEach(c => c.classList.remove('checked'));
+  document.querySelectorAll('#content .done-row').forEach(r => r.classList.remove('done-row'));
+  updateAll();
 }
 
-function toggleIrow(row,key){
-  row.setAttribute('data-key',key);
-  const cb=row.querySelector('.cb');
-  const isDone=!row.classList.contains('done-row');
-  row.classList.toggle('done-row',isDone);
-  cb.classList.toggle('checked',isDone);
-  state[key]=isDone;
-  updateProgress();saveItem(key,isDone);
+function setSync(cls, txt) {
+  const el = document.getElementById('sync');
+  el.className = 'sync ' + cls; el.textContent = txt;
+  if (cls === 'ok') setTimeout(() => { el.textContent = ''; el.className = 'sync'; }, 2000);
 }
-
-function resetAll(){
-  if(!confirm('Reset all items for '+siteLabel+'?'))return;
-  state={};resetUI();
-  setSync('syncing','Resetting...');
-  fetch(SCRIPT_URL+'?action=reset&date='+today+'_'+site,{method:'GET',mode:'no-cors'})
-    .then(()=>setSync('ok','Reset ✓')).catch(()=>setSync('err','Error'));
-}
-
-updateProgress();
 </script>
 </body>
 </html>
