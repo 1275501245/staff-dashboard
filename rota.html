@@ -604,15 +604,29 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx) {
 
     const rowHours = totalHoursIdx > 0 ? parseHours(row[totalHoursIdx]) : 0;
     const rowRefund = refundIdx > 0 ? parseHours(row[refundIdx]) : 0;
+    const rowDays = row.slice(2, dayEndIdx);
 
     if (staffMap.has(name)) {
-      // accumulate hours and refund; keep days from first (primary site) row
       const existing = staffMap.get(name);
       existing.totalHours = Math.round((existing.totalHours + rowHours) * 100) / 100;
       existing.refund = Math.round((existing.refund + rowRefund) * 100) / 100;
+      // Merge days: if this row has a time value for a day, use it (override site-name badge)
+      rowDays.forEach((val, i) => {
+        const v = (val || '').trim();
+        const vl = v.toLowerCase();
+        const isSiteName = vl.includes('shoreditch') || vl.includes('battersea') ||
+                           vl.includes('tower') || vl.includes('piccadilly') || vl.includes('brent');
+        const existing_v = (existing.days[i] || '').trim();
+        const existing_vl = existing_v.toLowerCase();
+        const existingIsSiteName = existing_vl.includes('shoreditch') || existing_vl.includes('battersea') ||
+                                   existing_vl.includes('tower') || existing_vl.includes('piccadilly') || existing_vl.includes('brent');
+        // Prefer time values over site names or empty
+        if (v && !isSiteName && (existingIsSiteName || !existing_v || existing_v === '-')) {
+          existing.days[i] = v;
+        }
+      });
     } else {
-      const days = row.slice(2, dayEndIdx);
-      staffMap.set(name, { days, totalHours: rowHours, refund: rowRefund });
+      staffMap.set(name, { days: rowDays.slice(), totalHours: rowHours, refund: rowRefund });
     }
   }
 
