@@ -97,7 +97,6 @@ const SHEET_NAME = 'Working Handbook';
 let sections = {};
 let sectionOrder = [];
 
-// 用和 rota.html 一样的 csv 方式读取
 async function fetchSheet(sheetName) {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
   const res = await fetch(url);
@@ -105,27 +104,35 @@ async function fetchSheet(sheetName) {
   return res.text();
 }
 
+// 正确处理跨行 cell 的 CSV 解析器（逐字符，不预先按换行分割）
 function parseCSV(text) {
   const rows = [];
-  const lines = text.split('\n');
-  for (const line of lines) {
-    if (!line.trim()) continue;
-    const cols = [];
-    let cur = '', inQ = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
+  let row = [], cur = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQ) {
       if (ch === '"') {
-        if (inQ && line[i+1] === '"') { cur += '"'; i++; }
-        else inQ = !inQ;
-      } else if (ch === ',' && !inQ) {
-        cols.push(cur); cur = '';
+        if (text[i+1] === '"') { cur += '"'; i++; } // escaped quote
+        else inQ = false;
+      } else {
+        cur += ch;
+      }
+    } else {
+      if (ch === '"') {
+        inQ = true;
+      } else if (ch === ',') {
+        row.push(cur); cur = '';
+      } else if (ch === '\n') {
+        row.push(cur); cur = '';
+        rows.push(row); row = [];
+      } else if (ch === '\r') {
+        // skip
       } else {
         cur += ch;
       }
     }
-    cols.push(cur);
-    rows.push(cols);
   }
+  if (cur || row.length) { row.push(cur); rows.push(row); }
   return rows;
 }
 
