@@ -239,12 +239,14 @@ function renderItems() {
       const mainId = 'inp_' + name.replace(/[^a-zA-Z0-9]/g, '_') + '_qty';
       const subId = 'inp_' + name.replace(/[^a-zA-Z0-9]/g, '_') + '_subqty';
 
-      let unitBoxes = `<div class="unit-box">
-        <span class="unit-label">${unit}</span>
-        <input class="unit-input" id="${mainId}" readonly value="${quantities[qtyKey]}"
-          onclick="openNumpad('${qtyKey}','${name} · ${unit}','${mainId}')">
-      </div>`;
-
+      let unitBoxes = '';
+      if (unit) {
+        unitBoxes += `<div class="unit-box">
+          <span class="unit-label">${unit}</span>
+          <input class="unit-input" id="${mainId}" readonly value="${quantities[qtyKey]}"
+            onclick="openNumpad('${qtyKey}','${name} · ${unit}','${mainId}')">
+        </div>`;
+      }
       if (subUnit) {
         unitBoxes += `<div class="unit-box">
           <span class="unit-label">${subUnit}</span>
