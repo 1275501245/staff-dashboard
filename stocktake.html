@@ -131,7 +131,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 <script>
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrybSYDPASoa8e7HkfC4fNC8twZK-ohg_Tdk0jpfp3DAsVHM2gnm7PaJeyNXS66o7K/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIukDL-lgrDmwaw8BGNQJtmva5Sjple-f7hcKqlf1mlh5_zr29Ogx2Czo7kCstWgo8/exec';
 const SITES = ['Shoreditch', 'Battersea', 'Tower Bridge'];
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
@@ -334,8 +334,7 @@ async function submitData() {
     const subQty = parseFloat(quantities[product + '|subqty']) || 0;
     if (!qty && !subQty) return;
     const prod = products.find(p => p['MyName'] === product);
-    const supplier = prod ? prod['Supplier'] : '';
-    rows.push({ date, site: selectedSite, supplier, product, Quantity: qty, SubQuantity: subQty });
+    rows.push({ date, site: selectedSite, product, Quantity: qty, SubQuantity: subQty });
   });
 
   if (!rows.length) {
