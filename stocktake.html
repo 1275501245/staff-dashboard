@@ -131,7 +131,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 <script>
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyh_F4jPG5xRFkaYskJOrvBBui7bx-hCVlK1RPeCSn7PFq_W7F3FvVWtrQtnnX-fWKrbA/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrybSYDPASoa8e7HkfC4fNC8twZK-ohg_Tdk0jpfp3DAsVHM2gnm7PaJeyNXS66o7K/exec';
 const SITES = ['Shoreditch', 'Battersea', 'Tower Bridge'];
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
@@ -228,21 +228,21 @@ function renderItems() {
     html += `<div class="supp-section"><div class="supp-label">${suppName}</div>`;
 
     suppProds.forEach(p => {
-      const name = p['ProductName'];
+      const name = p['MyName'];
       const unit = p['Unit'] || '';
       const subUnit = p['SubUnit'] || '';
-      const mainKey = name + '|' + unit;
-      const subKey = name + '|' + subUnit;
-      if (!quantities[mainKey]) quantities[mainKey] = '0';
+      const qtyKey = name + '|qty';
+      const subKey = name + '|subqty';
+      if (!quantities[qtyKey]) quantities[qtyKey] = '0';
       if (subUnit && !quantities[subKey]) quantities[subKey] = '0';
 
-      const mainId = 'inp_' + (name + '_' + unit).replace(/[^a-zA-Z0-9]/g, '_');
-      const subId = 'inp_' + (name + '_' + subUnit).replace(/[^a-zA-Z0-9]/g, '_');
+      const mainId = 'inp_' + name.replace(/[^a-zA-Z0-9]/g, '_') + '_qty';
+      const subId = 'inp_' + name.replace(/[^a-zA-Z0-9]/g, '_') + '_subqty';
 
       let unitBoxes = `<div class="unit-box">
         <span class="unit-label">${unit}</span>
-        <input class="unit-input" id="${mainId}" readonly value="${quantities[mainKey]}"
-          onclick="openNumpad('${mainKey}','${name} · ${unit}','${mainId}')">
+        <input class="unit-input" id="${mainId}" readonly value="${quantities[qtyKey]}"
+          onclick="openNumpad('${qtyKey}','${name} · ${unit}','${mainId}')">
       </div>`;
 
       if (subUnit) {
@@ -324,13 +324,16 @@ async function submitData() {
   const date = document.getElementById('date-picker').value;
   const rows = [];
 
-  Object.entries(quantities).forEach(([key, val]) => {
-    const qty = parseFloat(val);
-    if (!qty) return;
-    const [product, unit] = key.split('|');
-    const prod = products.find(p => p['ProductName'] === product);
-    const supplier = prod ? prod['SupplierName'] : '';
-    rows.push({ date, site: selectedSite, supplier, product, qty, unit });
+  // Collect all product names that have entries
+  const productNames = [...new Set(Object.keys(quantities).map(k => k.split('|')[0]))];
+
+  productNames.forEach(product => {
+    const qty = parseFloat(quantities[product + '|qty']) || 0;
+    const subQty = parseFloat(quantities[product + '|subqty']) || 0;
+    if (!qty && !subQty) return;
+    const prod = products.find(p => p['MyName'] === product);
+    const supplier = prod ? prod['Supplier'] : '';
+    rows.push({ date, site: selectedSite, supplier, product, Quantity: qty, SubQuantity: subQty });
   });
 
   if (!rows.length) {
