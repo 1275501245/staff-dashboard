@@ -37,6 +37,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .container-badge{display:inline-block;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px}
 .note-box{font-size:12px;color:#5F5E5A;line-height:1.5}
 .state-box{text-align:center;padding:60px 20px;color:#aaa;font-size:13px}
+.bilingual-name{font-size:13px;font-weight:600;margin-top:2px;opacity:0.85}
+.step-zh{font-size:12px;color:#888;margin-top:2px;line-height:1.4}
+.warning-box{font-size:12px;font-weight:600;padding:8px 0 4px;display:flex;gap:6px;align-items:flex-start}
+.warning-box .icon{flex-shrink:0}
+.note-list{list-style:none;margin-top:4px}
+.note-list li{padding:4px 0;font-size:12px;color:#5F5E5A;line-height:1.5;display:flex;gap:8px}
+.note-list li .note-num{font-weight:700;flex-shrink:0}
+.note-zh{font-size:11px;color:#aaa;margin-top:1px}
 </style>
 </head>
 <body>
@@ -103,8 +111,14 @@ function renderCards(rows) {
     const seasoning   = rows.filter(r => r['BlockType'] === 'Seasoning');
     const notes       = rows.filter(r => r['BlockType'] === 'Note');
 
+    const bilingualRow = rows.filter(r => r['BlockType'] === 'BilingualName');
+    const zhName = bilingualRow.length ? bilingualRow[0]['ItemText'] : '';
+
     html += `<div class="card">
-      <div class="card-header" style="background:${color}"><h2>${name}</h2></div>
+      <div class="card-header" style="background:${color}">
+        <h2>${name}</h2>
+        ${zhName ? `<div class="bilingual-name" style="color:rgba(255,255,255,0.85)">${zhName}</div>` : ''}
+      </div>
       <div class="card-body">`;
 
     if (ingredients.length) {
@@ -128,7 +142,10 @@ function renderCards(rows) {
         <ul class="step-list">
           ${steps.map(r => `<li>
             <span class="step-num" style="background:${bgLight};color:${color}">${r['StepOrder']}</span>
-            <span>${r['ItemText']}</span>
+            <div>
+              <div>${r['ItemText']}</div>
+              ${r['ItemValue'] ? `<div class="step-zh">${r['ItemValue']}</div>` : ''}
+            </div>
           </li>`).join('')}
         </ul></div>`;
     }
@@ -141,10 +158,32 @@ function renderCards(rows) {
         </ul></div>`;
     }
 
-    if (notes.length) {
-      html += `<div class="block block-note">
-        <div class="note-box"><b>Note:</b> ${notes[0]['ItemText']}</div>
-      </div>`;
+    const warning = rows.filter(r => r['BlockType'] === 'Warning');
+
+    if (warning.length || notes.length) {
+      html += `<div class="block block-note">`;
+      if (warning.length) {
+        html += `<div class="warning-box">
+          <span class="icon">⚠️</span>
+          <div>
+            <div style="color:#5F5E5A;font-size:12px;font-weight:600;">${warning[0]['ItemText']}</div>
+            ${warning[0]['ItemValue'] ? `<div class="note-zh">${warning[0]['ItemValue']}</div>` : ''}
+          </div>
+        </div>`;
+      }
+      if (notes.length) {
+        html += `<ol class="note-list">
+          ${notes.sort((a,b)=>parseInt(a['StepOrder'])-parseInt(b['StepOrder'])).map(r => `
+            <li>
+              <span class="note-num">${r['StepOrder']}.</span>
+              <div>
+                <div>${r['ItemText']}</div>
+                ${r['ItemValue'] ? `<div class="note-zh">${r['ItemValue']}</div>` : ''}
+              </div>
+            </li>`).join('')}
+        </ol>`;
+      }
+      html += `</div>`;
     }
 
     html += `</div></div>`;
