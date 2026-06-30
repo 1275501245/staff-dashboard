@@ -16,35 +16,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .header .sub{font-size:12px;color:#888780;margin-top:4px;line-height:1.5}
 .card{margin:0 auto 14px;background:#fff;border-radius:14px;border:0.5px solid #D3D1C7;overflow:hidden}
 .card-header{padding:14px 20px}
-.card-header h2{font-size:17px;font-weight:700;color:#fff;letter-spacing:-0.2px}
+.card-header h2{font-size:17px;font-weight:500;color:#fff;letter-spacing:-0.2px}
 .card-body{padding:0}
-.block{padding:14px 20px}
-.block+.block{border-top:1px solid rgba(0,0,0,0.06)}
-.block-ingredients{background:#fff}
-.block-container{background:#F5F0E8}
-.block-steps{background:#FFF8F5}
-.block-seasoning{background:#FAECE7}
-.block-note{background:#F5F0E8}
-.block-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.block{padding:14px 20px;background:#fff;border-top:0.5px solid #E8E6E0}
+.block:first-child{border-top:none}
+.block-label{display:inline-block;font-size:11px;font-weight:500;letter-spacing:0.3px;text-transform:uppercase;padding:3px 10px;border-radius:20px;color:#fff;margin-bottom:12px}
 .ingredient-list{list-style:none}
-.ingredient-list li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,0.06);font-size:13px;color:#2C2C2A;line-height:1.4}
+.ingredient-list li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:0.5px solid #F0EDE8;font-size:13px;color:#2C2C2A;line-height:1.4}
 .ingredient-list li:last-child{border-bottom:none}
 .ingredient-list li span:first-child{flex:1}
-.ingredient-list li span:last-child{font-weight:600;white-space:nowrap;text-align:right}
+.ingredient-list li span:last-child{font-weight:500;white-space:nowrap;text-align:right}
 .step-list{list-style:none}
-.step-list li{display:flex;gap:10px;align-items:flex-start;padding:5px 0;font-size:14px;color:#2C2C2A;line-height:1.4}
-.step-num{flex-shrink:0;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
-.container-badge{display:inline-block;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px}
-.note-box{font-size:12px;color:#5F5E5A;line-height:1.5}
+.step-list li{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:0.5px solid #F0EDE8;font-size:13px;color:#2C2C2A;line-height:1.4}
+.step-list li:last-child{border-bottom:none}
+.step-num{flex-shrink:0;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;color:#fff}
+.container-badge{display:inline-block;font-size:12px;font-weight:500;padding:4px 12px;border-radius:20px;border:0.5px solid}
 .state-box{text-align:center;padding:60px 20px;color:#aaa;font-size:13px}
-.bilingual-name{font-size:13px;font-weight:600;margin-top:2px;opacity:0.85}
+.bilingual-name{font-size:12px;font-weight:400;margin-top:3px;opacity:0.8}
 .step-zh{font-size:12px;color:#888;margin-top:2px;line-height:1.4}
-.warning-box{font-size:12px;font-weight:600;padding:8px 0 4px;display:flex;gap:6px;align-items:flex-start}
-.warning-box .icon{flex-shrink:0}
-.note-list{list-style:none;margin-top:4px}
-.note-list li{padding:4px 0;font-size:12px;color:#5F5E5A;line-height:1.5;display:flex;gap:8px}
-.note-list li .note-num{font-weight:700;flex-shrink:0}
-.note-zh{font-size:11px;color:#aaa;margin-top:1px}
+.warning-box{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:0.5px solid #F0EDE8}
+.warning-box:last-child{border-bottom:none}
+.note-list{list-style:none;margin-top:0}
+.note-list li{padding:6px 0;font-size:13px;color:#2C2C2A;line-height:1.5;display:flex;gap:8px;border-bottom:0.5px solid #F0EDE8}
+.note-list li:last-child{border-bottom:none}
+.note-list li .note-num{font-weight:500;flex-shrink:0}
+.note-zh{font-size:12px;color:#888;margin-top:2px}
 </style>
 </head>
 <body>
@@ -122,26 +118,26 @@ function renderCards(rows) {
       <div class="card-body">`;
 
     if (ingredients.length) {
-      html += `<div class="block block-ingredients">
-        <div class="block-label" style="color:${color}">Ingredients</div>
+      html += `<div class="block">
+        <div class="block-label" style="background:${color}">Ingredients</div>
         <ul class="ingredient-list">
           ${ingredients.map(r => `<li><span>${r['ItemText']}</span><span style="color:${color}">${r['ItemValue']}</span></li>`).join('')}
         </ul></div>`;
     }
 
     if (container.length) {
-      html += `<div class="block block-container">
-        <div class="block-label" style="color:${color}">Container</div>
-        <span class="container-badge" style="color:${color};background:${bgLight}">${container[0]['ItemText']}</span>
+      html += `<div class="block">
+        <div class="block-label" style="background:${color}">Container</div>
+        <span class="container-badge" style="color:${color};border-color:${color}">${container[0]['ItemText']}</span>
       </div>`;
     }
 
     if (steps.length) {
-      html += `<div class="block block-steps">
-        <div class="block-label" style="color:${color}">Steps</div>
+      html += `<div class="block">
+        <div class="block-label" style="background:${color}">Steps</div>
         <ul class="step-list">
           ${steps.map(r => `<li>
-            <span class="step-num" style="background:${bgLight};color:${color}">${r['StepOrder']}</span>
+            <span class="step-num" style="background:${color}">${r['StepOrder']}</span>
             <div>
               <div>${r['ItemText']}</div>
               ${r['ItemValue'] ? `<div class="step-zh">${r['ItemValue']}</div>` : ''}
@@ -151,8 +147,8 @@ function renderCards(rows) {
     }
 
     if (seasoning.length) {
-      html += `<div class="block block-seasoning">
-        <div class="block-label" style="color:${color}">Seasoning</div>
+      html += `<div class="block">
+        <div class="block-label" style="background:${color}">Seasoning</div>
         <ul class="ingredient-list">
           ${seasoning.map(r => `<li><span>${r['ItemText']}</span><span style="color:${color}">${r['ItemValue']}</span></li>`).join('')}
         </ul></div>`;
@@ -161,12 +157,13 @@ function renderCards(rows) {
     const warning = rows.filter(r => r['BlockType'] === 'Warning');
 
     if (warning.length || notes.length) {
-      html += `<div class="block block-note">`;
+      html += `<div class="block">
+        <div class="block-label" style="background:${color}">Notes</div>`;
       if (warning.length) {
         html += `<div class="warning-box">
-          <span class="icon">⚠️</span>
+          <span style="flex-shrink:0;">⚠️</span>
           <div>
-            <div style="color:#5F5E5A;font-size:12px;font-weight:600;">${warning[0]['ItemText']}</div>
+            <div style="font-size:13px;color:#2C2C2A;">${warning[0]['ItemText']}</div>
             ${warning[0]['ItemValue'] ? `<div class="note-zh">${warning[0]['ItemValue']}</div>` : ''}
           </div>
         </div>`;
