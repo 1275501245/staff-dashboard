@@ -126,7 +126,7 @@ const SHEET_ID   = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
 const SHEET_NAME = 'InventoryManagement';
 
 // Sections rendered as sequential script lines instead of bulleted lists
-const SCRIPT_SECTIONS = ['customer note template', 'phone script'];
+const SCRIPT_CATEGORY_PREFIXES = ['customer note template', 'phone script'];
 const STATUS_LABELS = {
   'finished': 'finished',
   'almost finished': 'almost',
@@ -169,11 +169,12 @@ function render(rows) {
   sectionOrder.forEach((sec, secIdx) => {
     const categories = sectionMap[sec];
     const totalItems = Object.values(categories).reduce((n, arr) => n + arr.length, 0);
-    const isScript = SCRIPT_SECTIONS.includes(sec.toLowerCase());
 
     let bodyHtml = '';
     Object.entries(categories).forEach(([cat, items]) => {
-      const statusClass = STATUS_LABELS[cat.toLowerCase()];
+      const catLower = cat.toLowerCase();
+      const statusClass = STATUS_LABELS[catLower];
+      const isScript = SCRIPT_CATEGORY_PREFIXES.some(p => catLower.startsWith(p));
       if (isScript) {
         bodyHtml += `
           <div class="script-block">
