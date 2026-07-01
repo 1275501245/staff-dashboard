@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rice Bowls &amp; Noodles Guide</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F5F0E8;color:#1a1a1a;min-height:100vh}
+.page{max-width:560px;margin:0 auto;padding:1.25rem 1rem 4rem}
+.topbar{display:flex;align-items:center;margin-bottom:1.25rem}
+.back{display:flex;align-items:center;gap:4px;font-size:13px;color:#666;text-decoration:none}
+.back svg{width:16px;height:16px}
+.header{border-bottom:1.5px solid #2C2C2A;padding-bottom:12px;margin-bottom:20px}
+.header h1{font-size:20px;font-weight:700;color:#2C2C2A;letter-spacing:-0.3px;line-height:1.3}
+.header .sub{font-size:12px;color:#888780;margin-top:4px;line-height:1.5}
+.card{margin:0 auto 14px;background:#fff;border-radius:14px;border:0.5px solid #D3D1C7;overflow:hidden}
+.card-header{padding:14px 20px}
+.card-header h2{font-size:17px;font-weight:500;color:#fff;letter-spacing:-0.2px}
+.block{padding:14px 20px;background:#fff;border-top:0.5px solid #E8E6E0}
+.block:first-child{border-top:none}
+.block-label{display:inline-block;font-size:11px;font-weight:500;letter-spacing:0.3px;text-transform:uppercase;padding:3px 10px;border-radius:20px;color:#fff;margin-bottom:12px}
+.kv-list{list-style:none}
+.kv-list li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:0.5px solid #F0EDE8;font-size:13px;color:#2C2C2A;line-height:1.4}
+.kv-list li:last-child{border-bottom:none}
+.kv-list li span:first-child{flex:1}
+.kv-list li span:last-child{font-weight:500;white-space:nowrap;text-align:right}
+.step-list{list-style:none}
+.step-list li{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:0.5px solid #F0EDE8;font-size:13px;color:#2C2C2A;line-height:1.4}
+.step-list li:last-child{border-bottom:none}
+.step-num{flex-shrink:0;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;color:#fff}
+.bilingual-name{font-size:12px;font-weight:400;margin-top:3px;opacity:0.8}
+.state-box{text-align:center;padding:60px 20px;color:#aaa;font-size:13px}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a href="/sop" class="back">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 12L6 8l4-4"/></svg>
+      Back
+    </a>
+  </div>
+  <div class="header">
+    <h1>Rice Bowls &amp; Noodles</h1>
+    <div class="sub">Preparation &amp; serving reference</div>
+  </div>
+  <div id="cards"><div class="state-box">Loading…</div></div>
+</div>
+
+<script>
+const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
+const COMMON_COLOR = '#5F5E5A';
+
+async function fetchSheet(name) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}&headers=1`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  if (!json.table?.rows?.length) return [];
+  const cols = json.table.cols.map(c => c.label);
+  return json.table.rows.map(r => {
+    const obj = {};
+    cols.forEach((col, i) => { obj[col] = r.c[i]?.v ?? r.c[i]?.f ?? ''; });
+    return obj;
+  });
+}
+
+function renderCommonCard(commonRows) {
+  const steps   = commonRows.filter(r => r['BlockType'] === 'Steps').sort((a,b) => parseInt(a['StepOrder']) - parseInt(b['StepOrder']));
+  const topping = commonRows.filter(r => r['BlockType'] === 'Topping');
+  const pack    = commonRows.filter(r => r['BlockType'] === 'Pack');
+
+  let html = `<div class="card">
+    <div class="card-header" style="background:${COMMON_COLOR}"><h2>Common to all items</h2></div>`;
+
+  if (steps.length) {
+    html += `<div class="block">
+      <div class="block-label" style="background:${COMMON_COLOR}">Steps 1–${steps.length}</div>
+      <ul class="step-list">
+        ${steps.map(r => `<li>
+          <span class="step-num" style="background:${COMMON_COLOR}">${r['StepOrder']}</span>
+          <div>${r['ItemText']}</div>
+        </li>`).join('')}
+      </ul></div>`;
+  }
+
+  if (topping.length) {
+    html += `<div class="block">
+      <div class="block-label" style="background:${COMMON_COLOR}">Topping</div>
+      <ul class="kv-list">
+        ${topping.map(r => `<li><span>${r['ItemText']}</span><span>${r['ItemValue']}</span></li>`).join('')}
+      </ul></div>`;
+  }
+
+  if (pack.length) {
+    html += `<div class="block">
+      <div class="block-label" style="background:${COMMON_COLOR}">Pack</div>
+      <ul class="kv-list">
+        ${pack.map(r => `<li><span>${r['ItemText']}</span><span>${r['ItemValue']}</span></li>`).join('')}
+      </ul></div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function renderItemCard(name, rows) {
+  const color = rows[0]['Color'] || '#555';
+  const bilingual = rows.filter(r => r['BlockType'] === 'BilingualName');
+  const zhName = bilingual.length ? bilingual[0]['ItemText'] : '';
+  const main   = rows.filter(r => r['BlockType'] === 'Main');
+  const staple = rows.filter(r => r['BlockType'] === 'Staple');
+  const side   = rows.filter(r => r['BlockType'] === 'Side');
+  const steps  = rows.filter(r => r['BlockType'] === 'Steps').sort((a,b) => parseInt(a['StepOrder']) - parseInt(b['StepOrder']));
+
+  let html = `<div class="card">
+    <div class="card-header" style="background:${color}">
+      <h2>${name}</h2>
+      ${zhName ? `<div class="bilingual-name" style="color:rgba(255,255,255,0.85)">${zhName}</div>` : ''}
+    </div>`;
+
+  if (main.length || staple.length) {
+    html += `<div class="block">
+      <div class="block-label" style="background:${color}">Main &amp; Staple</div>
+      <ul class="kv-list">
+        ${main.map(r => `<li><span>${r['ItemText']}</span><span style="color:${color}">${r['ItemValue']}</span></li>`).join('')}
+        ${staple.map(r => `<li><span>${r['ItemText']}</span><span style="color:${color}">${r['ItemValue']}</span></li>`).join('')}
+      </ul></div>`;
+  }
+
+  if (side.length) {
+    html += `<div class="block">
+      <div class="block-label" style="background:${color}">Side</div>
+      <ul class="kv-list">
+        ${side.map(r => `<li><span>${r['ItemText']}</span><span style="color:${color}">${r['ItemValue']}</span></li>`).join('')}
+      </ul></div>`;
+  }
+
+  if (steps.length) {
+    const first = steps[0]['StepOrder'];
+    html += `<div class="block">
+      <div class="block-label" style="background:${color}">Steps (cont. from ${first})</div>
+      <ul class="step-list">
+        ${steps.map(r => `<li>
+          <span class="step-num" style="background:${color}">${r['StepOrder']}</span>
+          <div>${r['ItemText']}</div>
+        </li>`).join('')}
+      </ul></div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function renderAll(rows) {
+  const commonRows = rows.filter(r => r['ItemName'] === '_Common');
+  const itemRows = rows.filter(r => r['ItemName'] !== '_Common');
+
+  const groups = {};
+  const order = [];
+  itemRows.forEach(r => {
+    const name = r['ItemName'];
+    if (!groups[name]) { groups[name] = []; order.push({ name, sort: parseInt(r['SortOrder']) || 999 }); }
+    groups[name].push(r);
+  });
+  order.sort((a,b) => a.sort - b.sort);
+
+  let html = commonRows.length ? renderCommonCard(commonRows) : '';
+  order.forEach(({ name }) => { html += renderItemCard(name, groups[name]); });
+
+  document.getElementById('cards').innerHTML = html;
+}
+
+async function init() {
+  try {
+    const rows = await fetchSheet('RiceBowlGuide');
+    if (!rows.length) {
+      document.getElementById('cards').innerHTML = '<div class="state-box">No data found in RiceBowlGuide sheet.</div>';
+      return;
+    }
+    renderAll(rows);
+  } catch (e) {
+    document.getElementById('cards').innerHTML = '<div class="state-box">⚠️ Failed to load. Check Sheet sharing settings.</div>';
+  }
+}
+
+init();
+</script>
+</body>
+</html>
