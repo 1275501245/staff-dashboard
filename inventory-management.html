@@ -73,14 +73,18 @@ body {
 /* Script-style rendering for Customer Note Template / Phone Script */
 .script-block {
   background: #fff; border: 1px solid #e8e6e1;
-  border-radius: var(--r, 10px); padding: 11px 12px; margin-bottom: 10px;
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;
 }
-.script-block .category-label {
-  display: inline-block; color: #7a6f5f; background: #f4f3f0;
-  padding: 2px 8px; border-radius: 99px; margin-bottom: 9px;
+.script-title {
+  font-size: 13px; font-weight: 700; color: #1a1917; margin-bottom: 10px;
+}
+.script-group { margin-bottom: 12px; }
+.script-group:last-child { margin-bottom: 0; }
+.script-sub-label {
+  font-size: 12px; font-weight: 600; color: #9a9186; margin-bottom: 4px;
 }
 .script-line {
-  font-size: 13.5px; line-height: 1.6; color: #333; padding: 3px 0;
+  font-size: 13.5px; line-height: 1.6; color: #333; padding: 2px 0;
 }
 
 .status-block {
@@ -151,6 +155,25 @@ async function load() {
   }
 }
 
+function groupCategories(categories) {
+  const scriptGroups = {}; // master title -> [{sub, items}]
+  const rest = {};
+  Object.entries(categories).forEach(([cat, items]) => {
+    const catLower = cat.toLowerCase();
+    const isScript = SCRIPT_CATEGORY_PREFIXES.some(p => catLower.startsWith(p));
+    if (isScript) {
+      const dashIdx = cat.indexOf(' – ');
+      const master = dashIdx > -1 ? cat.slice(0, dashIdx) : cat;
+      const sub = dashIdx > -1 ? cat.slice(dashIdx + 3) : null;
+      if (!scriptGroups[master]) scriptGroups[master] = [];
+      scriptGroups[master].push({ sub, items });
+    } else {
+      rest[cat] = items;
+    }
+  });
+  return { scriptGroups, rest };
+}
+
 function render(rows) {
   const sectionMap = {};
   const sectionOrder = [];
@@ -165,19 +188,12 @@ function render(rows) {
   sectionOrder.forEach((sec, secIdx) => {
     const categories = sectionMap[sec];
     const totalItems = Object.values(categories).reduce((n, arr) => n + arr.length, 0);
+    const { scriptGroups, rest } = groupCategories(categories);
 
     let bodyHtml = '';
-    Object.entries(categories).forEach(([cat, items]) => {
-      const catLower = cat.toLowerCase();
-      const statusClass = STATUS_LABELS[catLower];
-      const isScript = SCRIPT_CATEGORY_PREFIXES.some(p => catLower.startsWith(p));
-      if (isScript) {
-        bodyHtml += `
-          <div class="script-block">
-            <div class="category-label">${cat}</div>
-            ${items.map(i => `<div class="script-line">${i}</div>`).join('')}
-          </div>`;
-      } else if (statusClass) {
+    Object.entries(rest).forEach(([cat, items]) => {
+      const statusClass = STATUS_LABELS[cat.toLowerCase()];
+      if (statusClass) {
         bodyHtml += `
           <div class="status-block ${statusClass}">
             <div class="status-label">${cat}</div>
@@ -190,6 +206,17 @@ function render(rows) {
             ${items.map(i => `<div class="item-row"><span class="item-dot"></span><span>${i}</span></div>`).join('')}
           </div>`;
       }
+    });
+    Object.entries(scriptGroups).forEach(([master, groups]) => {
+      bodyHtml += `
+        <div class="script-block">
+          <div class="script-title">${master}</div>
+          ${groups.map(g => `
+            <div class="script-group">
+              ${g.sub ? `<div class="script-sub-label">${g.sub}</div>` : ''}
+              ${g.items.map(i => `<div class="script-line">${i}</div>`).join('')}
+            </div>`).join('')}
+        </div>`;
     });
 
     html += `
