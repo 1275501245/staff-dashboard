@@ -12,6 +12,7 @@
     { "src": "/admin", "dest": "/admin-home.html" },
     { "src": "/opening", "dest": "/opening.html" },
     { "src": "/closing", "dest": "/closing.html" },
+    { "src": "/handover", "dest": "/handover.html" },
     { "src": "/accounts", "dest": "/accounts.html" },
     { "src": "/rota", "dest": "/rota.html" },
     { "src": "/sop", "dest": "/sop.html" },
