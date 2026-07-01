@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stocktake Guide</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f4f3f0;
+  color: #1a1917;
+  padding: 16px;
+  padding-bottom: 40px;
+}
+
+.header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+.back-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1.5px solid #e0ddd8; background: #fff;
+  font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: #555; flex-shrink: 0; text-decoration: none;
+}
+.header-text h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+.header-text p  { font-size: 12px; color: #888; margin-top: 1px; }
+
+.section-card {
+  background: #fff; border: 1.5px solid #e8e6e1;
+  border-radius: 14px; margin-bottom: 10px; overflow: hidden;
+}
+
+.sec-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 15px 16px; gap: 12px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; user-select: none;
+}
+.sec-title { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; }
+.sec-count { font-size: 12px; color: #aaa; margin-top: 2px; }
+
+.chevron {
+  width: 22px; height: 22px; flex-shrink: 0; color: #aaa;
+  transition: transform 0.25s ease;
+}
+.section-card.open .chevron { transform: rotate(90deg); }
+
+.sec-body {
+  display: none;
+  border-top: 1px solid #f0ece6;
+  padding: 4px 16px 16px;
+}
+.section-card.open .sec-body { display: block; }
+
+.category-block { margin-top: 14px; }
+.category-block:first-child { margin-top: 12px; }
+.category-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: #888; margin-bottom: 6px;
+}
+
+.item-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 5px 0;
+  font-size: 13.5px; line-height: 1.55; color: #333;
+}
+.item-dot { width: 5px; height: 5px; border-radius: 50%; background: #ccc; flex-shrink: 0; margin-top: 8px; }
+
+.intro-line {
+  font-size: 13px; line-height: 1.55; color: #7a7568; font-style: italic;
+  margin-bottom: 12px;
+}
+
+.steps-panel {
+  background: #fff; border: 1px solid #e8e6e1; border-radius: 10px;
+  padding: 11px 12px;
+}
+.steps-panel .category-label { color: #aaa; margin-bottom: 8px; }
+
+/* Numbered rendering for "Steps" categories */
+.step-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 6px 0;
+  font-size: 13.5px; line-height: 1.55; color: #333;
+}
+.step-num {
+  width: 20px; height: 20px; border-radius: 50%; background: #1a1917; color: #fff;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+
+.state-msg { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; line-height: 1.6; }
+.state-msg .emoji { font-size: 32px; display: block; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back-btn" href="/sop">&#8592;</a>
+  <div class="header-text">
+    <h1>Stocktake Guide</h1>
+  </div>
+</div>
+
+<div id="content">
+  <div class="state-msg"><span class="emoji">⏳</span>Loading guide…</div>
+</div>
+
+<script>
+const SHEET_ID   = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
+const SHEET_NAME = 'StocktakeGuide';
+
+async function load() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&headers=1`;
+  try {
+    const res  = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);?\s*$/)[1]);
+    const rows = json.table.rows
+      .map(r => ({
+        section:  (r.c[0]?.v || '').trim(),
+        category: (r.c[1]?.v || '').trim(),
+        item:     (r.c[2]?.v || '').trim(),
+      }))
+      .filter(r => r.section && r.item);
+    render(rows);
+  } catch (e) {
+    document.getElementById('content').innerHTML =
+      '<div class="state-msg"><span class="emoji">⚠️</span>Failed to load guide.<br>Check your connection and try again.</div>';
+  }
+}
+
+function render(rows) {
+  const sectionMap = {};
+  const sectionOrder = [];
+  rows.forEach(({ section, category, item }) => {
+    if (!sectionMap[section]) { sectionMap[section] = {}; sectionOrder.push(section); }
+    const cat = category || 'General';
+    if (!sectionMap[section][cat]) sectionMap[section][cat] = [];
+    sectionMap[section][cat].push(item);
+  });
+
+  let html = '';
+  sectionOrder.forEach((sec, secIdx) => {
+    const categories = sectionMap[sec];
+    const totalItems = Object.values(categories).reduce((n, arr) => n + arr.length, 0);
+
+    let bodyHtml = '';
+    Object.entries(categories).forEach(([cat, items]) => {
+      const catLower = cat.toLowerCase();
+      if (catLower === 'when') {
+        bodyHtml += items.map(i => `<div class="intro-line">${i}</div>`).join('');
+      } else if (catLower === 'steps') {
+        bodyHtml += `
+          <div class="steps-panel">
+            <div class="category-label">Steps</div>
+            ${items.map((i, n) => `<div class="step-row"><span class="step-num">${n + 1}</span><span>${i}</span></div>`).join('')}
+          </div>`;
+      } else {
+        bodyHtml += `
+          <div class="category-block">
+            <div class="category-label">${cat}</div>
+            ${items.map(i => `<div class="item-row"><span class="item-dot"></span><span>${i}</span></div>`).join('')}
+          </div>`;
+      }
+    });
+
+    html += `
+      <div class="section-card ${secIdx === 0 ? 'open' : ''}" id="sec-${secIdx}">
+        <div class="sec-header" onclick="toggle(${secIdx})">
+          <div>
+            <div class="sec-title">${sec}</div>
+            <div class="sec-count">${totalItems} item${totalItems !== 1 ? 's' : ''}</div>
+          </div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none">
+            <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="sec-body">${bodyHtml}</div>
+      </div>`;
+  });
+
+  document.getElementById('content').innerHTML = html;
+}
+
+function toggle(idx) {
+  document.getElementById('sec-' + idx).classList.toggle('open');
+}
+
+load();
+</script>
+</body>
+</html>
