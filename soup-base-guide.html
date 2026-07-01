@@ -41,6 +41,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .note-list li:last-child{border-bottom:none}
 .note-list li .note-num{font-weight:500;flex-shrink:0}
 .note-zh{font-size:12px;color:#888;margin-top:2px}
+.variant-toggle{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.variant-btn{font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;border:1px solid var(--c);background:transparent;cursor:pointer;color:var(--c)}
+.variant-btn.active{background:var(--c);color:#fff}
 </style>
 </head>
 <body>
@@ -82,6 +85,14 @@ function hexToRgb(hex, alpha) {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
+function switchVariant(cardId, variant, btnEl) {
+  document.querySelectorAll(`.variant-list[data-card="${cardId}"]`).forEach(el => {
+    el.style.display = (el.dataset.variant === variant) ? '' : 'none';
+  });
+  btnEl.parentElement.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+}
+
 function renderCards(rows) {
   // Group by SoupName, sorted by SortOrder
   const groups = {};
@@ -118,11 +129,33 @@ function renderCards(rows) {
       <div class="card-body">`;
 
     if (ingredients.length) {
+      const byVariant = {};
+      const variantOrder = [];
+      ingredients.forEach(r => {
+        const v = r['Variant'] || '';
+        if (!byVariant[v]) { byVariant[v] = []; variantOrder.push(v); }
+        byVariant[v].push(r);
+      });
+      const cardId = name.replace(/[^a-zA-Z0-9]/g, '-');
+
       html += `<div class="block">
-        <div class="block-label" style="background:${color}">Ingredients</div>
-        <ul class="ingredient-list">
+        <div class="block-label" style="background:${color}">Ingredients</div>`;
+
+      if (variantOrder.length > 1) {
+        html += `<div class="variant-toggle" style="--c:${color}">
+          ${variantOrder.map((v, i) => `<button class="variant-btn ${i === 0 ? 'active' : ''}" onclick="switchVariant('${cardId}','${v.replace(/'/g, "\\'")}',this)">${v}</button>`).join('')}
+        </div>`;
+        variantOrder.forEach((v, i) => {
+          html += `<ul class="ingredient-list variant-list" data-card="${cardId}" data-variant="${v}" style="${i === 0 ? '' : 'display:none'}">
+            ${byVariant[v].map(r => `<li><span>${r['ItemText']}</span><span style="color:${color}">${r['ItemValue']}</span></li>`).join('')}
+          </ul>`;
+        });
+      } else {
+        html += `<ul class="ingredient-list">
           ${ingredients.map(r => `<li><span>${r['ItemText']}</span><span style="color:${color}">${r['ItemValue']}</span></li>`).join('')}
-        </ul></div>`;
+        </ul>`;
+      }
+      html += `</div>`;
     }
 
     if (container.length) {
