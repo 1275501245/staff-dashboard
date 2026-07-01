@@ -37,9 +37,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="page-title">SOP</div>
   <div class="page-sub">Standards & procedures</div>
 
-  <div class="section-label">Guides</div>
-  <div class="list" id="guides-list">
-    <div class="list-item"><div class="item-text"><div class="item-desc">Loading…</div></div></div>
+  <div id="guides-sections">
+    <div class="section-label">Guides</div>
+    <div class="list"><div class="list-item"><div class="item-text"><div class="item-desc">Loading…</div></div></div></div>
   </div>
 </div>
 
@@ -59,27 +59,39 @@ async function load() {
         name: (r.c[1]?.v || '').trim(),
         desc: (r.c[2]?.v || '').trim(),
         url:  (r.c[3]?.v || '').trim(),
+        category: (r.c[4]?.v || 'Guides').trim() || 'Guides',
       }))
       .filter(r => r.name && r.url);
     render(rows);
   } catch (e) {
-    document.getElementById('guides-list').innerHTML =
-      '<div class="list-item"><div class="item-text"><div class="item-desc">Failed to load guides.</div></div></div>';
+    document.getElementById('guides-sections').innerHTML =
+      '<div class="section-label">Guides</div><div class="list"><div class="list-item"><div class="item-text"><div class="item-desc">Failed to load guides.</div></div></div></div>';
   }
 }
 
 function render(rows) {
-  document.getElementById('guides-list').innerHTML = rows.map(r => `
-    <a href="${r.url}" class="list-item">
-      <div class="item-icon">${r.icon}</div>
-      <div class="item-text">
-        <div class="item-name">${r.name}</div>
-        <div class="item-desc">${r.desc}</div>
-      </div>
-      <div class="item-arrow">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 4l4 4-4 4"/></svg>
-      </div>
-    </a>`).join('');
+  const groups = {};
+  const order = [];
+  rows.forEach(r => {
+    if (!groups[r.category]) { groups[r.category] = []; order.push(r.category); }
+    groups[r.category].push(r);
+  });
+
+  document.getElementById('guides-sections').innerHTML = order.map(cat => `
+    <div class="section-label">${cat}</div>
+    <div class="list">
+      ${groups[cat].map(r => `
+        <a href="${r.url}" class="list-item">
+          <div class="item-icon">${r.icon}</div>
+          <div class="item-text">
+            <div class="item-name">${r.name}</div>
+            <div class="item-desc">${r.desc}</div>
+          </div>
+          <div class="item-arrow">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 4l4 4-4 4"/></svg>
+          </div>
+        </a>`).join('')}
+    </div>`).join('');
 }
 
 load();
