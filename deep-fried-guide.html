@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep-Fried Time Guide</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f4f3f0; color: #1a1917; padding: 16px; padding-bottom: 40px;
+  max-width: 560px; margin: 0 auto;
+}
+.header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.back-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid #e0ddd8; background: #fff;
+  font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: #555; flex-shrink: 0; text-decoration: none;
+}
+.header-text h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+.header-text p { font-size: 12px; color: #888; margin-top: 1px; }
+
+.section-card { background: #fff; border: 1.5px solid #e8e6e1; border-radius: 14px; margin-bottom: 10px; overflow: hidden; }
+.sec-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; gap: 12px; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; }
+.sec-title { font-size: 15px; font-weight: 700; }
+.sec-count { font-size: 12px; color: #aaa; margin-top: 2px; }
+.chevron { width: 22px; height: 22px; flex-shrink: 0; color: #aaa; transition: transform 0.25s ease; }
+.section-card.open .chevron { transform: rotate(90deg); }
+.sec-body { display: none; border-top: 1px solid #f0ece6; padding: 6px 16px 4px; }
+.section-card.open .sec-body { display: block; }
+
+.item-row { padding: 9px 0; border-bottom: 1px solid #f0ece6; }
+.item-row:last-child { border-bottom: none; }
+.item-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.item-en { font-size: 13.5px; color: #1a1917; }
+.item-zh { font-size: 11.5px; color: #999; margin-top: 1px; }
+.item-value { font-size: 13.5px; font-weight: 700; white-space: nowrap; }
+.item-notes { font-size: 11.5px; color: #888; margin-top: 3px; }
+
+.state-msg { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; line-height: 1.6; }
+.state-msg .emoji { font-size: 32px; display: block; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back-btn" id="back-btn" href="/sop">&#8592;</a>
+  <div class="header-text">
+    <h1 id="page-title">Loading…</h1>
+    <p id="page-sub"></p>
+  </div>
+</div>
+
+<div id="content"><div class="state-msg"><span class="emoji">⏳</span>Loading…</div></div>
+
+<script>
+const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
+const SHEET_NAME = 'ReferenceGuides';
+const META_SHEET_NAME = 'GuideMeta';
+const GUIDE_NAME = 'DeepFried';
+
+async function fetchGviz(sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&headers=1`;
+  const res = await fetch(url);
+  const text = await res.text();
+  return JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);?\s*$/)[1]);
+}
+
+async function fetchMeta() {
+  const json = await fetchGviz(META_SHEET_NAME);
+  const row = json.table.rows.find(r => (r.c[0]?.v || '').trim() === GUIDE_NAME);
+  if (!row) return { titleEn: 'Guide', titleZh: '', accent: '#888', backUrl: '/sop' };
+  return {
+    titleEn: (row.c[1]?.v || 'Guide').trim(),
+    titleZh: (row.c[2]?.v || '').trim(),
+    accent: (row.c[3]?.v || '#888').trim(),
+    backUrl: (row.c[4]?.v || '/sop').trim(),
+  };
+}
+
+async function fetchRows() {
+  const json = await fetchGviz(SHEET_NAME);
+  return json.table.rows
+    .map(r => ({
+      guide: (r.c[0]?.v || '').trim(),
+      group: (r.c[1]?.v || '').trim(),
+      groupSort: parseInt(r.c[2]?.v) || 999,
+      en: (r.c[3]?.v || '').trim(),
+      zh: (r.c[4]?.v || '').trim(),
+      value: (r.c[5]?.v || '').trim(),
+      notes: (r.c[6]?.v || '').trim(),
+    }))
+    .filter(r => r.guide === GUIDE_NAME && r.en);
+}
+
+async function init() {
+  try {
+    const [meta, rows] = await Promise.all([fetchMeta(), fetchRows()]);
+    document.getElementById('page-title').textContent = meta.titleEn;
+    document.title = meta.titleEn;
+    document.getElementById('page-sub').textContent = meta.titleZh;
+    document.getElementById('back-btn').setAttribute('href', meta.backUrl);
+    render(rows, meta.accent);
+  } catch (e) {
+    document.getElementById('content').innerHTML =
+      '<div class="state-msg"><span class="emoji">⚠️</span>Failed to load guide.<br>Check your connection and try again.</div>';
+  }
+}
+
+function render(rows, accent) {
+  const groups = {};
+  const order = [];
+  rows.forEach(r => {
+    if (!groups[r.group]) { groups[r.group] = { sort: r.groupSort, items: [] }; order.push(r.group); }
+    groups[r.group].items.push(r);
+  });
+  order.sort((a, b) => groups[a].sort - groups[b].sort);
+
+  let html = '';
+  order.forEach((g, idx) => {
+    const items = groups[g].items;
+    html += `
+      <div class="section-card ${idx === 0 ? 'open' : ''}" id="sec-${idx}">
+        <div class="sec-header" onclick="toggle(${idx})">
+          <div>
+            <div class="sec-title">${g}</div>
+            <div class="sec-count">${items.length} item${items.length !== 1 ? 's' : ''}</div>
+          </div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none">
+            <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="sec-body">
+          ${items.map(r => `
+            <div class="item-row">
+              <div class="item-top">
+                <div><div class="item-en">${r.en}</div>${r.zh ? `<div class="item-zh">${r.zh}</div>` : ''}</div>
+                <div class="item-value" style="color:${accent}">${r.value}</div>
+              </div>
+              ${r.notes ? `<div class="item-notes">${r.notes}</div>` : ''}
+            </div>`).join('')}
+        </div>
+      </div>`;
+  });
+
+  document.getElementById('content').innerHTML = html;
+}
+
+function toggle(idx) {
+  document.getElementById('sec-' + idx).classList.toggle('open');
+}
+
+init();
+</script>
+</body>
+</html>
