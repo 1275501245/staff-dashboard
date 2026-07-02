@@ -26,6 +26,7 @@
     { "src": "/use-by-guide", "dest": "/use-by-guide.html" },
     { "src": "/label-guide", "dest": "/label-guide.html" },
     { "src": "/set-meal", "dest": "/set-meal.html" },
+    { "src": "/product-guide", "dest": "/product-guide.html" },
     { "src": "/operations-rota", "dest": "/operations-rota.html" },
     { "src": "/orders", "dest": "/orders.html" },
     { "src": "/order", "dest": "/order.html" },
