@@ -23,12 +23,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .person-tab { padding: 3px 12px; border-radius: 20px; font-size: 11px; cursor: pointer; border: 1px solid #e0e0e0; color: #666; background: white; }
 .person-tab.active { background: #EEEDFE; color: #3C3489; border-color: #AFA9EC; font-weight: 500; }
 
-.stat-row { display: flex; gap: 6px; margin-bottom: 12px; }
+.stat-row { display: flex; gap: 6px; margin-bottom: 10px; }
 .stat { background: white; border-radius: 8px; padding: 7px 8px; flex: 1; border: 1px solid #efefef; }
 .stat-val { font-size: 15px; font-weight: 600; color: #1a1a1a; }
 .stat-val small { font-size: 10px; font-weight: 400; color: #aaa; }
 .stat-lab { font-size: 9px; color: #aaa; margin-top: 1px; display: flex; align-items: center; gap: 3px; white-space: nowrap; }
 .sdot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-bottom: 10px; padding: 0 2px; }
+.legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #888; }
+.ldot { width: 8px; height: 8px; border-radius: 3px; display: inline-block; }
 
 /* ===== calendar ===== */
 .cal { background: white; border-radius: 10px; border: 1px solid #efefef; overflow: hidden; }
@@ -57,18 +61,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .b-site { font-size: 10px; font-weight: 600; line-height: 1.2; }
 .b-time { font-size: 8px; line-height: 1.2; }
 .b-h { font-size: 8px; line-height: 1.2; }
-.blk-站岗 { background: #EEEDFE; }
-.blk-站岗 .b-site { color: #3C3489; }
-.blk-站岗 .b-time, .blk-站岗 .b-h { color: #534AB7; }
-.blk-检查培训 { background: #E1F5EE; }
-.blk-检查培训 .b-site { color: #085041; }
-.blk-检查培训 .b-time, .blk-检查培训 .b-h { color: #0F6E56; }
-.blk-线上 { background: #E6F1FB; }
-.blk-线上 .b-site { color: #0C447C; }
-.blk-线上 .b-time, .blk-线上 .b-h { color: #185FA5; }
-.blk-note-dot { position: absolute; top: 3px; right: 3px; width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: 0.5; }
+.blk-note-dot { position: absolute; top: 3px; right: 3px; width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: 0.55; }
 
-.off-chip { position: absolute; top: 2px; left: 2px; right: 2px; border: 1px dashed #ddd; border-radius: 5px; padding: 2px 0; text-align: center; font-size: 8px; color: #bbb; letter-spacing: 1px; background: #fafafa; }
+.u-chip { position: absolute; left: 2px; right: 2px; border-radius: 5px; padding: 2px 3px; font-size: 9px; font-weight: 500; text-align: center; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.u-chip:active { opacity: 0.75; }
+
+.off-chip { position: absolute; left: 2px; right: 2px; border: 1px dashed #ddd; border-radius: 5px; padding: 2px 0; text-align: center; font-size: 8px; color: #bbb; letter-spacing: 1px; background: #fafafa; }
 .off-full { position: absolute; top: 2px; bottom: 2px; left: 2px; right: 2px; border: 1px dashed #e5e5e5; border-radius: 5px; background: #fafafa; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #ccc; letter-spacing: 2px; writing-mode: vertical-rl; }
 
 /* ===== detail card ===== */
@@ -77,11 +75,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .detail-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
 .detail-site { font-size: 13px; font-weight: 600; }
 .detail-close { font-size: 14px; color: #ccc; cursor: pointer; padding: 0 4px; }
-.detail-row { font-size: 11px; color: #666; margin-top: 3px; display: flex; gap: 6px; align-items: center; }
+.detail-row { font-size: 11px; color: #666; margin-top: 3px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .tag { font-size: 9px; padding: 1px 6px; border-radius: 10px; }
 .tag-站岗 { background: #EEEDFE; color: #3C3489; }
 .tag-检查培训 { background: #E1F5EE; color: #085041; }
 .tag-线上 { background: #E6F1FB; color: #0C447C; }
+.tag-线下 { background: #E8EDF2; color: #33475B; }
 .tag-OFF { background: #f0f0f0; color: #aaa; }
 .detail-note { font-size: 11px; color: #999; margin-top: 5px; padding-top: 5px; border-top: 1px solid #f5f5f5; line-height: 1.5; }
 
@@ -111,6 +110,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="stat"><div class="stat-val">—</div><div class="stat-lab">合计</div></div>
   </div>
 
+  <div class="legend" id="legend"></div>
+
   <div class="cal" id="cal"><div class="loading">Loading...</div></div>
 
   <div class="detail" id="detail"></div>
@@ -123,7 +124,31 @@ const SHEET_NAME = 'Operations Rota';
 const DATA_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 const DAYS = ['周日','周一','周二','周三','周四','周五','周六'];
 const PPH = 40; // px per hour
-const SITE_ABBR = { 'Battersea':'BAT', 'Tower Bridge':'TB', 'Shoreditch':'SHO', 'Piccadilly':'PIC', 'Brent Cross':'BC' };
+
+// 站点配色：与 Rota_next 表格颜色对齐 [背景, 标题色, 副文字色]
+const SITE_COLORS = {
+  '东区':        ['#DEF1FB','#0A5C88','#1578A9'], // Shoreditch 蓝
+  'Shoreditch':  ['#DEF1FB','#0A5C88','#1578A9'],
+  '巴特西':      ['#FCF3D6','#7F5F00','#A07C0A'], // Battersea 黄
+  'Battersea':   ['#FCF3D6','#7F5F00','#A07C0A'],
+  '塔桥':        ['#E7F1DF','#3C6B21','#55842F'], // TowerBridge 绿
+  'Tower Bridge':['#E7F1DF','#3C6B21','#55842F'],
+  'BC':          ['#FCEDDC','#8A4D07','#A96A17'], // BrentCross 橙
+  'Brent Cross': ['#FCEDDC','#8A4D07','#A96A17'],
+  '1店':         ['#E0F7FB','#0B6473','#157F90'], // Piccadilly 青
+  'Piccadilly':  ['#E0F7FB','#0B6473','#157F90']
+};
+const TYPE_COLORS = {
+  '线上': ['#EEEDFE','#3C3489','#534AB7'],
+  '线下': ['#E8EDF2','#33475B','#52677D']
+};
+const FALLBACK_COLOR = ['#F1EFE8','#444441','#5F5E5A'];
+
+function colorFor(site, typeK) {
+  if (site && SITE_COLORS[site]) return SITE_COLORS[site];
+  if (!site && TYPE_COLORS[typeK]) return TYPE_COLORS[typeK];
+  return FALLBACK_COLOR;
+}
 
 let allData = [], people = [], activePerson = '', weekOffset = 0, weekRows = [];
 
@@ -165,6 +190,7 @@ function typeKey(type) {
   const t = type.trim();
   if (t === '站岗') return '站岗';
   if (t === '线上') return '线上';
+  if (t === '线下') return '线下';
   if (t.toUpperCase() === 'OFF') return 'OFF';
   return '检查培训';
 }
@@ -173,14 +199,9 @@ function tagLabel(type) {
   const k = typeKey(type);
   if (k === '站岗') return '站岗';
   if (k === '线上') return '线上';
+  if (k === '线下') return '线下';
   if (k === 'OFF') return 'OFF';
   return '检查/培训';
-}
-
-function abbr(site) {
-  if (!site) return '—';
-  if (SITE_ABBR[site]) return SITE_ABBR[site];
-  return site.length > 4 ? site.slice(0,3).toUpperCase() : site;
 }
 
 function parseCSV(text) {
@@ -224,7 +245,7 @@ function render() {
     if (isNaN(h)) return;
     const k = typeKey(r[1]);
     if (k === '站岗') soloH += h;
-    else if (k === '检查培训') otherH += h;
+    else if (k === '检查培训' || k === '线下') otherH += h;
     else if (k === '线上') onlineH += h;
   });
   const totalH = soloH + otherH + onlineH;
@@ -234,6 +255,20 @@ function render() {
     <div class="stat"><div class="stat-val">${sv(otherH)}</div><div class="stat-lab"><span class="sdot" style="background:#1D9E75"></span>检查/培训</div></div>
     <div class="stat"><div class="stat-val">${sv(onlineH)}</div><div class="stat-lab"><span class="sdot" style="background:#378ADD"></span>线上</div></div>
     <div class="stat"><div class="stat-val">${sv(totalH)}</div><div class="stat-lab">合计</div></div>`;
+
+  // ---- legend: 只显示本周出现的站点/类型 ----
+  const legendSeen = new Map();
+  weekRows.forEach(r => {
+    const k = typeKey(r[1]);
+    if (k === 'OFF') return;
+    const site = r[4] || '';
+    if (!site && !String(r[1]).trim()) return;
+    const label = site || tagLabel(r[1]);
+    if (!legendSeen.has(label)) legendSeen.set(label, colorFor(site, k));
+  });
+  document.getElementById('legend').innerHTML = [...legendSeen.entries()]
+    .map(([label, c]) => `<span class="legend-item"><span class="ldot" style="background:${c[0]};border:1px solid ${c[2]}55"></span>${label}</span>`)
+    .join('');
 
   // ---- time range: from data, fallback 10–23 ----
   let minT = Infinity, maxT = -Infinity;
@@ -277,16 +312,28 @@ function render() {
   let bodyHtml = `<div class="time-col" style="height:${bodyH}px">${timeLabHtml}</div>`;
   weekDates.forEach(date => {
     const entries = byDate[date] || [];
-    const work = entries.filter(e => typeKey(e.r[1]) !== 'OFF' && toDec(e.r[5]) !== null && toDec(e.r[6]) !== null);
+    const timed = entries.filter(e => typeKey(e.r[1]) !== 'OFF' && toDec(e.r[5]) !== null && toDec(e.r[6]) !== null);
+    const untimed = entries.filter(e => typeKey(e.r[1]) !== 'OFF' && (toDec(e.r[5]) === null || toDec(e.r[6]) === null)
+      && (String(e.r[1]).trim() || String(e.r[4]).trim() || String(e.r[8] || '').trim()));
     const hasOff = entries.some(e => typeKey(e.r[1]) === 'OFF');
 
     let blocks = '';
-    if (work.length === 0 && hasOff) {
+    let chipTop = 2;
+    if (timed.length === 0 && untimed.length === 0 && hasOff) {
       blocks = '<div class="off-full">OFF</div>';
     } else {
-      if (hasOff) blocks += '<div class="off-chip">OFF</div>';
-      work.forEach(({ r, idx }) => {
+      if (hasOff) { blocks += `<div class="off-chip" style="top:${chipTop}px">OFF</div>`; chipTop += 20; }
+      // 没有起止时间的班次 → 列顶小标签（点击看详情/备注）
+      untimed.forEach(({ r, idx }) => {
         const k = typeKey(r[1]);
+        const c = colorFor(r[4] || '', k);
+        const label = r[4] || tagLabel(r[1]);
+        blocks += `<div class="u-chip" style="top:${chipTop}px;background:${c[0]};color:${c[1]}" onclick="showDetail(${idx})">${label}</div>`;
+        chipTop += 20;
+      });
+      timed.forEach(({ r, idx }) => {
+        const k = typeKey(r[1]);
+        const c = colorFor(r[4] || '', k);
         const s = toDec(r[5]), e = toDec(r[6]);
         const top = (s - gridStart) * PPH;
         const h = Math.max((e - s) * PPH - 2, 24);
@@ -294,11 +341,12 @@ function render() {
         const note = r[8] || '';
         const showTime = h >= 44;
         const showH = h >= 34;
-        blocks += `<div class="blk blk-${k}" style="top:${top}px;height:${h}px" onclick="showDetail(${idx})">
+        const title = r[4] || tagLabel(r[1]);
+        blocks += `<div class="blk" style="top:${top}px;height:${h}px;background:${c[0]};color:${c[2]}" onclick="showDetail(${idx})">
           ${note ? '<span class="blk-note-dot"></span>' : ''}
-          <span class="b-site">${abbr(r[4]) || tagLabel(r[1])}</span>
-          ${showTime ? `<span class="b-time">${fmtTime(r[5])}–${fmtTime(r[6])}</span>` : ''}
-          ${showH && hours ? `<span class="b-h">${hours}</span>` : ''}
+          <span class="b-site" style="color:${c[1]}">${title}</span>
+          ${showTime ? `<span class="b-time" style="color:${c[2]}">${fmtTime(r[5])}–${fmtTime(r[6])}</span>` : ''}
+          ${showH && hours ? `<span class="b-h" style="color:${c[2]}">${hours}</span>` : ''}
         </div>`;
       });
     }
@@ -323,9 +371,8 @@ function render() {
 }
 
 function showDetail(idx) {
-  const item = weekRows[idx];
-  if (!item) return;
-  const r = item;
+  const r = weekRows[idx];
+  if (!r) return;
   const k = typeKey(r[1]);
   const d = new Date(r[3] + 'T00:00:00');
   const ts = fmtTime(r[5]), te = fmtTime(r[6]);
