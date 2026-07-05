@@ -7,7 +7,7 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; }
-.container { max-width: 480px; margin: 0 auto; padding: 16px 16px 60px; }
+.container { max-width: 480px; margin: 0 auto; padding: 16px 12px 60px; }
 
 .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .back { font-size: 12px; color: #888; text-decoration: none; }
@@ -24,49 +24,66 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .person-tab.active { background: #EEEDFE; color: #3C3489; border-color: #AFA9EC; font-weight: 500; }
 
 .stat-row { display: flex; gap: 6px; margin-bottom: 12px; }
-.stat { background: white; border-radius: 8px; padding: 7px 10px; flex: 1; border: 1px solid #efefef; }
-.stat-val { font-size: 16px; font-weight: 600; color: #1a1a1a; }
+.stat { background: white; border-radius: 8px; padding: 7px 8px; flex: 1; border: 1px solid #efefef; }
+.stat-val { font-size: 15px; font-weight: 600; color: #1a1a1a; }
 .stat-val small { font-size: 10px; font-weight: 400; color: #aaa; }
-.stat-lab { font-size: 10px; color: #aaa; margin-top: 1px; display: flex; align-items: center; gap: 3px; }
+.stat-lab { font-size: 9px; color: #aaa; margin-top: 1px; display: flex; align-items: center; gap: 3px; white-space: nowrap; }
 .sdot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 
-.week-grid { background: white; border-radius: 10px; border: 1px solid #efefef; overflow: hidden; }
+/* ===== calendar ===== */
+.cal { background: white; border-radius: 10px; border: 1px solid #efefef; overflow: hidden; }
 
-.day-row { display: flex; align-items: stretch; border-bottom: 1px solid #f5f5f5; }
-.day-row:last-child { border-bottom: none; }
+.cal-head, .cal-foot { display: grid; grid-template-columns: 26px repeat(7, minmax(0,1fr)); }
+.cal-head { border-bottom: 1px solid #f0f0f0; }
+.cal-foot { border-top: 1px solid #f0f0f0; }
+.ch-cell { text-align: center; padding: 7px 1px 6px; border-left: 1px solid #f5f5f5; }
+.ch-cell:first-child, .cf-cell:first-child { border-left: none; }
+.ch-name { font-size: 11px; font-weight: 600; }
+.ch-date { font-size: 9px; color: #bbb; margin-top: 1px; }
+.ch-cell.today .ch-name { color: #534AB7; }
+.ch-cell.today .ch-date { color: #7F77DD; }
+.cf-cell { text-align: center; padding: 5px 1px; font-size: 10px; font-weight: 600; color: #666; border-left: 1px solid #f5f5f5; }
+.cf-lab { font-size: 8px; font-weight: 400; color: #ccc; display: flex; align-items: center; justify-content: center; }
 
-.day-label-col { width: 38px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px 0; border-right: 1px solid #f5f5f5; gap: 1px; }
-.day-name { font-size: 11px; font-weight: 600; color: #1a1a1a; }
-.day-date { font-size: 9px; color: #bbb; }
+.cal-body { display: grid; grid-template-columns: 26px repeat(7, minmax(0,1fr)); position: relative; }
+.time-col { position: relative; }
+.time-lab { position: absolute; right: 3px; font-size: 8px; color: #ccc; transform: translateY(-50%); }
+.day-col { position: relative; border-left: 1px solid #f5f5f5; }
+.day-col.today { background: #FBFAFF; }
+.gline { position: absolute; left: 0; right: 0; height: 1px; background: #f5f5f5; pointer-events: none; }
 
-.shifts-col { flex: 1; display: flex; flex-direction: column; }
-.shift-item { display: flex; align-items: stretch; padding: 5px 8px; border-bottom: 1px solid #f8f8f8; gap: 7px; }
-.shift-item:last-child { border-bottom: none; }
+.blk { position: absolute; left: 2px; right: 2px; border-radius: 5px; padding: 3px 3px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; gap: 1px; }
+.blk:active { opacity: 0.75; }
+.b-site { font-size: 10px; font-weight: 600; line-height: 1.2; }
+.b-time { font-size: 8px; line-height: 1.2; }
+.b-h { font-size: 8px; line-height: 1.2; }
+.blk-站岗 { background: #EEEDFE; }
+.blk-站岗 .b-site { color: #3C3489; }
+.blk-站岗 .b-time, .blk-站岗 .b-h { color: #534AB7; }
+.blk-检查培训 { background: #E1F5EE; }
+.blk-检查培训 .b-site { color: #085041; }
+.blk-检查培训 .b-time, .blk-检查培训 .b-h { color: #0F6E56; }
+.blk-线上 { background: #E6F1FB; }
+.blk-线上 .b-site { color: #0C447C; }
+.blk-线上 .b-time, .blk-线上 .b-h { color: #185FA5; }
+.blk-note-dot { position: absolute; top: 3px; right: 3px; width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: 0.5; }
 
-.shift-bar { width: 2px; border-radius: 1px; flex-shrink: 0; align-self: stretch; min-height: 26px; }
-.bar-站岗 { background: #7F77DD; }
-.bar-检查培训 { background: #1D9E75; }
-.bar-线上 { background: #378ADD; }
-.bar-OFF { background: #d0d0d0; }
+.off-chip { position: absolute; top: 2px; left: 2px; right: 2px; border: 1px dashed #ddd; border-radius: 5px; padding: 2px 0; text-align: center; font-size: 8px; color: #bbb; letter-spacing: 1px; background: #fafafa; }
+.off-full { position: absolute; top: 2px; bottom: 2px; left: 2px; right: 2px; border: 1px dashed #e5e5e5; border-radius: 5px; background: #fafafa; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #ccc; letter-spacing: 2px; writing-mode: vertical-rl; }
 
-.shift-info { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
-.shift-top { display: flex; align-items: center; gap: 5px; }
-.shift-site { font-size: 11px; font-weight: 500; color: #1a1a1a; }
-.shift-time { font-size: 10px; color: #aaa; }
-.shift-bottom { display: flex; align-items: center; gap: 4px; }
-.tag { font-size: 9px; padding: 1px 5px; border-radius: 10px; }
+/* ===== detail card ===== */
+.detail { margin-top: 10px; background: white; border-radius: 10px; border: 1px solid #efefef; padding: 10px 12px; display: none; }
+.detail.show { display: block; }
+.detail-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.detail-site { font-size: 13px; font-weight: 600; }
+.detail-close { font-size: 14px; color: #ccc; cursor: pointer; padding: 0 4px; }
+.detail-row { font-size: 11px; color: #666; margin-top: 3px; display: flex; gap: 6px; align-items: center; }
+.tag { font-size: 9px; padding: 1px 6px; border-radius: 10px; }
 .tag-站岗 { background: #EEEDFE; color: #3C3489; }
 .tag-检查培训 { background: #E1F5EE; color: #085041; }
 .tag-线上 { background: #E6F1FB; color: #0C447C; }
 .tag-OFF { background: #f0f0f0; color: #aaa; }
-.shift-h { font-size: 10px; color: #aaa; }
-.shift-note { font-size: 9px; color: #bbb; font-style: italic; }
-
-.row-off { background: #fafafa; }
-.row-off .shift-site { color: #bbb; font-weight: 400; }
-.row-off .shift-time { color: #d0d0d0; }
-
-.day-total-col { width: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-left: 1px solid #f5f5f5; font-size: 9px; color: #bbb; writing-mode: vertical-rl; letter-spacing: 1px; }
+.detail-note { font-size: 11px; color: #999; margin-top: 5px; padding-top: 5px; border-top: 1px solid #f5f5f5; line-height: 1.5; }
 
 .loading { text-align: center; padding: 40px 0; color: #aaa; font-size: 13px; }
 </style>
@@ -91,9 +108,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="stat"><div class="stat-val">—</div><div class="stat-lab"><span class="sdot" style="background:#7F77DD"></span>站岗</div></div>
     <div class="stat"><div class="stat-val">—</div><div class="stat-lab"><span class="sdot" style="background:#1D9E75"></span>检查/培训</div></div>
     <div class="stat"><div class="stat-val">—</div><div class="stat-lab"><span class="sdot" style="background:#378ADD"></span>线上</div></div>
+    <div class="stat"><div class="stat-val">—</div><div class="stat-lab">合计</div></div>
   </div>
 
-  <div class="week-grid" id="weekGrid"><div class="loading">Loading...</div></div>
+  <div class="cal" id="cal"><div class="loading">Loading...</div></div>
+
+  <div class="detail" id="detail"></div>
 
 </div>
 
@@ -102,8 +122,10 @@ const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
 const SHEET_NAME = 'Operations Rota';
 const DATA_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 const DAYS = ['周日','周一','周二','周三','周四','周五','周六'];
+const PPH = 40; // px per hour
+const SITE_ABBR = { 'Battersea':'BAT', 'Tower Bridge':'TB', 'Shoreditch':'SHO', 'Piccadilly':'PIC', 'Brent Cross':'BC' };
 
-let allData = [], people = [], activePerson = '', weekOffset = 0;
+let allData = [], people = [], activePerson = '', weekOffset = 0, weekRows = [];
 
 function getWeekStart(offset) {
   const now = new Date();
@@ -131,6 +153,13 @@ function fmtTime(t) {
   return `${h.padStart(2,'0')}:${m}`;
 }
 
+function toDec(t) {
+  const f = fmtTime(t);
+  if (!f) return null;
+  const [h, m] = f.split(':').map(Number);
+  return h + m / 60;
+}
+
 function typeKey(type) {
   if (!type) return '检查培训';
   const t = type.trim();
@@ -146,6 +175,12 @@ function tagLabel(type) {
   if (k === '线上') return '线上';
   if (k === 'OFF') return 'OFF';
   return '检查/培训';
+}
+
+function abbr(site) {
+  if (!site) return '—';
+  if (SITE_ABBR[site]) return SITE_ABBR[site];
+  return site.length > 4 ? site.slice(0,3).toUpperCase() : site;
 }
 
 function parseCSV(text) {
@@ -171,17 +206,20 @@ function render() {
   const ws = getWeekStart(weekOffset);
   const we = new Date(ws); we.setDate(ws.getDate() + 6);
   document.getElementById('weekLabel').textContent = `${fmtDisp(ws)} – ${fmtDisp(we)}`;
+  document.getElementById('detail').className = 'detail';
 
+  const todayStr = fmtDate(new Date());
   const weekDates = [];
   for (let i = 0; i < 7; i++) {
     const d = new Date(ws); d.setDate(ws.getDate() + i);
     weekDates.push(fmtDate(d));
   }
 
-  const filtered = allData.filter(r => r[0] === activePerson && weekDates.includes(r[3]));
+  weekRows = allData.filter(r => r[0] === activePerson && weekDates.includes(r[3]));
 
+  // ---- stats ----
   let soloH = 0, otherH = 0, onlineH = 0;
-  filtered.forEach(r => {
+  weekRows.forEach(r => {
     const h = parseFloat(r[7]);
     if (isNaN(h)) return;
     const k = typeKey(r[1]);
@@ -189,73 +227,123 @@ function render() {
     else if (k === '检查培训') otherH += h;
     else if (k === '线上') onlineH += h;
   });
-
+  const totalH = soloH + otherH + onlineH;
+  const sv = v => v > 0 ? Math.round(v*10)/10 + '<small>h</small>' : '—';
   document.getElementById('statRow').innerHTML = `
-    <div class="stat"><div class="stat-val">${soloH > 0 ? soloH+'<small>h</small>' : '—'}</div><div class="stat-lab"><span class="sdot" style="background:#7F77DD"></span>站岗</div></div>
-    <div class="stat"><div class="stat-val">${otherH > 0 ? otherH+'<small>h</small>' : '—'}</div><div class="stat-lab"><span class="sdot" style="background:#1D9E75"></span>检查/培训</div></div>
-    <div class="stat"><div class="stat-val">${onlineH > 0 ? onlineH+'<small>h</small>' : '—'}</div><div class="stat-lab"><span class="sdot" style="background:#378ADD"></span>线上</div></div>`;
+    <div class="stat"><div class="stat-val">${sv(soloH)}</div><div class="stat-lab"><span class="sdot" style="background:#7F77DD"></span>站岗</div></div>
+    <div class="stat"><div class="stat-val">${sv(otherH)}</div><div class="stat-lab"><span class="sdot" style="background:#1D9E75"></span>检查/培训</div></div>
+    <div class="stat"><div class="stat-val">${sv(onlineH)}</div><div class="stat-lab"><span class="sdot" style="background:#378ADD"></span>线上</div></div>
+    <div class="stat"><div class="stat-val">${sv(totalH)}</div><div class="stat-lab">合计</div></div>`;
 
+  // ---- time range: from data, fallback 10–23 ----
+  let minT = Infinity, maxT = -Infinity;
+  weekRows.forEach(r => {
+    if (typeKey(r[1]) === 'OFF') return;
+    const s = toDec(r[5]), e = toDec(r[6]);
+    if (s !== null) minT = Math.min(minT, s);
+    if (e !== null) maxT = Math.max(maxT, e);
+  });
+  const gridStart = isFinite(minT) ? Math.floor(minT) : 10;
+  const gridEnd = isFinite(maxT) ? Math.ceil(maxT) : 23;
+  const bodyH = (gridEnd - gridStart) * PPH;
+
+  // ---- group by date ----
   const byDate = {};
-  filtered.forEach(r => { if (!byDate[r[3]]) byDate[r[3]] = []; byDate[r[3]].push(r); });
-
-  const grid = document.getElementById('weekGrid');
-  grid.innerHTML = '';
-
-  weekDates.forEach((date, i) => {
-    const rows = byDate[date];
-    if (!rows || rows.length === 0) return;
-
-    const d = new Date(ws); d.setDate(ws.getDate() + i);
-    const dayName = DAYS[d.getDay()];
-    const dayDate = fmtDisp(d).replace(/^0/,'').replace('/0','/');
-
-    const workRows = rows.filter(r => typeKey(r[1]) !== 'OFF');
-    const totalH = workRows.reduce((s, r) => s + (parseFloat(r[7]) || 0), 0);
-    const totalStr = totalH > 0 ? `${totalH}h` : '—';
-
-    let shiftsHtml = '';
-    rows.forEach(r => {
-      const k = typeKey(r[1]);
-      const isOff = k === 'OFF';
-      const site = r[4] || (isOff ? 'OFF' : '—');
-      const ts = fmtTime(r[5]);
-      const te = fmtTime(r[6]);
-      const hours = r[7] || '';
-      const note = r[8] || '';
-      const timeStr = ts && te ? `${ts}–${te}` : ts ? `${ts}–` : (isOff ? '' : '全天');
-      const hoursStr = hours && hours !== '—' ? `${hours}h` : '';
-
-      shiftsHtml += `
-        <div class="shift-item${isOff ? ' row-off' : ''}">
-          <div class="shift-bar bar-${k}"></div>
-          <div class="shift-info">
-            <div class="shift-top">
-              <span class="shift-site">${site}</span>
-              ${timeStr ? `<span class="shift-time">${timeStr}</span>` : ''}
-            </div>
-            <div class="shift-bottom">
-              <span class="tag tag-${k}">${tagLabel(r[1])}</span>
-              ${hoursStr && !isOff ? `<span class="shift-h">${hoursStr}</span>` : ''}
-              ${note ? `<span class="shift-note">${note}</span>` : ''}
-            </div>
-          </div>
-        </div>`;
-    });
-
-    grid.insertAdjacentHTML('beforeend', `
-      <div class="day-row">
-        <div class="day-label-col">
-          <div class="day-name">${dayName}</div>
-          <div class="day-date">${fmtDisp(d)}</div>
-        </div>
-        <div class="shifts-col">${shiftsHtml}</div>
-        <div class="day-total-col">${totalStr}</div>
-      </div>`);
+  weekRows.forEach((r, idx) => {
+    if (!byDate[r[3]]) byDate[r[3]] = [];
+    byDate[r[3]].push({ r, idx });
   });
 
-  if (!grid.innerHTML) {
-    grid.innerHTML = '<div class="loading">本周暂无排班记录</div>';
+  // ---- header ----
+  let headHtml = '<div class="ch-cell"></div>';
+  weekDates.forEach((date, i) => {
+    const d = new Date(ws); d.setDate(ws.getDate() + i);
+    headHtml += `<div class="ch-cell${date === todayStr ? ' today' : ''}">
+      <div class="ch-name">${DAYS[d.getDay()]}</div>
+      <div class="ch-date">${fmtDisp(d)}</div>
+    </div>`;
+  });
+
+  // ---- time labels + gridlines ----
+  let timeLabHtml = '';
+  let glinesHtml = '';
+  for (let h = gridStart; h <= gridEnd; h += 2) {
+    const top = (h - gridStart) * PPH;
+    timeLabHtml += `<div class="time-lab" style="top:${top}px">${h}:00</div>`;
+    if (h > gridStart && h < gridEnd) glinesHtml += `<div class="gline" style="top:${top}px"></div>`;
   }
+
+  // ---- day columns ----
+  let bodyHtml = `<div class="time-col" style="height:${bodyH}px">${timeLabHtml}</div>`;
+  weekDates.forEach(date => {
+    const entries = byDate[date] || [];
+    const work = entries.filter(e => typeKey(e.r[1]) !== 'OFF' && toDec(e.r[5]) !== null && toDec(e.r[6]) !== null);
+    const hasOff = entries.some(e => typeKey(e.r[1]) === 'OFF');
+
+    let blocks = '';
+    if (work.length === 0 && hasOff) {
+      blocks = '<div class="off-full">OFF</div>';
+    } else {
+      if (hasOff) blocks += '<div class="off-chip">OFF</div>';
+      work.forEach(({ r, idx }) => {
+        const k = typeKey(r[1]);
+        const s = toDec(r[5]), e = toDec(r[6]);
+        const top = (s - gridStart) * PPH;
+        const h = Math.max((e - s) * PPH - 2, 24);
+        const hours = r[7] && r[7] !== '—' ? `${r[7]}h` : '';
+        const note = r[8] || '';
+        const showTime = h >= 44;
+        const showH = h >= 34;
+        blocks += `<div class="blk blk-${k}" style="top:${top}px;height:${h}px" onclick="showDetail(${idx})">
+          ${note ? '<span class="blk-note-dot"></span>' : ''}
+          <span class="b-site">${abbr(r[4]) || tagLabel(r[1])}</span>
+          ${showTime ? `<span class="b-time">${fmtTime(r[5])}–${fmtTime(r[6])}</span>` : ''}
+          ${showH && hours ? `<span class="b-h">${hours}</span>` : ''}
+        </div>`;
+      });
+    }
+    bodyHtml += `<div class="day-col${date === todayStr ? ' today' : ''}" style="height:${bodyH}px">${glinesHtml}${blocks}</div>`;
+  });
+
+  // ---- footer: daily totals ----
+  let footHtml = '<div class="cf-cell cf-lab">合计</div>';
+  weekDates.forEach(date => {
+    const entries = byDate[date] || [];
+    const dayH = entries.filter(e => typeKey(e.r[1]) !== 'OFF')
+      .reduce((s, e) => s + (parseFloat(e.r[7]) || 0), 0);
+    footHtml += `<div class="cf-cell">${dayH > 0 ? Math.round(dayH*10)/10 + 'h' : '—'}</div>`;
+  });
+
+  document.getElementById('cal').innerHTML =
+    weekRows.length === 0
+      ? '<div class="loading">本周暂无排班记录</div>'
+      : `<div class="cal-head">${headHtml}</div>
+         <div class="cal-body">${bodyHtml}</div>
+         <div class="cal-foot">${footHtml}</div>`;
+}
+
+function showDetail(idx) {
+  const item = weekRows[idx];
+  if (!item) return;
+  const r = item;
+  const k = typeKey(r[1]);
+  const d = new Date(r[3] + 'T00:00:00');
+  const ts = fmtTime(r[5]), te = fmtTime(r[6]);
+  const el = document.getElementById('detail');
+  el.innerHTML = `
+    <div class="detail-top">
+      <span class="detail-site">${r[4] || tagLabel(r[1])}</span>
+      <span class="detail-close" onclick="document.getElementById('detail').className='detail'">✕</span>
+    </div>
+    <div class="detail-row">
+      <span class="tag tag-${k}">${tagLabel(r[1])}</span>
+      <span>${DAYS[d.getDay()]} ${fmtDisp(d)}</span>
+      ${ts && te ? `<span>${ts}–${te}</span>` : ''}
+      ${r[7] && r[7] !== '—' ? `<span>${r[7]}h</span>` : ''}
+    </div>
+    ${r[8] ? `<div class="detail-note">${r[8]}</div>` : ''}`;
+  el.className = 'detail show';
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function renderTabs() {
@@ -280,7 +368,7 @@ async function load() {
     renderTabs();
     render();
   } catch(e) {
-    document.getElementById('weekGrid').innerHTML = '<div class="loading">加载失败，请刷新重试</div>';
+    document.getElementById('cal').innerHTML = '<div class="loading">加载失败，请刷新重试</div>';
   }
 }
 
