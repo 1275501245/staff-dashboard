@@ -14,6 +14,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .header-title { font-size: 16px; font-weight: 600; }
 .header-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
 
+.site-bar { background: #fff; border-bottom: 1px solid #efefef; padding: 10px 16px; }
+.bar-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.site-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.site-btn { padding: 6px 14px; border: 1px solid #efefef; border-radius: 20px; background: #f5f5f5; font-size: 13px; color: #666; cursor: pointer; font-family: inherit; }
+.site-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+
 .body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
 .state-box { text-align: center; padding: 50px 20px; color: #aaa; font-size: 13px; }
 
@@ -23,7 +29,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .day-dot.today { background: #1a8f5f; }
 .day-name { font-size: 11px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; }
 .day-name.today { color: #1a8f5f; }
-.day-date { font-size: 11px; color: #bbb; margin-left: auto; }
 
 .card { background: #fff; border: 1px solid #efefef; border-radius: 14px; overflow: hidden; }
 .card.today { border: 1.5px solid #1a8f5f; }
@@ -31,7 +36,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .supp-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid #f5f5f5; }
 .supp-row:last-child { border-bottom: none; }
 .supp-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.supp-name { font-size: 13px; font-weight: 500; color: #1a1a1a; flex: 1; }
+.supp-main { flex: 1; min-width: 0; }
+.supp-name { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+.supp-meta { font-size: 11px; color: #bbb; margin-top: 2px; }
+.supp-meta .order { color: #d97706; }
 .supp-count { font-size: 11px; color: #aaa; white-space: nowrap; }
 
 .empty-row { padding: 13px 14px; font-size: 12px; color: #bbb; text-align: center; }
@@ -44,9 +52,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <a class="back" href="/admin">←</a>
     <div>
       <div class="header-title">Stocktake Arrangement</div>
-      <div class="header-sub">Weekly stocktake schedule</div>
+      <div class="header-sub" id="hdr-sub">Weekly stocktake schedule</div>
     </div>
   </div>
+</div>
+
+<div class="site-bar">
+  <div class="bar-label">Site</div>
+  <div class="site-row" id="site-row"></div>
 </div>
 
 <div class="body" id="body">
@@ -58,20 +71,13 @@ const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
 const DAY_ORDER = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const DOT_COLORS = ['#3a5fc8','#c8303a','#2a7a52','#9333ea','#d97706','#0891b2','#e05c2a','#0f9d6e','#4a6cf7','#d4537e'];
 
+let schedule = [];
+let countMap = {};
+let selectedSite = '';
+
 function todayDayShort() {
   const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   return days[new Date().getDay()];
-}
-
-function todayDateForDay(targetDay) {
-  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const todayIdx = new Date().getDay();
-  const targetIdx = days.indexOf(targetDay);
-  let diff = targetIdx - todayIdx;
-  const d = new Date();
-  d.setDate(d.getDate() + diff);
-  return d.getDate() + ' ' + months[d.getMonth()];
 }
 
 async function fetchSheet(name) {
@@ -88,34 +94,25 @@ async function fetchSheet(name) {
   });
 }
 
-async function init() {
-  let suppliers, products;
-  try {
-    [suppliers, products] = await Promise.all([fetchSheet('Suppliers'), fetchSheet('Products')]);
-  } catch(e) {
-    document.getElementById('body').innerHTML = `<div class="state-box">⚠️ Failed to load. Check Sheet sharing settings.</div>`;
-    return;
-  }
+function selectSite(site, btn) {
+  selectedSite = site;
+  document.querySelectorAll('.site-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
 
-  // Count products per supplier
-  const countMap = {};
-  products.forEach(p => {
-    const s = p['SupplierName'];
-    if (!s) return;
-    countMap[s] = (countMap[s] || 0) + 1;
-  });
-
+function render() {
   const today = todayDayShort();
+  const siteRows = schedule.filter(r => r['Site'] === selectedSite);
 
   let html = '';
   DAY_ORDER.forEach(day => {
-    const daySupps = suppliers.filter(s => {
-      const days = (s['StocktakeDays'] || '').split(',').map(d => d.trim());
+    const daySupps = siteRows.filter(r => {
+      const days = String(r['StocktakeDay'] || '').split(',').map(d => d.trim());
       return days.includes(day);
     });
 
     const isToday = day === today;
-    const dateLabel = todayDateForDay(day);
 
     html += `<div class="day-block">
       <div class="day-hdr">
@@ -127,13 +124,20 @@ async function init() {
     if (!daySupps.length) {
       html += `<div class="empty-row">No stocktake</div>`;
     } else {
-      daySupps.forEach((s, idx) => {
-        const name = s['SupplierName'];
+      daySupps.forEach((r, idx) => {
+        const name = r['SupplierName'];
         const count = countMap[name] || 0;
         const color = DOT_COLORS[idx % DOT_COLORS.length];
+        const metaParts = [];
+        if (r['OrderDay']) metaParts.push(`<span class="order">Order ${r['OrderDay']}</span>`);
+        if (r['DeliveryDay']) metaParts.push(`Delivery ${r['DeliveryDay']}`);
+        else if (r['LeadTime']) metaParts.push(`Lead ${r['LeadTime']}`);
         html += `<div class="supp-row">
           <div class="supp-dot" style="background:${color}"></div>
-          <div class="supp-name">${name}</div>
+          <div class="supp-main">
+            <div class="supp-name">${name}</div>
+            ${metaParts.length ? `<div class="supp-meta">${metaParts.join(' · ')}</div>` : ''}
+          </div>
           <div class="supp-count">${count} item${count !== 1 ? 's' : ''}</div>
         </div>`;
       });
@@ -143,6 +147,33 @@ async function init() {
   });
 
   document.getElementById('body').innerHTML = html;
+  document.getElementById('hdr-sub').textContent = `Weekly stocktake schedule · ${selectedSite}`;
+}
+
+async function init() {
+  let products;
+  try {
+    [schedule, products] = await Promise.all([fetchSheet('SupplierSchedule'), fetchSheet('Products')]);
+  } catch(e) {
+    document.getElementById('body').innerHTML = `<div class="state-box">⚠️ Failed to load. Check Sheet sharing settings.</div>`;
+    return;
+  }
+
+  countMap = {};
+  products.forEach(p => {
+    const s = p['SupplierName'];
+    if (!s) return;
+    countMap[s] = (countMap[s] || 0) + 1;
+  });
+
+  // Sites derived from SupplierSchedule — no hardcoding
+  const sites = [...new Set(schedule.map(r => r['Site']).filter(Boolean))];
+  document.getElementById('site-row').innerHTML = sites.map((s, i) =>
+    `<button class="site-btn${i === 0 ? ' active' : ''}" onclick="selectSite('${s}',this)">${s}</button>`
+  ).join('');
+
+  selectedSite = sites[0] || '';
+  render();
 }
 
 init();
