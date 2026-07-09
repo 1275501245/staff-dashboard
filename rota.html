@@ -301,7 +301,6 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 .card-foot-label { font-size: 11px; color: #999; }
 .card-foot-right { text-align: right; }
 .card-foot-total { font-size: 14px; font-weight: 600; color: #111; }
-.card-foot-sched { font-size: 10px; color: #999; margin-top: 1px; }
 
 /* ── Adjustments (deductions / bonuses) inside cards ── */
 .card-adj-rows {
@@ -705,10 +704,6 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
       adjHTML = `<div class="card-adj-rows"><div class="card-adj-title">Adjustments</div>${lines}</div>`;
     }
 
-    const schedHTML = myAdjs.length
-      ? `<div class="card-foot-sched">${data.totalHours} scheduled ${fmtSigned(adjSum)}</div>`
-      : '';
-
     card.innerHTML = `
       <div class="staff-card-head">
         <div class="staff-card-name">${name}</div>
@@ -720,7 +715,6 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
         <span class="card-foot-label">Total</span>
         <div class="card-foot-right">
           <div class="card-foot-total">${totalStr}</div>
-          ${schedHTML}
         </div>
       </div>`;
 
