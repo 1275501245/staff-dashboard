@@ -236,29 +236,6 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 .loading { padding: 40px; text-align: center; color: #999; font-size: 14px; }
 .error   { padding: 40px; text-align: center; color: #c00; font-size: 14px; }
 
-/* refund deduction column */
-td.col-refund {
-  min-width: 60px;
-  font-size: 11px;
-  font-weight: 600;
-  text-align: center;
-  color: #b45309;
-  background: #fffbeb;
-  border-left: 1px solid #fde68a;
-}
-td.col-refund-empty { color: #ddd; background: #fafafa; }
-thead tr:first-child th.col-refund {
-  background: #78350f;
-  color: #fde68a;
-  border-left: 1px solid #92400e;
-}
-thead tr:last-child th.col-refund {
-  background: #fef3c7;
-  color: #92400e;
-  border-left: 1px solid #fde68a;
-}
-tbody tr:nth-child(even) td.col-refund { background: #fef9e7; }
-
 /* ── Staff Hours Cards ── */
 .cards-section {
   padding: 24px 16px 32px;
@@ -324,7 +301,33 @@ tbody tr:nth-child(even) td.col-refund { background: #fef9e7; }
 .card-foot-label { font-size: 11px; color: #999; }
 .card-foot-right { text-align: right; }
 .card-foot-total { font-size: 14px; font-weight: 600; color: #111; }
-.card-foot-deduct { font-size: 10px; color: #c62828; margin-top: 1px; }
+.card-foot-sched { font-size: 10px; color: #999; margin-top: 1px; }
+
+/* ── Adjustments (deductions / bonuses) inside cards ── */
+.card-adj-rows {
+  padding: 5px 12px 6px;
+  border-top: 1px dashed #eee;
+}
+.card-adj-title {
+  font-size: 9px;
+  font-weight: 600;
+  color: #aaa;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.card-adj-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 11px;
+  padding: 1px 0;
+}
+.card-adj-note { color: #777; }
+.card-adj-val { font-weight: 600; white-space: nowrap; }
+.card-adj-val.adj-neg { color: #c62828; }
+.card-adj-val.adj-pos { color: #2e7d32; }
 </style>
 </head>
 <body>
@@ -435,6 +438,30 @@ async function fetchAgencyStaff() {
   }
 }
 
+async function fetchAdjustments() {
+  // Reads the "Rota Adjustments" tab: Name | Site | Hours | Note
+  // Hours is signed: negative = deduction, positive = bonus
+  try {
+    const rows = await fetchSheet('Rota Adjustments');
+    const list = [];
+    for (let i = 1; i < rows.length; i++) {
+      const name  = (rows[i][0] || '').trim();
+      const site  = (rows[i][1] || '').trim();
+      const hours = parseFloat((rows[i][2] || '').trim());
+      const note  = (rows[i][3] || '').trim();
+      if (name && !isNaN(hours) && hours !== 0) list.push({ name, site, hours, note });
+    }
+    return list;
+  } catch(e) {
+    return [];
+  }
+}
+
+function fmtSigned(n) {
+  const v = Math.round(n * 100) / 100;
+  return v > 0 ? `+${v}` : `${v}`;
+}
+
 function siteClass(site) {
   const s = (site || '').toLowerCase().replace(/\s/g, '');
   if (s.includes('shoreditch'))   return 'site-shoreditch';
@@ -479,14 +506,15 @@ function parseHours(val) {
   return isNaN(n) ? 0 : n;
 }
 
-function buildTable(rows, agency, todayIdx) {
+function buildTable(rows, agency, todayIdx, adjustments) {
   const allHeaders = rows[0];
   const totalHoursIdx = allHeaders.findIndex(h => h.toLowerCase().includes('total hours'));
-  const refundIdx = allHeaders.findIndex(h => h.toLowerCase().includes('refund'));
+  // Guard: if a legacy refund/deduction column still exists, keep it out of day cols
+  const legacyIdx = allHeaders.findIndex(h => /refund|deduction/i.test(h));
 
-  // Day cols: from col 2 up to (not including) refund or total
+  // Day cols: from col 2 up to (not including) total hours (or legacy column)
   let dayEndIdx = totalHoursIdx > 0 ? totalHoursIdx : allHeaders.length;
-  if (refundIdx > 0 && refundIdx < dayEndIdx) dayEndIdx = refundIdx;
+  if (legacyIdx > 0 && legacyIdx < dayEndIdx) dayEndIdx = legacyIdx;
 
   const dayHeaders = allHeaders.slice(2, dayEndIdx);
   const dateRow    = rows[1].slice(2, dayEndIdx);
@@ -500,7 +528,6 @@ function buildTable(rows, agency, todayIdx) {
     thead += `<th class="col-day${cls}">${h}</th>`;
   });
   thead += '<th class="col-ind-total">Hrs</th>';
-  if (refundIdx > 0) thead += '<th class="col-refund">Refund Deduction</th>';
   thead += '<th class="col-site-total">Site Hours</th>';
   thead += '</tr><tr>';
   thead += '<th class="col-site"></th>';
@@ -510,7 +537,6 @@ function buildTable(rows, agency, todayIdx) {
     thead += `<th class="col-day${cls}">${d}</th>`;
   });
   thead += '<th class="col-ind-total">hrs</th>';
-  if (refundIdx > 0) thead += '<th class="col-refund"></th>';
   thead += '<th class="col-site-total">hrs</th>';
   thead += '</tr></thead>';
 
@@ -542,6 +568,14 @@ function buildTable(rows, agency, todayIdx) {
         siteTotal += parseHours(row[totalHoursIdx]);
       }
     });
+    // Apply signed adjustments (deductions/bonuses) attributed to this site
+    const groupSiteCls = siteClass(group.site);
+    (adjustments || []).forEach(adj => {
+      if (agency.has(adj.name) && groupSiteCls && siteClass(adj.site) === groupSiteCls) {
+        siteTotal += adj.hours;
+      }
+    });
+    siteTotal = Math.round(siteTotal * 100) / 100;
     const siteTotalDisplay = siteTotal > 0
       ? `<span style="font-size:18px;font-weight:700">${siteTotal}</span><br><span style="font-size:9px;font-weight:400;color:#7c3aed;letter-spacing:0.3px">hrs / week</span>`
       : '–';
@@ -569,13 +603,6 @@ function buildTable(rows, agency, todayIdx) {
         tbody += `<td class="col-ind-total-empty">–</td>`;
       }
 
-      if (refundIdx > 0) {
-        const refundVal = (row[refundIdx] || '').trim();
-        tbody += refundVal
-          ? `<td class="col-refund">${refundVal}</td>`
-          : `<td class="col-refund col-refund-empty">–</td>`;
-      }
-
       if (isFirst) {
         tbody += `<td class="col-site-total" rowspan="${group.rows.length}">${siteTotalDisplay}</td>`;
       }
@@ -588,13 +615,12 @@ function buildTable(rows, agency, todayIdx) {
   return `<table>${thead}${tbody}</table>`;
 }
 
-function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx) {
+function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) {
   // Collect all agency staff, summing hours across all sites
-  const staffMap = new Map(); // name -> { days: [], totalHours, refund }
+  const staffMap = new Map(); // name -> { days: [], totalHours }
 
   const allHeaders = rows[0];
   const totalHoursIdx = allHeaders.findIndex(h => h.toLowerCase().includes('total hours'));
-  const refundIdx = allHeaders.findIndex(h => h.toLowerCase().includes('refund'));
 
   const dataRows = rows.slice(2).filter(r => r.some(c => c.trim()));
 
@@ -603,13 +629,11 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx) {
     if (!name || !agency.has(name)) continue;
 
     const rowHours = totalHoursIdx > 0 ? parseHours(row[totalHoursIdx]) : 0;
-    const rowRefund = refundIdx > 0 ? parseHours(row[refundIdx]) : 0;
     const rowDays = row.slice(2, dayEndIdx);
 
     if (staffMap.has(name)) {
       const existing = staffMap.get(name);
       existing.totalHours = Math.round((existing.totalHours + rowHours) * 100) / 100;
-      existing.refund = Math.round((existing.refund + rowRefund) * 100) / 100;
       // Merge days: if this row has a time value for a day, use it (override site-name badge)
       rowDays.forEach((val, i) => {
         const v = (val || '').trim();
@@ -626,7 +650,7 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx) {
         }
       });
     } else {
-      staffMap.set(name, { days: rowDays.slice(), totalHours: rowHours, refund: rowRefund });
+      staffMap.set(name, { days: rowDays.slice(), totalHours: rowHours });
     }
   }
 
@@ -635,12 +659,23 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx) {
   const grid = document.getElementById('cards-grid');
   grid.innerHTML = '';
 
+  // Group adjustments by staff name
+  const adjMap = new Map();
+  (adjustments || []).forEach(adj => {
+    if (!adjMap.has(adj.name)) adjMap.set(adj.name, []);
+    adjMap.get(adj.name).push(adj);
+  });
+
   staffMap.forEach((data, name) => {
     const card = document.createElement('div');
     card.className = 'staff-card';
 
-    const totalStr = data.totalHours > 0 ? `${data.totalHours} hrs` : '–';
-    const subText = data.totalHours > 0 ? `${data.totalHours} hrs this week (all sites)` : 'no hours recorded';
+    const myAdjs = adjMap.get(name) || [];
+    const adjSum = myAdjs.reduce((s, a) => s + a.hours, 0);
+    const finalHours = Math.round((data.totalHours + adjSum) * 100) / 100;
+
+    const totalStr = (data.totalHours > 0 || myAdjs.length) ? `${finalHours} hrs` : '–';
+    const subText = data.totalHours > 0 ? `${finalHours} hrs this week (all sites)` : 'no hours recorded';
 
     let dayRowsHTML = '';
     dayHeaders.forEach((h, i) => {
@@ -660,8 +695,18 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx) {
       dayRowsHTML += `<div class="card-day-row${todayRowCls}"><span class="card-day-label">${label}</span>${valHTML}</div>`;
     });
 
-    const deductHTML = data.refund > 0
-      ? `<div class="card-foot-deduct">−${data.refund} refund deduction</div>`
+    let adjHTML = '';
+    if (myAdjs.length) {
+      const lines = myAdjs.map(a => {
+        const cls = a.hours < 0 ? 'adj-neg' : 'adj-pos';
+        const note = a.note ? a.note : (a.hours < 0 ? 'Deduction' : 'Bonus');
+        return `<div class="card-adj-row"><span class="card-adj-note">${note}</span><span class="card-adj-val ${cls}">${fmtSigned(a.hours)}</span></div>`;
+      }).join('');
+      adjHTML = `<div class="card-adj-rows"><div class="card-adj-title">Adjustments</div>${lines}</div>`;
+    }
+
+    const schedHTML = myAdjs.length
+      ? `<div class="card-foot-sched">${data.totalHours} scheduled ${fmtSigned(adjSum)}</div>`
       : '';
 
     card.innerHTML = `
@@ -670,11 +715,12 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx) {
         <div class="staff-card-sub">${subText}</div>
       </div>
       <div class="card-day-rows">${dayRowsHTML}</div>
+      ${adjHTML}
       <div class="staff-card-foot">
         <span class="card-foot-label">Total</span>
         <div class="card-foot-right">
           <div class="card-foot-total">${totalStr}</div>
-          ${deductHTML}
+          ${schedHTML}
         </div>
       </div>`;
 
@@ -687,9 +733,10 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx) {
 async function loadRota(sheetName) {
   const el = document.getElementById('content');
   try {
-    const [rows, agency] = await Promise.all([
+    const [rows, agency, adjustments] = await Promise.all([
       fetchSheet(sheetName),
-      agencySet.size > 0 ? Promise.resolve(agencySet) : fetchAgencyStaff()
+      agencySet.size > 0 ? Promise.resolve(agencySet) : fetchAgencyStaff(),
+      fetchAdjustments()
     ]);
     if (agency.size > 0) agencySet = agency;
     if (!rows || rows.length < 3) {
@@ -699,14 +746,14 @@ async function loadRota(sheetName) {
 
     const allHeaders = rows[0];
     const totalHoursIdx = allHeaders.findIndex(h => h.toLowerCase().includes('total hours'));
-    const refundIdx = allHeaders.findIndex(h => h.toLowerCase().includes('refund'));
+    const legacyIdx = allHeaders.findIndex(h => /refund|deduction/i.test(h));
     let dayEndIdx = totalHoursIdx > 0 ? totalHoursIdx : allHeaders.length;
-    if (refundIdx > 0 && refundIdx < dayEndIdx) dayEndIdx = refundIdx;
+    if (legacyIdx > 0 && legacyIdx < dayEndIdx) dayEndIdx = legacyIdx;
     const dayHeaders = allHeaders.slice(2, dayEndIdx);
     const todayIdx = getTodayColIdx(dayHeaders);
 
-    el.innerHTML = buildTable(rows, agencySet, todayIdx);
-    buildCards(rows, agencySet, dayHeaders, dayEndIdx, todayIdx);
+    el.innerHTML = buildTable(rows, agencySet, todayIdx, adjustments);
+    buildCards(rows, agencySet, dayHeaders, dayEndIdx, todayIdx, adjustments);
   } catch(e) {
     el.innerHTML = '<div class="error">Error loading rota: ' + e.message + '</div>';
   }
