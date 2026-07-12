@@ -364,7 +364,10 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 
 <script>
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
-// 历史班表 tab 名候选(按顺序尝试;兼容开头误加空格的情况)。改名后同步改这里
+// 历史班表定位:优先用 gid(tab 的永久数字ID,改名/空格都不影响)。
+// gid 获取方式:在表格里点开历史班表 tab,浏览器地址栏 #gid= 后面的数字。
+const HIST_GID = '1671572312';
+// gid 失效时的兜底:按名字尝试
 const HIST_SHEET_CANDIDATES = ['Rota_History', ' Rota_History'];
 let currentSheet = 'Rota';
 let agencySet = new Set();
@@ -829,16 +832,34 @@ let histBlocks = null; // weekISO -> { rows }
 let weekList = [];     // [{kind:'hist',iso} ..., {kind:'live',sheet:'Rota',tag:'This Week',iso}, {kind:'live',sheet:'Rota_next',tag:'Next Week',iso}]
 let weekIdx = -1;
 
+async function fetchSheetByGid(gid) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Failed to fetch sheet');
+  return parseCSV(await res.text());
+}
+
+// 校验拿到的确实是班表数据(gviz 名字匹配不到时会悄悄返回第一个tab,必须验证)
+function looksLikeRotaBlocks(rows) {
+  return !!(rows && rows.length >= 3 && rows.some(r => ((r[1] || '').trim()) === 'Name'));
+}
+
 async function loadHistBlocks() {
   let raw = null;
-  for (const name of HIST_SHEET_CANDIDATES) {
-    try {
-      const r = await fetchSheet(name);
-      if (r && r.length >= 3) { raw = r; break; }
-    } catch(e) { /* 试下一个候选名 */ }
+  try {
+    const r = await fetchSheetByGid(HIST_GID);
+    if (looksLikeRotaBlocks(r)) raw = r;
+  } catch(e) { /* gid 失败则按名字兜底 */ }
+  if (!raw) {
+    for (const name of HIST_SHEET_CANDIDATES) {
+      try {
+        const r = await fetchSheet(name);
+        if (looksLikeRotaBlocks(r)) { raw = r; break; }
+      } catch(e) { /* 试下一个候选名 */ }
+    }
   }
   histBlocks = new Map();
-  if (!raw || raw.length < 3) return;
+  if (!raw) return;
   let r = 0;
   while (r < raw.length) {
     if (((raw[r][1] || '').trim()) !== 'Name') { r++; continue; }
