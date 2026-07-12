@@ -364,7 +364,8 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 
 <script>
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
-const HIST_SHEET = 'Rota 2505-1207'; // 历史班表 tab 名,改名后同步改这里
+// 历史班表 tab 名候选(按顺序尝试;兼容开头误加空格的情况)。改名后同步改这里
+const HIST_SHEET_CANDIDATES = ['Rota_History', ' Rota_History'];
 let currentSheet = 'Rota';
 let agencySet = new Set();
 let allAdjustments = null;    // cached rows from 'Rota Adjustments' (whole ledger)
@@ -829,8 +830,13 @@ let weekList = [];     // [{kind:'hist',iso} ..., {kind:'live',sheet:'Rota',tag:
 let weekIdx = -1;
 
 async function loadHistBlocks() {
-  let raw;
-  try { raw = await fetchSheet(HIST_SHEET); } catch(e) { raw = null; }
+  let raw = null;
+  for (const name of HIST_SHEET_CANDIDATES) {
+    try {
+      const r = await fetchSheet(name);
+      if (r && r.length >= 3) { raw = r; break; }
+    } catch(e) { /* 试下一个候选名 */ }
+  }
   histBlocks = new Map();
   if (!raw || raw.length < 3) return;
   let r = 0;
