@@ -396,10 +396,10 @@ function fmtDDMM(iso, n) {
   return pad2(dt.getDate()) + '/' + pad2(dt.getMonth() + 1);
 }
 
-// Parse a sheet date string: 'YYYY-MM-DD', 'DD/MM/YYYY' or 'DD/MM' -> ISO or null
+// Parse a sheet date string: '2026/07/06', '2026-07-06', '06/07/2026', '06/07' -> ISO or null
 function parseSheetDate(s) {
   s = (s || '').trim();
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  let m = s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/); // 年在前:2026/07/06 或 2026-07-06
   if (m) return m[1] + '-' + pad2(+m[2]) + '-' + pad2(+m[3]);
   m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
   if (m) {
@@ -915,9 +915,8 @@ function updatePager() {
   if (weekIdx < 0) return;
   const w = weekList[weekIdx];
   const iso = (w.kind === 'live' && currentWeekStart) ? currentWeekStart : w.iso;
-  const label = fmtDDMM(iso, 0) + ' \u2013 ' + fmtDDMM(iso, 6);
-  document.getElementById('pg-label').innerHTML =
-    label + (w.tag ? '<span class="pager-tag">' + w.tag + '</span>' : '');
+  document.getElementById('pg-label').textContent =
+    fmtDDMM(iso, 0) + ' \u2013 ' + fmtDDMM(iso, 6);
   document.getElementById('pg-prev').disabled = (weekIdx <= 0);
   document.getElementById('pg-next').disabled = (weekIdx >= weekList.length - 1);
 }
