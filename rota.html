@@ -366,6 +366,7 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 
 <script>
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
+const HIST_SHEET = 'Rota 2505-1207'; // 历史班表 tab 名,改名后同步改这里
 let currentSheet = 'Rota';
 let agencySet = new Set();
 let allAdjustments = null;    // cached rows from 'Rota Adjustments' (whole ledger)
@@ -399,7 +400,11 @@ function parseSheetDate(s) {
   let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
   if (m) return m[1] + '-' + pad2(+m[2]) + '-' + pad2(+m[3]);
   m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if (m) return m[3] + '-' + pad2(+m[2]) + '-' + pad2(+m[1]);
+  if (m) {
+    let dd = +m[1], mm = +m[2];
+    if (mm > 12 && dd <= 12) { const t = dd; dd = mm; mm = t; } // mm/dd 容错
+    return m[3] + '-' + pad2(mm) + '-' + pad2(dd);
+  }
   m = s.match(/^(\d{1,2})\/(\d{1,2})$/);
   if (m) return new Date().getFullYear() + '-' + pad2(+m[2]) + '-' + pad2(+m[1]);
   return null;
@@ -828,26 +833,46 @@ async function loadRota(sheetName) {
   }
 }
 
-// ---------- History (RotaArchive) ----------
-// RotaArchive layout: WeekStart | Site | Name | Monday..Sunday | TotalHours
+// ---------- History:直接读历史班表(一周一块的原始格式) ----------
+// 块结构:表头行(B列='Name') → 日期行 → 排班行…,与 Rota tab 完全一致,
+// 所以每个周块可以原样交给 buildTable / buildCards 渲染,界面零差异。
+let histBlocks = null; // weekKey -> { rows, label }
+
 async function loadArchiveWeeks() {
   const sel = document.getElementById('week-select');
-  try {
-    archiveRows = await fetchSheet('RotaArchive');
-  } catch(e) {
-    archiveRows = null;
-  }
   if (!sel) return;
-  if (!archiveRows || archiveRows.length < 2) { sel.style.display = 'none'; return; }
-  const weeks = [];
-  const seen = new Set();
-  for (let i = 1; i < archiveRows.length; i++) {
-    const w = parseSheetDate(archiveRows[i][0]);
-    if (w && !seen.has(w)) { seen.add(w); weeks.push(w); }
+  let raw;
+  try {
+    raw = await fetchSheet(HIST_SHEET);
+  } catch(e) { raw = null; }
+  if (!raw || raw.length < 3) { sel.style.display = 'none'; return; }
+
+  histBlocks = new Map();
+  let r = 0;
+  while (r < raw.length) {
+    if (((raw[r][1] || '').trim()) !== 'Name') { r++; continue; }
+    const headerRow = raw[r];
+    const dateRow = raw[r + 1] || [];
+    const weekISO = parseSheetDate(dateRow[2]);
+    const dataRows = [];
+    let i = r + 2;
+    for (; i < raw.length; i++) {
+      if (((raw[i][1] || '').trim()) === 'Name') break; // 下一个周块
+      if ((raw[i][1] || '').trim()) dataRows.push(raw[i]); // 只保留有名字的行
+    }
+    if (weekISO && dataRows.length) {
+      histBlocks.set(weekISO, {
+        rows: [headerRow, dateRow].concat(dataRows),
+        label: fmtDDMM(weekISO, 0) + ' \u2013 ' + fmtDDMM(weekISO, 6)
+      });
+    }
+    r = i;
   }
-  weeks.sort().reverse();
+
+  if (!histBlocks.size) { sel.style.display = 'none'; return; }
+  const weeks = Array.from(histBlocks.keys()).sort().reverse();
   sel.innerHTML = '<option value="">History\u2026</option>' + weeks.map(w =>
-    '<option value="' + w + '">' + fmtDDMM(w, 0) + ' \u2013 ' + fmtDDMM(w, 6) + '</option>').join('');
+    '<option value="' + w + '">' + histBlocks.get(w).label + '</option>').join('');
 }
 
 function onWeekSelect(val) {
@@ -862,43 +887,24 @@ async function renderArchiveWeek(weekStart) {
   const el = document.getElementById('content');
   if (agencySet.size === 0) agencySet = await fetchAgencyStaff();
   await fetchAdjustments();
-  if (!archiveRows) {
-    el.innerHTML = '<div class="error">No archive data (RotaArchive tab not found)</div>';
-    return;
-  }
-  const wk = [];
-  for (let i = 1; i < archiveRows.length; i++) {
-    if (parseSheetDate(archiveRows[i][0]) === weekStart) wk.push(archiveRows[i]);
-  }
-  if (!wk.length) {
+  const block = histBlocks && histBlocks.get(weekStart);
+  if (!block) {
     el.innerHTML = '<div class="error">No data for selected week</div>';
     return;
   }
-
-  // Rebuild the exact row structure the live Rota tab uses,
-  // so buildTable / buildCards render the identical UI.
-  const rows = [];
-  rows.push(['', 'Name', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Total Hours']);
-  const dateRow = ['', ''];
-  for (let d = 0; d < 7; d++) dateRow.push(fmtDDMM(weekStart, d));
-  dateRow.push('');
-  rows.push(dateRow);
-  let prevSite = null;
-  wk.forEach(r => {
-    const site = (r[1] || '').trim();
-    const name = (r[2] || '').trim();
-    const days = [];
-    for (let d = 3; d < 10; d++) days.push((r[d] || '').trim());
-    const total = (r[10] || '').trim();
-    rows.push([site === prevSite ? '' : site, name].concat(days, [total]));
-    if (site) prevSite = site;
-  });
-
+  const rows = block.rows;
   currentWeekStart = weekStart;
   const adjustments = adjustmentsForWeek(weekStart, false);
-  const dayHeaders = rows[0].slice(2, 9);
+
+  const allHeaders = rows[0];
+  const totalHoursIdx = allHeaders.findIndex(h => (h || '').toLowerCase().includes('total hours'));
+  const legacyIdx = allHeaders.findIndex(h => /refund|deduction/i.test(h || ''));
+  let dayEndIdx = totalHoursIdx > 0 ? totalHoursIdx : allHeaders.length;
+  if (legacyIdx > 0 && legacyIdx < dayEndIdx) dayEndIdx = legacyIdx;
+  const dayHeaders = allHeaders.slice(2, dayEndIdx);
+
   el.innerHTML = buildTable(rows, agencySet, -1, adjustments);
-  buildCards(rows, agencySet, dayHeaders, 9, -1, adjustments);
+  buildCards(rows, agencySet, dayHeaders, dayEndIdx, -1, adjustments);
 }
 
 loadRota('Rota');
