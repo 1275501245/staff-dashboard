@@ -44,6 +44,38 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
   color: #111;
   white-space: nowrap;
 }
+.pager-btn.active { background: #111; color: #fff; border-color: #111; }
+.sum-bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 4px 0 18px;
+}
+.sum-bar select {
+  padding: 6px 10px; border: 1px solid #ddd; border-radius: 8px;
+  font-size: 13px; font-family: inherit; background: #fff; cursor: pointer;
+}
+.sum-bar .sum-title { font-size: 14px; font-weight: 700; margin-right: 6px; }
+.sum-section-title {
+  font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #888;
+  text-transform: uppercase; margin: 22px 0 10px;
+}
+.sum-table {
+  width: 100%; border-collapse: collapse; background: #fff;
+  border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  font-size: 13px;
+}
+.sum-table th {
+  background: #1a1a1a; color: #fff; padding: 9px 12px; text-align: center;
+  font-weight: 600; white-space: nowrap;
+}
+.sum-table th:first-child { text-align: left; }
+.sum-table td {
+  padding: 8px 12px; text-align: center; border-bottom: 1px solid #f0f0f0; white-space: nowrap;
+}
+.sum-table td:first-child { text-align: left; font-weight: 600; }
+.sum-table tr:last-child td { border-bottom: none; }
+.sum-table .sum-adj-neg { color: #c62828; font-weight: 600; }
+.sum-table .sum-adj-pos { color: #2e7d32; font-weight: 600; }
+.sum-table .sum-total { font-weight: 700; background: #f7f5ff; color: #5b21b6; }
 .pager-tag {
   display: block;
   font-size: 10px;
@@ -350,6 +382,7 @@ tr.site-separator td { border-top: 3px solid #ddd; }
     <button class="pager-btn" id="pg-prev" onclick="shiftWeek(-1)" disabled>‹</button>
     <div class="pager-label" id="pg-label">…</div>
     <button class="pager-btn" id="pg-next" onclick="shiftWeek(1)" disabled>›</button>
+    <button class="pager-btn" id="btn-sum" onclick="toggleSummary()" title="多周合计" disabled>Σ</button>
   </div>
 </div>
 
@@ -917,6 +950,8 @@ async function initWeeks() {
       { kind: 'live', sheet: 'Rota_next', tag: 'Next Week', iso: nextMon }
     ]);
   weekIdx = weekList.length - 2; // 默认本周
+  const b = document.getElementById('btn-sum');
+  if (b) b.disabled = (weekList.length < 2);
   showWeek();
 }
 
@@ -930,6 +965,9 @@ function shiftWeek(d) {
 }
 
 function showWeek() {
+  sumMode = false;
+  const b = document.getElementById('btn-sum');
+  if (b) b.classList.remove('active');
   const w = weekList[weekIdx];
   updatePager();
   if (w.kind === 'live') loadRota(w.sheet);
@@ -970,6 +1008,152 @@ async function renderArchiveWeek(weekStart) {
   el.innerHTML = buildTable(rows, agencySet, -1, adjustments);
   buildCards(rows, agencySet, dayHeaders, dayEndIdx, -1, adjustments);
   updatePager();
+}
+
+// ---------- 多周合计(Σ) ----------
+let sumMode = false;
+const liveRowsCache = {};
+
+function toggleSummary() {
+  if (sumMode) { showWeek(); return; }
+  sumMode = true;
+  document.getElementById('btn-sum').classList.add('active');
+  document.getElementById('cards-section').style.display = 'none';
+  // 默认区间:最近 4 周(含本周),不含下周
+  const thisIdx = weekList.length - 2;
+  renderSummaryShell(Math.max(0, thisIdx - 3), thisIdx);
+}
+
+function renderSummaryShell(fromIdx, toIdx) {
+  const el = document.getElementById('content');
+  const opts = weekList.map((w, i) =>
+    '<option value="' + i + '">' + fmtDDMM(w.iso, 0) + ' – ' + fmtDDMM(w.iso, 6) + '</option>').join('');
+  el.innerHTML =
+    '<div class="sum-bar"><span class="sum-title">多周合计</span>' +
+    '<select id="sum-from" onchange="onSumRangeChange()">' + opts + '</select><span>→</span>' +
+    '<select id="sum-to" onchange="onSumRangeChange()">' + opts + '</select></div>' +
+    '<div id="sum-result"><div class="loading">Loading…</div></div>';
+  document.getElementById('sum-from').value = fromIdx;
+  document.getElementById('sum-to').value = toIdx;
+  renderSummary(fromIdx, toIdx);
+}
+
+function onSumRangeChange() {
+  let f = +document.getElementById('sum-from').value;
+  let t = +document.getElementById('sum-to').value;
+  if (f > t) { const x = f; f = t; t = x; }
+  renderSummary(f, t);
+}
+
+async function weekRowsFor(entry) {
+  if (entry.kind === 'hist') {
+    const b = histBlocks.get(entry.iso);
+    return b ? b.rows : null;
+  }
+  if (liveRowsCache[entry.sheet]) return liveRowsCache[entry.sheet];
+  try {
+    const rows = await fetchSheet(entry.sheet);
+    liveRowsCache[entry.sheet] = rows;
+    return rows;
+  } catch(e) { return null; }
+}
+
+// 从一周的 rows 算出每人/每站工时(仅 Agency 员工)
+function statsFromRows(rows) {
+  const allHeaders = rows[0];
+  const totalHoursIdx = allHeaders.findIndex(h => (h || '').toLowerCase().includes('total hours'));
+  const legacyIdx = allHeaders.findIndex(h => /refund|deduction/i.test(h || ''));
+  let dayEndIdx = totalHoursIdx > 0 ? totalHoursIdx : allHeaders.length;
+  if (legacyIdx > 0 && legacyIdx < dayEndIdx) dayEndIdx = legacyIdx;
+  if (dayEndIdx > 9) dayEndIdx = 9;
+  const perPerson = {}, perSite = {};
+  let curSite = '';
+  rows.slice(2).forEach(r => {
+    const site = (r[0] || '').trim();
+    if (site) curSite = site;
+    const name = (r[1] || '').trim();
+    if (!name || !agencySet.has(name)) return;
+    const h = rowHoursOf(r, totalHoursIdx, dayEndIdx);
+    if (h > 0) {
+      perPerson[name] = (perPerson[name] || 0) + h;
+      perSite[curSite] = (perSite[curSite] || 0) + h;
+    }
+  });
+  return { perPerson, perSite };
+}
+
+function fmtH(n) {
+  if (!n) return '–';
+  return String(Math.round(n * 100) / 100);
+}
+
+async function renderSummary(fromIdx, toIdx) {
+  const box = document.getElementById('sum-result');
+  if (agencySet.size === 0) agencySet = await fetchAgencyStaff();
+  await fetchAdjustments();
+
+  const entries = weekList.slice(fromIdx, toIdx + 1);
+  const weekStats = [];
+  for (const e of entries) {
+    const rows = await weekRowsFor(e);
+    weekStats.push(rows ? statsFromRows(rows) : { perPerson: {}, perSite: {} });
+  }
+
+  // 区间内调整项(未填周的旧记录归到本周)
+  const fromIso = entries[0].iso, toIso = entries[entries.length - 1].iso;
+  const thisMon = mondayOfToday(0);
+  const adjPerson = {}, adjSite = {};
+  (allAdjustments || []).forEach(a => {
+    const w = a.weekStart || thisMon;
+    if (w >= fromIso && w <= toIso) {
+      adjPerson[a.name] = (adjPerson[a.name] || 0) + a.hours;
+      adjSite[a.site] = (adjSite[a.site] || 0) + a.hours;
+    }
+  });
+
+  const weekCols = entries.map(e => fmtDDMM(e.iso, 0));
+
+  function buildSumTable(firstCol, keys, getWeekVal, adjMap) {
+    let h = '<div class="table-scroll"><table class="sum-table"><thead><tr><th>' + firstCol + '</th>' +
+      weekCols.map(c => '<th>' + c + '</th>').join('') +
+      '<th>Adj</th><th>Total</th></tr></thead><tbody>';
+    keys.forEach(k => {
+      let sum = 0;
+      const cells = weekStats.map(ws => {
+        const v = getWeekVal(ws, k) || 0;
+        sum += v;
+        return '<td>' + fmtH(v) + '</td>';
+      }).join('');
+      const adj = adjMap[k] || 0;
+      const adjCls = adj < 0 ? 'sum-adj-neg' : (adj > 0 ? 'sum-adj-pos' : '');
+      const adjTxt = adj ? (adj > 0 ? '+' : '') + fmtH0(adj) : '–';
+      h += '<tr><td>' + k + '</td>' + cells +
+        '<td class="' + adjCls + '">' + adjTxt + '</td>' +
+        '<td class="sum-total">' + fmtH(sum + adj) + '</td></tr>';
+    });
+    h += '</tbody></table></div>';
+    return h;
+  }
+  function fmtH0(n) { return String(Math.round(n * 100) / 100); }
+
+  // 站点:按出现顺序;员工:按合计降序
+  const siteKeys = [];
+  weekStats.forEach(ws => Object.keys(ws.perSite).forEach(s => { if (!siteKeys.includes(s)) siteKeys.push(s); }));
+  Object.keys(adjSite).forEach(s => { if (s && !siteKeys.includes(s)) siteKeys.push(s); });
+
+  const personTotals = {};
+  weekStats.forEach(ws => Object.keys(ws.perPerson).forEach(n => {
+    personTotals[n] = (personTotals[n] || 0) + ws.perPerson[n];
+  }));
+  Object.keys(adjPerson).forEach(n => { personTotals[n] = (personTotals[n] || 0) + 0; });
+  const personKeys = Object.keys(personTotals).sort((a, b) => (personTotals[b] || 0) - (personTotals[a] || 0));
+
+  const nWeeks = entries.length;
+  box.innerHTML =
+    '<div class="sum-section-title">Site hours · ' + nWeeks + ' week' + (nWeeks > 1 ? 's' : '') + '</div>' +
+    buildSumTable('Site', siteKeys, (ws, k) => ws.perSite[k], adjSite) +
+    '<div class="sum-section-title">Staff hours · ' + nWeeks + ' week' + (nWeeks > 1 ? 's' : '') + '</div>' +
+    buildSumTable('Name', personKeys, (ws, k) => ws.perPerson[k], adjPerson);
 }
 
 initWeeks();
