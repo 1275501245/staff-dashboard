@@ -38,6 +38,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
   color: #fff;
   border-color: #111;
 }
+.week-select {
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  background: #f5f5f5;
+  color: #555;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  max-width: 170px;
+}
+.week-select:focus { outline: none; border-color: #111; }
 
 .table-wrap {
   overflow: auto;
@@ -335,7 +348,10 @@ tr.site-separator td { border-top: 3px solid #ddd; }
   <h1>Rota</h1>
   <div class="week-toggle">
     <button class="week-btn active" id="btn-this" onclick="switchWeek('Rota', this)">This Week</button>
-    <button class="week-btn" id="btn-next" onclick="switchWeek('Rota_Next', this)">Next Week</button>
+    <button class="week-btn" id="btn-next" onclick="switchWeek('Rota_next', this)">Next Week</button>
+    <select class="week-select" id="week-select" onchange="onWeekSelect(this.value)">
+      <option value="">History…</option>
+    </select>
   </div>
 </div>
 
@@ -352,6 +368,42 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
 let currentSheet = 'Rota';
 let agencySet = new Set();
+let allAdjustments = null;    // cached rows from 'Rota Adjustments' (whole ledger)
+let archiveRows = null;       // cached rows from 'RotaArchive'
+let currentWeekStart = null;  // ISO 'YYYY-MM-DD' Monday of the week being displayed
+
+function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+function toISO(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+
+// Monday of the current real-world week, offset by N weeks
+function mondayOfToday(offsetWeeks) {
+  const t = new Date();
+  const dow = t.getDay(); // 0=Sun
+  t.setDate(t.getDate() + (dow === 0 ? -6 : 1 - dow) + (offsetWeeks || 0) * 7);
+  return toISO(t);
+}
+
+// 'YYYY-MM-DD' + n days -> Date
+function addDaysISO(iso, n) {
+  const p = iso.split('-').map(Number);
+  return new Date(p[0], p[1] - 1, p[2] + (n || 0));
+}
+function fmtDDMM(iso, n) {
+  const dt = addDaysISO(iso, n);
+  return pad2(dt.getDate()) + '/' + pad2(dt.getMonth() + 1);
+}
+
+// Parse a sheet date string: 'YYYY-MM-DD', 'DD/MM/YYYY' or 'DD/MM' -> ISO or null
+function parseSheetDate(s) {
+  s = (s || '').trim();
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return m[1] + '-' + pad2(+m[2]) + '-' + pad2(+m[3]);
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) return m[3] + '-' + pad2(+m[2]) + '-' + pad2(+m[1]);
+  m = s.match(/^(\d{1,2})\/(\d{1,2})$/);
+  if (m) return new Date().getFullYear() + '-' + pad2(+m[2]) + '-' + pad2(+m[1]);
+  return null;
+}
 
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -370,6 +422,8 @@ function switchWeek(sheetName, btn) {
   currentSheet = sheetName;
   document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  const sel = document.getElementById('week-select');
+  if (sel) sel.value = '';
   document.getElementById('content').innerHTML = '<div class="loading">Loading…</div>';
   document.getElementById('cards-section').style.display = 'none';
   loadRota(sheetName);
@@ -438,22 +492,37 @@ async function fetchAgencyStaff() {
 }
 
 async function fetchAdjustments() {
-  // Reads the "Rota Adjustments" tab: Name | Site | Hours | Note
-  // Hours is signed: negative = deduction, positive = bonus
+  // Reads the "Rota Adjustments" tab: Name | Site | WeekStart | Hours | Note
+  // Hours is signed: negative = deduction, positive = bonus.
+  // WeekStart = Monday of the week the adjustment belongs to.
+  // Backward compatible with the legacy 4-col layout (no WeekStart column).
+  if (allAdjustments) return allAdjustments;
   try {
     const rows = await fetchSheet('Rota Adjustments');
+    const header = (rows[0] || []).map(h => (h || '').toLowerCase());
+    const hasWeek = !!(header[2] && header[2].indexOf('week') !== -1);
     const list = [];
     for (let i = 1; i < rows.length; i++) {
       const name  = (rows[i][0] || '').trim();
       const site  = (rows[i][1] || '').trim();
-      const hours = parseFloat((rows[i][2] || '').trim());
-      const note  = (rows[i][3] || '').trim();
-      if (name && !isNaN(hours) && hours !== 0) list.push({ name, site, hours, note });
+      const weekStart = hasWeek ? parseSheetDate(rows[i][2]) : null;
+      const hoursRaw  = ((hasWeek ? rows[i][3] : rows[i][2]) || '').replace(/^=/, '').trim();
+      const note      = ((hasWeek ? rows[i][4] : rows[i][3]) || '').trim();
+      const hours = parseFloat(hoursRaw);
+      if (name && !isNaN(hours) && hours !== 0) list.push({ name, site, weekStart, hours, note });
     }
+    allAdjustments = list;
     return list;
   } catch(e) {
     return [];
   }
+}
+
+// Only adjustments belonging to the displayed week.
+// Rows with no WeekStart (legacy) are shown on "This Week" only, so nothing silently disappears.
+function adjustmentsForWeek(weekStart, includeUnattributed) {
+  return (allAdjustments || []).filter(a =>
+    a.weekStart === weekStart || (!a.weekStart && includeUnattributed));
 }
 
 function fmtSigned(n) {
@@ -727,16 +796,22 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
 async function loadRota(sheetName) {
   const el = document.getElementById('content');
   try {
-    const [rows, agency, adjustments] = await Promise.all([
+    const [rows, agency] = await Promise.all([
       fetchSheet(sheetName),
-      agencySet.size > 0 ? Promise.resolve(agencySet) : fetchAgencyStaff(),
-      fetchAdjustments()
+      agencySet.size > 0 ? Promise.resolve(agencySet) : fetchAgencyStaff()
     ]);
+    await fetchAdjustments();
     if (agency.size > 0) agencySet = agency;
     if (!rows || rows.length < 3) {
       el.innerHTML = '<div class="error">No data found in sheet: ' + sheetName + '</div>';
       return;
     }
+
+    // Week attribution: parse Monday date from the sheet's date row,
+    // fall back to the real-world Monday (This Week) / Monday+7 (Next Week)
+    const parsedWeek = rows.length > 1 ? parseSheetDate(rows[1][2]) : null;
+    currentWeekStart = parsedWeek || mondayOfToday(sheetName === 'Rota_next' ? 1 : 0);
+    const adjustments = adjustmentsForWeek(currentWeekStart, sheetName === 'Rota');
 
     const allHeaders = rows[0];
     const totalHoursIdx = allHeaders.findIndex(h => h.toLowerCase().includes('total hours'));
@@ -753,7 +828,81 @@ async function loadRota(sheetName) {
   }
 }
 
+// ---------- History (RotaArchive) ----------
+// RotaArchive layout: WeekStart | Site | Name | Monday..Sunday | TotalHours
+async function loadArchiveWeeks() {
+  const sel = document.getElementById('week-select');
+  try {
+    archiveRows = await fetchSheet('RotaArchive');
+  } catch(e) {
+    archiveRows = null;
+  }
+  if (!sel) return;
+  if (!archiveRows || archiveRows.length < 2) { sel.style.display = 'none'; return; }
+  const weeks = [];
+  const seen = new Set();
+  for (let i = 1; i < archiveRows.length; i++) {
+    const w = parseSheetDate(archiveRows[i][0]);
+    if (w && !seen.has(w)) { seen.add(w); weeks.push(w); }
+  }
+  weeks.sort().reverse();
+  sel.innerHTML = '<option value="">History\u2026</option>' + weeks.map(w =>
+    '<option value="' + w + '">' + fmtDDMM(w, 0) + ' \u2013 ' + fmtDDMM(w, 6) + '</option>').join('');
+}
+
+function onWeekSelect(val) {
+  if (!val) return;
+  document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('content').innerHTML = '<div class="loading">Loading\u2026</div>';
+  document.getElementById('cards-section').style.display = 'none';
+  renderArchiveWeek(val);
+}
+
+async function renderArchiveWeek(weekStart) {
+  const el = document.getElementById('content');
+  if (agencySet.size === 0) agencySet = await fetchAgencyStaff();
+  await fetchAdjustments();
+  if (!archiveRows) {
+    el.innerHTML = '<div class="error">No archive data (RotaArchive tab not found)</div>';
+    return;
+  }
+  const wk = [];
+  for (let i = 1; i < archiveRows.length; i++) {
+    if (parseSheetDate(archiveRows[i][0]) === weekStart) wk.push(archiveRows[i]);
+  }
+  if (!wk.length) {
+    el.innerHTML = '<div class="error">No data for selected week</div>';
+    return;
+  }
+
+  // Rebuild the exact row structure the live Rota tab uses,
+  // so buildTable / buildCards render the identical UI.
+  const rows = [];
+  rows.push(['', 'Name', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Total Hours']);
+  const dateRow = ['', ''];
+  for (let d = 0; d < 7; d++) dateRow.push(fmtDDMM(weekStart, d));
+  dateRow.push('');
+  rows.push(dateRow);
+  let prevSite = null;
+  wk.forEach(r => {
+    const site = (r[1] || '').trim();
+    const name = (r[2] || '').trim();
+    const days = [];
+    for (let d = 3; d < 10; d++) days.push((r[d] || '').trim());
+    const total = (r[10] || '').trim();
+    rows.push([site === prevSite ? '' : site, name].concat(days, [total]));
+    if (site) prevSite = site;
+  });
+
+  currentWeekStart = weekStart;
+  const adjustments = adjustmentsForWeek(weekStart, false);
+  const dayHeaders = rows[0].slice(2, 9);
+  el.innerHTML = buildTable(rows, agencySet, -1, adjustments);
+  buildCards(rows, agencySet, dayHeaders, 9, -1, adjustments);
+}
+
 loadRota('Rota');
+loadArchiveWeeks();
 </script>
 </body>
 </html>
