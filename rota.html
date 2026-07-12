@@ -20,37 +20,37 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
   gap: 12px;
 }
 .topbar h1 { font-size: 15px; font-weight: 600; color: #111; flex: 1; }
-.week-toggle { display: flex; gap: 6px; }
-.week-btn {
-  padding: 5px 14px;
-  border-radius: 20px;
+.pager { display: flex; align-items: center; gap: 10px; }
+.pager-btn {
+  width: 30px; height: 30px;
+  border-radius: 50%;
   border: 1px solid #ddd;
-  background: #f5f5f5;
-  color: #555;
-  font-size: 12px;
-  font-weight: 500;
+  background: #fff;
+  color: #333;
+  font-size: 16px;
+  line-height: 1;
   cursor: pointer;
   font-family: inherit;
+  display: flex; align-items: center; justify-content: center;
   transition: all 0.15s;
 }
-.week-btn.active {
-  background: #111;
-  color: #fff;
-  border-color: #111;
+.pager-btn:hover:not(:disabled) { border-color: #111; }
+.pager-btn:disabled { opacity: 0.3; cursor: default; }
+.pager-label {
+  min-width: 150px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111;
+  white-space: nowrap;
 }
-.week-select {
-  padding: 5px 10px;
-  border-radius: 20px;
-  border: 1px solid #ddd;
-  background: #f5f5f5;
-  color: #555;
-  font-size: 12px;
+.pager-tag {
+  display: block;
+  font-size: 10px;
   font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  max-width: 170px;
+  color: #7c3aed;
+  letter-spacing: 0.3px;
 }
-.week-select:focus { outline: none; border-color: #111; }
 
 .table-wrap {
   overflow: auto;
@@ -346,12 +346,10 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 
 <div class="topbar">
   <h1>Rota</h1>
-  <div class="week-toggle">
-    <button class="week-btn active" id="btn-this" onclick="switchWeek('Rota', this)">This Week</button>
-    <button class="week-btn" id="btn-next" onclick="switchWeek('Rota_next', this)">Next Week</button>
-    <select class="week-select" id="week-select" onchange="onWeekSelect(this.value)">
-      <option value="">History…</option>
-    </select>
+  <div class="pager">
+    <button class="pager-btn" id="pg-prev" onclick="shiftWeek(-1)" disabled>‹</button>
+    <div class="pager-label" id="pg-label">…</div>
+    <button class="pager-btn" id="pg-next" onclick="shiftWeek(1)" disabled>›</button>
   </div>
 </div>
 
@@ -421,17 +419,6 @@ function getTodayColIdx(dayHeaders) {
     const hl = h.toLowerCase();
     return hl.startsWith(todayKey) || hl.includes(todayKey);
   });
-}
-
-function switchWeek(sheetName, btn) {
-  currentSheet = sheetName;
-  document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const sel = document.getElementById('week-select');
-  if (sel) sel.value = '';
-  document.getElementById('content').innerHTML = '<div class="loading">Loading…</div>';
-  document.getElementById('cards-section').style.display = 'none';
-  loadRota(sheetName);
 }
 
 async function fetchSheet(sheetName) {
@@ -828,26 +815,24 @@ async function loadRota(sheetName) {
 
     el.innerHTML = buildTable(rows, agencySet, todayIdx, adjustments);
     buildCards(rows, agencySet, dayHeaders, dayEndIdx, todayIdx, adjustments);
+    updatePager();
   } catch(e) {
     el.innerHTML = '<div class="error">Error loading rota: ' + e.message + '</div>';
   }
 }
 
-// ---------- History:直接读历史班表(一周一块的原始格式) ----------
-// 块结构:表头行(B列='Name') → 日期行 → 排班行…,与 Rota tab 完全一致,
-// 所以每个周块可以原样交给 buildTable / buildCards 渲染,界面零差异。
-let histBlocks = null; // weekKey -> { rows, label }
+// ---------- 周翻页器:历史周(直接读历史班表原格式)→ 本周 → 下周 ----------
+// 历史班表块结构:表头行(B列='Name') → 日期行 → 排班行…,与 Rota tab 一致,
+// 每个周块原样交给 buildTable / buildCards,界面零差异。
+let histBlocks = null; // weekISO -> { rows }
+let weekList = [];     // [{kind:'hist',iso} ..., {kind:'live',sheet:'Rota',tag:'This Week',iso}, {kind:'live',sheet:'Rota_next',tag:'Next Week',iso}]
+let weekIdx = -1;
 
-async function loadArchiveWeeks() {
-  const sel = document.getElementById('week-select');
-  if (!sel) return;
+async function loadHistBlocks() {
   let raw;
-  try {
-    raw = await fetchSheet(HIST_SHEET);
-  } catch(e) { raw = null; }
-  if (!raw || raw.length < 3) { sel.style.display = 'none'; return; }
-
+  try { raw = await fetchSheet(HIST_SHEET); } catch(e) { raw = null; }
   histBlocks = new Map();
+  if (!raw || raw.length < 3) return;
   let r = 0;
   while (r < raw.length) {
     if (((raw[r][1] || '').trim()) !== 'Name') { r++; continue; }
@@ -857,30 +842,57 @@ async function loadArchiveWeeks() {
     const dataRows = [];
     let i = r + 2;
     for (; i < raw.length; i++) {
-      if (((raw[i][1] || '').trim()) === 'Name') break; // 下一个周块
-      if ((raw[i][1] || '').trim()) dataRows.push(raw[i]); // 只保留有名字的行
+      if (((raw[i][1] || '').trim()) === 'Name') break;
+      if ((raw[i][1] || '').trim()) dataRows.push(raw[i]);
     }
     if (weekISO && dataRows.length) {
-      histBlocks.set(weekISO, {
-        rows: [headerRow, dateRow].concat(dataRows),
-        label: fmtDDMM(weekISO, 0) + ' \u2013 ' + fmtDDMM(weekISO, 6)
-      });
+      histBlocks.set(weekISO, { rows: [headerRow, dateRow].concat(dataRows) });
     }
     r = i;
   }
-
-  if (!histBlocks.size) { sel.style.display = 'none'; return; }
-  const weeks = Array.from(histBlocks.keys()).sort().reverse();
-  sel.innerHTML = '<option value="">History\u2026</option>' + weeks.map(w =>
-    '<option value="' + w + '">' + histBlocks.get(w).label + '</option>').join('');
 }
 
-function onWeekSelect(val) {
-  if (!val) return;
-  document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+async function initWeeks() {
+  await loadHistBlocks();
+  const thisMon = mondayOfToday(0);
+  const nextMon = mondayOfToday(1);
+  // 历史周里与本周/下周重复的排除(以 Rota / Rota_next 为准)
+  const hist = Array.from(histBlocks.keys())
+    .filter(w => w !== thisMon && w !== nextMon).sort();
+  weekList = hist.map(w => ({ kind: 'hist', iso: w }))
+    .concat([
+      { kind: 'live', sheet: 'Rota',      tag: 'This Week', iso: thisMon },
+      { kind: 'live', sheet: 'Rota_next', tag: 'Next Week', iso: nextMon }
+    ]);
+  weekIdx = weekList.length - 2; // 默认本周
+  showWeek();
+}
+
+function shiftWeek(d) {
+  const n = weekIdx + d;
+  if (n < 0 || n >= weekList.length) return;
+  weekIdx = n;
   document.getElementById('content').innerHTML = '<div class="loading">Loading\u2026</div>';
   document.getElementById('cards-section').style.display = 'none';
-  renderArchiveWeek(val);
+  showWeek();
+}
+
+function showWeek() {
+  const w = weekList[weekIdx];
+  updatePager();
+  if (w.kind === 'live') loadRota(w.sheet);
+  else renderArchiveWeek(w.iso);
+}
+
+function updatePager() {
+  if (weekIdx < 0) return;
+  const w = weekList[weekIdx];
+  const iso = (w.kind === 'live' && currentWeekStart) ? currentWeekStart : w.iso;
+  const label = fmtDDMM(iso, 0) + ' \u2013 ' + fmtDDMM(iso, 6);
+  document.getElementById('pg-label').innerHTML =
+    label + (w.tag ? '<span class="pager-tag">' + w.tag + '</span>' : '');
+  document.getElementById('pg-prev').disabled = (weekIdx <= 0);
+  document.getElementById('pg-next').disabled = (weekIdx >= weekList.length - 1);
 }
 
 async function renderArchiveWeek(weekStart) {
@@ -905,10 +917,10 @@ async function renderArchiveWeek(weekStart) {
 
   el.innerHTML = buildTable(rows, agencySet, -1, adjustments);
   buildCards(rows, agencySet, dayHeaders, dayEndIdx, -1, adjustments);
+  updatePager();
 }
 
-loadRota('Rota');
-loadArchiveWeeks();
+initWeeks();
 </script>
 </body>
 </html>
