@@ -570,15 +570,35 @@ function parseHours(val) {
   return isNaN(n) ? 0 : n;
 }
 
+// 从排班格子里提取括号内小时数并求和,如 '1030-0100(13.5)'、'（8）'
+// 与表内 SUMPRODUCT(REGEXEXTRACT(...)) 公式同一逻辑,用于总计列缺失/损坏时兜底
+function hoursFromDays(days) {
+  let sum = 0;
+  (days || []).forEach(v => {
+    const s = (v || '').toString();
+    const re = /[\uff08(](\d+(?:\.\d+)?)[)\uff09]/g;
+    let m;
+    while ((m = re.exec(s)) !== null) sum += parseFloat(m[1]);
+  });
+  return Math.round(sum * 100) / 100;
+}
+
+// 单行工时:优先用表里的 Total Hours,取不到/为0 时从排班格自动计算
+function rowHoursOf(row, totalHoursIdx, dayEndIdx) {
+  const raw = totalHoursIdx > 0 ? parseHours(row[totalHoursIdx]) : 0;
+  return raw || hoursFromDays(row.slice(2, dayEndIdx));
+}
+
 function buildTable(rows, agency, todayIdx, adjustments) {
   const allHeaders = rows[0];
   const totalHoursIdx = allHeaders.findIndex(h => h.toLowerCase().includes('total hours'));
   // Guard: if a legacy refund/deduction column still exists, keep it out of day cols
   const legacyIdx = allHeaders.findIndex(h => /refund|deduction/i.test(h));
 
-  // Day cols: from col 2 up to (not including) total hours (or legacy column)
+  // Day cols: from col 2 up to (not including) total hours (or legacy column), max 7 days
   let dayEndIdx = totalHoursIdx > 0 ? totalHoursIdx : allHeaders.length;
   if (legacyIdx > 0 && legacyIdx < dayEndIdx) dayEndIdx = legacyIdx;
+  if (dayEndIdx > 9) dayEndIdx = 9;
 
   const dayHeaders = allHeaders.slice(2, dayEndIdx);
   const dateRow    = rows[1].slice(2, dayEndIdx);
@@ -628,8 +648,8 @@ function buildTable(rows, agency, todayIdx, adjustments) {
     let siteTotal = 0;
     group.rows.forEach(row => {
       const name = (row[1] || '').trim();
-      if (agency.has(name) && totalHoursIdx > 0) {
-        siteTotal += parseHours(row[totalHoursIdx]);
+      if (agency.has(name)) {
+        siteTotal += rowHoursOf(row, totalHoursIdx, dayEndIdx);
       }
     });
     // Apply signed adjustments (deductions/bonuses) attributed to this site
@@ -649,7 +669,11 @@ function buildTable(rows, agency, todayIdx, adjustments) {
       const isSeparator = (gi > 0 && isFirst);
       const name = (row[1] || '').trim();
       const days = row.slice(2, dayEndIdx);
-      const indHours = totalHoursIdx > 0 ? (row[totalHoursIdx] || '').trim() : '';
+      let indHours = totalHoursIdx > 0 ? (row[totalHoursIdx] || '').trim() : '';
+      if (!indHours || isNaN(parseFloat(indHours))) {
+        const calc = hoursFromDays(days);
+        indHours = calc > 0 ? String(calc) : '';
+      }
 
       tbody += `<tr${isSeparator ? ' class="site-separator"' : ''}>`;
       if (isFirst) {
@@ -692,7 +716,7 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
     const name = (row[1] || '').trim();
     if (!name || !agency.has(name)) continue;
 
-    const rowHours = totalHoursIdx > 0 ? parseHours(row[totalHoursIdx]) : 0;
+    const rowHours = rowHoursOf(row, totalHoursIdx, dayEndIdx);
     const rowDays = row.slice(2, dayEndIdx);
 
     if (staffMap.has(name)) {
@@ -814,6 +838,7 @@ async function loadRota(sheetName) {
     const legacyIdx = allHeaders.findIndex(h => /refund|deduction/i.test(h));
     let dayEndIdx = totalHoursIdx > 0 ? totalHoursIdx : allHeaders.length;
     if (legacyIdx > 0 && legacyIdx < dayEndIdx) dayEndIdx = legacyIdx;
+    if (dayEndIdx > 9) dayEndIdx = 9;
     const dayHeaders = allHeaders.slice(2, dayEndIdx);
     const todayIdx = getTodayColIdx(dayHeaders);
 
@@ -939,6 +964,7 @@ async function renderArchiveWeek(weekStart) {
   const legacyIdx = allHeaders.findIndex(h => /refund|deduction/i.test(h || ''));
   let dayEndIdx = totalHoursIdx > 0 ? totalHoursIdx : allHeaders.length;
   if (legacyIdx > 0 && legacyIdx < dayEndIdx) dayEndIdx = legacyIdx;
+  if (dayEndIdx > 9) dayEndIdx = 9;
   const dayHeaders = allHeaders.slice(2, dayEndIdx);
 
   el.innerHTML = buildTable(rows, agencySet, -1, adjustments);
