@@ -1,35 +1,132 @@
 {
   "routes": [
-    { "src": "/", "dest": "/home.html" },
-    { "src": "/home", "dest": "/home.html" },
-    { "src": "/index", "dest": "/index.html" },
-    { "src": "/sites", "dest": "/sites.html" },
-    { "src": "/prep", "dest": "/prep.html" },
-    { "src": "/stocktake", "dest": "/stocktake.html" },
-    { "src": "/stocktake-admin", "dest": "/stocktake-admin.html" },
-    { "src": "/stocktake-arrangement", "dest": "/stocktake-arrangement.html" },
-    { "src": "/stocktake-guide", "dest": "/stocktake-guide.html" },
-    { "src": "/suppliers", "dest": "/suppliers.html" },
-    { "src": "/admin", "dest": "/admin-home.html" },
-    { "src": "/opening", "dest": "/opening.html" },
-    { "src": "/closing", "dest": "/closing.html" },
-    { "src": "/handover", "dest": "/handover.html" },
-    { "src": "/accounts", "dest": "/accounts.html" },
-    { "src": "/rota", "dest": "/rota.html" },
-    { "src": "/sop", "dest": "/sop.html" },
-    { "src": "/receiving-sop", "dest": "/receiving-sop.html" },
-    { "src": "/soup-base-guide", "dest": "/soup-base-guide.html" },
-    { "src": "/inventory-management", "dest": "/inventory-management.html" },
-    { "src": "/rice-bowl-guide", "dest": "/rice-bowl-guide.html" },
-    { "src": "/deep-fried-guide", "dest": "/deep-fried-guide.html" },
-    { "src": "/boiling-guide", "dest": "/boiling-guide.html" },
-    { "src": "/use-by-guide", "dest": "/use-by-guide.html" },
-    { "src": "/label-guide", "dest": "/label-guide.html" },
-    { "src": "/set-meal", "dest": "/set-meal.html" },
-    { "src": "/product-guide", "dest": "/product-guide.html" },
-    { "src": "/operations-rota", "dest": "/operations-rota.html" },
-    { "src": "/orders", "dest": "/orders.html" },
-    { "src": "/order", "dest": "/order.html" },
-    { "src": "/working-handbook", "dest": "/working-handbook.html" }
+    {
+      "src": "/",
+      "dest": "/home.html"
+    },
+    {
+      "src": "/home",
+      "dest": "/home.html"
+    },
+    {
+      "src": "/index",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/sites",
+      "dest": "/sites.html"
+    },
+    {
+      "src": "/prep",
+      "dest": "/prep.html"
+    },
+    {
+      "src": "/stocktake",
+      "dest": "/stocktake.html"
+    },
+    {
+      "src": "/stocktake-admin",
+      "dest": "/stocktake-admin.html"
+    },
+    {
+      "src": "/stocktake-arrangement",
+      "dest": "/stocktake-arrangement.html"
+    },
+    {
+      "src": "/stocktake-guide",
+      "dest": "/stocktake-guide.html"
+    },
+    {
+      "src": "/suppliers",
+      "dest": "/suppliers.html"
+    },
+    {
+      "src": "/admin",
+      "dest": "/admin-home.html"
+    },
+    {
+      "src": "/opening",
+      "dest": "/opening.html"
+    },
+    {
+      "src": "/closing",
+      "dest": "/closing.html"
+    },
+    {
+      "src": "/handover",
+      "dest": "/handover.html"
+    },
+    {
+      "src": "/accounts",
+      "dest": "/accounts.html"
+    },
+    {
+      "src": "/rota",
+      "dest": "/rota.html"
+    },
+    {
+      "src": "/sop",
+      "dest": "/sop.html"
+    },
+    {
+      "src": "/receiving-sop",
+      "dest": "/receiving-sop.html"
+    },
+    {
+      "src": "/soup-base-guide",
+      "dest": "/soup-base-guide.html"
+    },
+    {
+      "src": "/inventory-management",
+      "dest": "/inventory-management.html"
+    },
+    {
+      "src": "/rice-bowl-guide",
+      "dest": "/rice-bowl-guide.html"
+    },
+    {
+      "src": "/deep-fried-guide",
+      "dest": "/deep-fried-guide.html"
+    },
+    {
+      "src": "/boiling-guide",
+      "dest": "/boiling-guide.html"
+    },
+    {
+      "src": "/use-by-guide",
+      "dest": "/use-by-guide.html"
+    },
+    {
+      "src": "/label-guide",
+      "dest": "/label-guide.html"
+    },
+    {
+      "src": "/set-meal",
+      "dest": "/set-meal.html"
+    },
+    {
+      "src": "/snakehead-set-meal",
+      "dest": "/snakehead-set-meal.html"
+    },
+    {
+      "src": "/product-guide",
+      "dest": "/product-guide.html"
+    },
+    {
+      "src": "/operations-rota",
+      "dest": "/operations-rota.html"
+    },
+    {
+      "src": "/orders",
+      "dest": "/orders.html"
+    },
+    {
+      "src": "/order",
+      "dest": "/order.html"
+    },
+    {
+      "src": "/working-handbook",
+      "dest": "/working-handbook.html"
+    }
   ]
 }

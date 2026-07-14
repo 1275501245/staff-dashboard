@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snakehead Fish Set Meal</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f4f3f0; color: #1a1917; padding: 16px; padding-bottom: 40px;
+  max-width: 560px; margin: 0 auto;
+}
+.header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.back-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid #e0ddd8; background: #fff;
+  font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: #555; flex-shrink: 0; text-decoration: none;
+}
+.header-text h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+.header-text p { font-size: 12px; color: #888; margin-top: 1px; }
+.section-label { font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.06em; margin: 16px 0 8px 2px; }
+
+.part-card { background: #fff; border: 1.5px solid #e8e6e1; border-radius: 14px; margin-bottom: 8px; overflow: hidden; }
+.part-header {
+  display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; user-select: none;
+}
+.part-num {
+  width: 26px; height: 26px; border-radius: 50%; color: #fff; font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.part-icon {
+  width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center;
+  justify-content: center; font-size: 15px; flex-shrink: 0;
+}
+.part-text { flex: 1; }
+.part-name { font-size: 14px; font-weight: 700; }
+.part-desc { font-size: 11px; color: #888; margin-top: 1px; }
+.chevron { width: 20px; height: 20px; flex-shrink: 0; color: #ccc; transition: transform 0.25s ease; }
+.part-card.open .chevron { transform: rotate(90deg); }
+
+.part-body { display: none; border-top: 1px solid #f0ece6; padding: 12px 16px 14px; }
+.part-card.open .part-body { display: block; }
+
+.sub-section { margin-top: 14px; }
+.sub-section:first-child { margin-top: 2px; }
+.sub-title {
+  display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em;
+  text-transform: uppercase; padding: 3px 9px; border-radius: 20px; color: #fff; margin-bottom: 8px;
+}
+.category-block { margin-top: 12px; }
+.category-block:first-child { margin-top: 4px; }
+.category-label { font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #999; margin-bottom: 6px; }
+
+.item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.item-card { border-radius: 10px; padding: 10px 12px; border: 1px solid #e8e6e1; background: #fff; }
+.item-card.filled { border: none; }
+.item-card-name { font-size: 12.5px; font-weight: 600; color: #2C2C2A; }
+.item-card-value { font-size: 14px; font-weight: 700; margin-top: 4px; }
+
+.note-row { font-size: 12px; color: #666; line-height: 1.55; padding: 4px 0; border-bottom: 0.5px solid #f0ece6; }
+.note-row:last-child { border-bottom: none; }
+
+.state-msg { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back-btn" href="/sop">&#8592;</a>
+  <div class="header-text">
+    <h1 id="page-title">Snakehead Fish Set Meal</h1>
+    <p id="page-sub"></p>
+  </div>
+</div>
+
+<div class="section-label" id="parts-label">Parts</div>
+<div id="parts-list"><div class="state-msg">Loading…</div></div>
+
+<script>
+const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
+const META_SHEET = 'SnakeheadMealMeta';
+const CONTENT_SHEET = 'SnakeheadMealContent';
+
+async function fetchGviz(sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&headers=1`;
+  const res = await fetch(url);
+  const text = await res.text();
+  return JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);?\s*$/)[1]);
+}
+
+function renderPartBody(rows, color) {
+  const sections = {};
+  const order = [];
+  rows.forEach(r => {
+    if (!sections[r.section]) { sections[r.section] = {}; order.push(r.section); }
+    const cat = r.category || '';
+    if (!sections[r.section][cat]) sections[r.section][cat] = [];
+    sections[r.section][cat].push(r);
+  });
+
+  let html = '';
+  order.forEach(sec => {
+    const cats = sections[sec];
+    const isNotes = ['notes', 'note', 'rule'].includes(sec.toLowerCase());
+
+    html += `<div class="sub-section">
+      <div class="sub-title" style="background:${color}">${sec}</div>`;
+
+    Object.entries(cats).forEach(([cat, items]) => {
+      if (isNotes) {
+        html += items.map(i => `<div class="note-row">${i.text}</div>`).join('');
+      } else {
+        const filled = ['main meat', 'main'].includes(sec.toLowerCase());
+        html += `<div class="category-block">
+          ${cat ? `<div class="category-label">${cat}</div>` : ''}
+          <div class="item-grid">
+            ${items.map(i => `
+              <div class="item-card ${filled ? 'filled' : ''}" style="${filled ? `background:${color}1A;` : ''}">
+                <div class="item-card-name">${i.text}</div>
+                ${i.value ? `<div class="item-card-value" style="color:${color}">${i.value}</div>` : ''}
+              </div>`).join('')}
+          </div>
+        </div>`;
+      }
+    });
+
+    html += `</div>`;
+  });
+
+  return html;
+}
+
+async function init() {
+  try {
+    const [metaJson, contentJson] = await Promise.all([fetchGviz(META_SHEET), fetchGviz(CONTENT_SHEET)]);
+
+    const metaRows = metaJson.table.rows.map(r => ({
+      num: parseInt(r.c[0]?.v) || 0,
+      key: (r.c[1]?.v || '').trim(),
+      icon: (r.c[2]?.v || '').trim(),
+      name: (r.c[3]?.v || '').trim(),
+      desc: (r.c[4]?.v || '').trim(),
+      sub: (r.c[5]?.v || '').trim(),
+      color: (r.c[6]?.v || '#555').trim(),
+    }));
+
+    const hub = metaRows.find(r => r.num === 0);
+    if (hub) {
+      document.getElementById('page-title').textContent = hub.name;
+      document.getElementById('page-sub').textContent = hub.sub;
+      document.title = hub.name;
+    }
+
+    const contentRows = contentJson.table.rows
+      .map(r => ({
+        part: (r.c[0]?.v || '').trim(),
+        section: (r.c[1]?.v || '').trim(),
+        category: (r.c[2]?.v || '').trim(),
+        text: (r.c[3]?.v || '').trim(),
+        value: (r.c[4]?.v || '').trim(),
+      }))
+      .filter(r => r.text);
+
+    const parts = metaRows.filter(r => r.num > 0).sort((a, b) => a.num - b.num);
+
+    document.getElementById('parts-label').textContent = parts.length + ' Parts';
+
+    document.getElementById('parts-list').innerHTML = parts.map((p, idx) => {
+      const rowsForPart = contentRows.filter(r => r.part === p.key);
+      return `
+        <div class="part-card ${idx === 0 ? 'open' : ''}" id="part-${idx}">
+          <div class="part-header" onclick="toggle(${idx})">
+            <div class="part-num" style="background:${p.color}">${p.num}</div>
+            <div class="part-icon" style="background:${p.color}22">${p.icon}</div>
+            <div class="part-text">
+              <div class="part-name">${p.name}</div>
+              <div class="part-desc">${p.desc}</div>
+            </div>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none">
+              <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="part-body">${renderPartBody(rowsForPart, p.color)}</div>
+        </div>`;
+    }).join('');
+  } catch (e) {
+    document.getElementById('parts-list').innerHTML =
+      '<div class="state-msg">⚠️ Failed to load. Check your connection and try again.</div>';
+  }
+}
+
+function toggle(idx) {
+  document.getElementById('part-' + idx).classList.toggle('open');
+}
+
+init();
+</script>
+</body>
+</html>
