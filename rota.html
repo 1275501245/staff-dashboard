@@ -120,6 +120,11 @@ thead tr th {
 thead tr:first-child th { top: 0; }
 thead tr:last-child th  { top: 36px; }
 
+/* Σ 合计表:thead 只有一行,同时命中 first/last-child,
+   会被上面 top:36px 的规则下移并盖住 tbody 第一行(Shoreditch/Surbhi 消失的原因) */
+.sum-table thead tr:first-child th,
+.sum-table thead tr:last-child th { top: 0; }
+
 thead th.col-site { z-index: 40; }
 thead th.col-name { z-index: 40; }
 
