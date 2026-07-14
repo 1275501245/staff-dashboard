@@ -873,7 +873,8 @@ async function loadRota(sheetName) {
     if (legacyIdx > 0 && legacyIdx < dayEndIdx) dayEndIdx = legacyIdx;
     if (dayEndIdx > 9) dayEndIdx = 9;
     const dayHeaders = allHeaders.slice(2, dayEndIdx);
-    const todayIdx = getTodayColIdx(dayHeaders);
+    // 今日高亮:只在"当前显示的周真的包含今天"时才出现,旧周/下周一律不高亮
+    const todayIdx = (currentWeekStart === mondayOfToday(0)) ? getTodayColIdx(dayHeaders) : -1;
 
     el.innerHTML = buildTable(rows, agencySet, todayIdx, adjustments);
     buildCards(rows, agencySet, dayHeaders, dayEndIdx, todayIdx, adjustments);
@@ -937,19 +938,34 @@ async function loadHistBlocks() {
   }
 }
 
+// 从 live tab 的日期行解析实际周一;解析不到时退回按 tab 名假设的日期。
+// 顺手写入 liveRowsCache,Σ 合计可直接复用,少一次请求。
+async function liveWeekISO(sheet, fallbackISO) {
+  try {
+    const rows = liveRowsCache[sheet] || await fetchSheet(sheet);
+    liveRowsCache[sheet] = rows;
+    const iso = rows && rows.length > 1 ? parseSheetDate(rows[1][2]) : null;
+    return iso || fallbackISO;
+  } catch(e) { return fallbackISO; }
+}
+
 async function initWeeks() {
-  await loadHistBlocks();
-  const thisMon = mondayOfToday(0);
-  const nextMon = mondayOfToday(1);
-  // 历史周里与本周/下周重复的排除(以 Rota / Rota_next 为准)
-  const hist = Array.from(histBlocks.keys())
-    .filter(w => w !== thisMon && w !== nextMon).sort();
-  weekList = hist.map(w => ({ kind: 'hist', iso: w }))
-    .concat([
-      { kind: 'live', sheet: 'Rota',      tag: 'This Week', iso: thisMon },
-      { kind: 'live', sheet: 'Rota_next', tag: 'Next Week', iso: nextMon }
-    ]);
-  weekIdx = weekList.length - 2; // 默认本周
+  const [, thisISO, nextISO] = await Promise.all([
+    loadHistBlocks(),
+    liveWeekISO('Rota',      mondayOfToday(0)),
+    liveWeekISO('Rota_next', mondayOfToday(1))
+  ]);
+  const live = [{ kind: 'live', sheet: 'Rota', iso: thisISO }];
+  if (nextISO !== thisISO) live.push({ kind: 'live', sheet: 'Rota_next', iso: nextISO });
+  // 历史周里与 live tab 实际周重复的排除(以 Rota / Rota_next 为准),整表按真实日期排序
+  const liveISOs = new Set(live.map(w => w.iso));
+  const hist = Array.from(histBlocks.keys()).filter(w => !liveISOs.has(w));
+  weekList = hist.map(w => ({ kind: 'hist', iso: w })).concat(live)
+    .sort((a, b) => a.iso < b.iso ? -1 : a.iso > b.iso ? 1 : 0);
+  // 默认落点:包含今天的那一周;若今天这周还没有班表,则落在最新的一周
+  const realMon = mondayOfToday(0);
+  const i = weekList.findIndex(w => w.iso === realMon);
+  weekIdx = i >= 0 ? i : weekList.length - 1;
   const b = document.getElementById('btn-sum');
   if (b) b.disabled = (weekList.length < 2);
   showWeek();
@@ -1019,8 +1035,10 @@ function toggleSummary() {
   sumMode = true;
   document.getElementById('btn-sum').classList.add('active');
   document.getElementById('cards-section').style.display = 'none';
-  // 默认区间:最近 4 周(含本周),不含下周
-  const thisIdx = weekList.length - 2;
+  // 默认区间:最近 4 周(含本周),不含下周;找不到本周就以最新一周为终点
+  const realMon = mondayOfToday(0);
+  let thisIdx = weekList.findIndex(w => w.iso === realMon);
+  if (thisIdx < 0) thisIdx = weekList.length - 1;
   renderSummaryShell(Math.max(0, thisIdx - 3), thisIdx);
 }
 
