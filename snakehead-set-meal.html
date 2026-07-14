@@ -170,7 +170,7 @@ async function init() {
     document.getElementById('parts-list').innerHTML = parts.map((p, idx) => {
       const rowsForPart = contentRows.filter(r => r.part === p.key);
       return `
-        <div class="part-card ${idx === 0 ? 'open' : ''}" id="part-${idx}">
+        <div class="part-card" id="part-${idx}">
           <div class="part-header" onclick="toggle(${idx})">
             <div class="part-num" style="background:${p.color}">${p.num}</div>
             <div class="part-icon" style="background:${p.color}22">${p.icon}</div>
