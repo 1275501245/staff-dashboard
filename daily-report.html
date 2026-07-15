@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Report</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; font-size: 14px; }
+.container { max-width: 680px; margin: 0 auto; padding: 16px 16px 40px; }
+.top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+h1 { font-size: 20px; font-weight: 600; }
+.subtitle { font-size: 13px; color: #888; margin-bottom: 16px; }
+.pager { display: flex; align-items: center; gap: 8px; }
+.pager button { width: 32px; height: 32px; border-radius: 10px; border: 1px solid #e0e0e0; background: white; color: #1a1a1a; font-size: 15px; cursor: pointer; }
+.pager button:disabled { color: #ccc; cursor: default; }
+.pager .date-label { font-size: 13px; font-weight: 600; min-width: 96px; text-align: center; }
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.tabs button { flex: 1; text-align: center; padding: 8px; border-radius: 10px; font-size: 13px; font-weight: 500; border: 1px solid #e0e0e0; background: white; color: #888; cursor: pointer; }
+.tabs button.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+.totals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.metric { background: white; border: 1px solid #efefef; border-radius: 16px; padding: 14px 16px; }
+.metric-label { font-size: 12px; color: #888; margin-bottom: 2px; }
+.metric-value { font-size: 22px; font-weight: 600; }
+.site-card { background: white; border-radius: 16px; border: 1px solid #efefef; margin-bottom: 12px; padding: 14px 16px; }
+.site-header { display: flex; align-items: center; justify-content: space-between; }
+.site-name { font-size: 15px; font-weight: 600; }
+.site-sub { font-size: 13px; font-weight: 600; }
+.nodata-badge { font-size: 11px; padding: 4px 12px; border-radius: 20px; background: #f5f5f5; color: #aaa; white-space: nowrap; }
+.plat-table { border-top: 1px solid #f0f0f0; margin-top: 8px; padding-top: 6px; }
+.plat-head { display: flex; justify-content: space-between; font-size: 11px; color: #bbb; padding-bottom: 2px; }
+.plat-row { display: flex; justify-content: space-between; font-size: 13px; color: #666; padding: 3px 0; }
+.num { display: inline-block; min-width: 42px; text-align: right; }
+.rev { display: inline-block; min-width: 84px; text-align: right; }
+.plat-row .rev { color: #1a1a1a; font-weight: 600; }
+.note-line { font-size: 12px; color: #b26a00; margin-top: 7px; }
+.loading { text-align: center; padding: 60px; color: #888; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="top-row">
+    <h1>Daily Report</h1>
+    <div class="pager">
+      <button id="prevBtn" aria-label="Previous day">&#8249;</button>
+      <span class="date-label" id="dateLabel">–</span>
+      <button id="nextBtn" aria-label="Next day">&#8250;</button>
+    </div>
+  </div>
+  <div class="subtitle" id="subtitle">Loading...</div>
+  <div class="tabs" id="tabs">
+    <button data-p="All" class="active">All</button>
+    <button data-p="Deliveroo">Deliveroo</button>
+    <button data-p="HungryPanda">HungryPanda</button>
+  </div>
+  <div class="totals">
+    <div class="metric"><div class="metric-label">Total orders</div><div class="metric-value" id="totOrders">–</div></div>
+    <div class="metric"><div class="metric-label">Total revenue</div><div class="metric-value" id="totRev">–</div></div>
+  </div>
+  <div id="content"><div class="loading">Loading...</div></div>
+</div>
+<script>
+const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
+const SHEET_NAME = 'DailyReport';
+const SITES = ['Shoreditch', 'Tower Bridge', 'Battersea', 'Brent Cross'];
+const PLATFORMS = ['Deliveroo', 'HungryPanda'];
+const EXPECTED_HEADERS = ['date', 'site', 'platform', 'orders', 'revenue', 'notes'];
+
+let allRows = [];   // { date, site, platform, orders, revenue, notes }
+let dates = [];     // sorted ascending, unique
+let dateIdx = 0;
+let platform = 'All';
+
+// --- CSV parsing (handles quoted fields, same approach as rota.html) ---
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += ch;
+    } else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ',') { row.push(field); field = ''; }
+      else if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+      else if (ch !== '\r') field += ch;
+    }
+  }
+  if (field !== '' || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+async function fetchData() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const rows = parseCSV(await res.text());
+  if (!rows.length) throw new Error('Empty sheet');
+
+  // Guard against gviz silently returning the wrong tab on name mismatch
+  const headers = rows[0].map(h => String(h).trim().toLowerCase());
+  const missing = EXPECTED_HEADERS.slice(0, 5).filter(h => !headers.includes(h));
+  if (missing.length) throw new Error(`Tab "${SHEET_NAME}" not found or headers wrong (missing: ${missing.join(', ')})`);
+
+  const col = name => headers.indexOf(name);
+  const [cDate, cSite, cPlat, cOrd, cRev, cNotes] =
+    ['date', 'site', 'platform', 'orders', 'revenue', 'notes'].map(col);
+
+  return rows.slice(1).map(r => ({
+    date: String(r[cDate] || '').trim(),
+    site: String(r[cSite] || '').trim(),
+    platform: String(r[cPlat] || '').trim(),
+    orders: parseInt(r[cOrd], 10) || 0,
+    revenue: parseFloat(String(r[cRev] || '').replace(/[£,]/g, '')) || 0,
+    notes: cNotes === -1 ? '' : String(r[cNotes] || '').trim(),
+  })).filter(r => /^\d{4}-\d{2}-\d{2}$/.test(r.date) && r.site && r.platform);
+}
+
+// --- Formatting ---
+const gbp = n => '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function fmtDate(iso) {
+  return new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+// --- Rendering ---
+function render() {
+  const day = dates[dateIdx];
+  document.getElementById('dateLabel').textContent = day ? fmtDate(day) : '–';
+  document.getElementById('prevBtn').disabled = dateIdx <= 0;
+  document.getElementById('nextBtn').disabled = dateIdx >= dates.length - 1;
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('active', b.dataset.p === platform));
+
+  const dayRows = allRows.filter(r => r.date === day);
+  let totO = 0, totR = 0;
+
+  const html = SITES.map(site => {
+    const siteRows = dayRows.filter(r => r.site === site);
+    if (!siteRows.length) {
+      return `<div class="site-card"><div class="site-header">
+        <span class="site-name">${site}</span>
+        <span class="nodata-badge">No data</span>
+      </div></div>`;
+    }
+    const shown = siteRows.filter(r => platform === 'All' || r.platform === platform);
+    const sO = shown.reduce((a, r) => a + r.orders, 0);
+    const sR = shown.reduce((a, r) => a + r.revenue, 0);
+    totO += sO; totR += sR;
+
+    const rowsHtml = PLATFORMS
+      .filter(p => platform === 'All' || p === platform)
+      .map(p => {
+        const r = siteRows.find(x => x.platform === p);
+        return `<div class="plat-row"><span>${p}</span><span>
+          <span class="num">${r ? r.orders : '—'}</span>
+          <span class="rev">${r ? gbp(r.revenue) : '—'}</span>
+        </span></div>`;
+      }).join('');
+
+    const notes = [...new Set(siteRows.filter(r => r.notes).map(r => `${r.platform}: ${r.notes}`))];
+    const notesHtml = notes.length ? `<div class="note-line">&#9888; ${notes.join(' · ')}</div>` : '';
+
+    return `<div class="site-card">
+      <div class="site-header">
+        <span class="site-name">${site}</span>
+        <span class="site-sub">${sO} · ${gbp(sR)}</span>
+      </div>
+      <div class="plat-table">
+        <div class="plat-head"><span>Platform</span><span><span class="num">Orders</span><span class="rev">Revenue</span></span></div>
+        ${rowsHtml}
+      </div>
+      ${notesHtml}
+    </div>`;
+  }).join('');
+
+  document.getElementById('content').innerHTML = html;
+  document.getElementById('totOrders').textContent = totO;
+  document.getElementById('totRev').textContent = gbp(totR);
+  document.getElementById('subtitle').textContent = `Last updated: ${new Date().toLocaleString('en-GB')}`;
+}
+
+// --- Events ---
+document.getElementById('prevBtn').onclick = () => { if (dateIdx > 0) { dateIdx--; render(); } };
+document.getElementById('nextBtn').onclick = () => { if (dateIdx < dates.length - 1) { dateIdx++; render(); } };
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { platform = b.dataset.p; render(); });
+
+async function init() {
+  try {
+    allRows = await fetchData();
+    dates = [...new Set(allRows.map(r => r.date))].sort();
+    if (!dates.length) {
+      document.getElementById('content').innerHTML = '<div class="loading">No data yet — add rows to the DailyReport tab.</div>';
+      document.getElementById('subtitle').textContent = `Last updated: ${new Date().toLocaleString('en-GB')}`;
+      return;
+    }
+    // Default to yesterday if present, otherwise the latest date available
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    const yISO = y.toISOString().slice(0, 10);
+    const yi = dates.indexOf(yISO);
+    dateIdx = yi !== -1 ? yi : dates.length - 1;
+    render();
+  } catch (e) {
+    document.getElementById('content').innerHTML = `<div class="loading" style="color:#c62828;">Failed: ${e.message}</div>`;
+  }
+}
+init();
+</script>
+</body>
+</html>
