@@ -21,6 +21,10 @@
       "dest": "/daily-report.html"
     },
     {
+      "src": "/DailyReport",
+      "dest": "/daily-report.html"
+    },
+    {
       "src": "/prep",
       "dest": "/prep.html"
     },
