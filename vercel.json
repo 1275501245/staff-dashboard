@@ -25,6 +25,10 @@
       "dest": "/daily-report.html"
     },
     {
+      "src": "/product-quality",
+      "dest": "/product-quality.html"
+    },
+    {
       "src": "/prep",
       "dest": "/prep.html"
     },
