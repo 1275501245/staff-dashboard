@@ -17,6 +17,10 @@
       "dest": "/sites.html"
     },
     {
+      "src": "/daily-report",
+      "dest": "/daily-report.html"
+    },
+    {
       "src": "/prep",
       "dest": "/prep.html"
     },
