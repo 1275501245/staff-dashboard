@@ -10,68 +10,126 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .container { max-width: 680px; margin: 0 auto; padding: 16px 16px 40px; }
 .top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
 h1 { font-size: 20px; font-weight: 600; }
-.subtitle { font-size: 13px; color: #888; margin-bottom: 16px; }
+.subtitle { font-size: 13px; color: #888; margin-bottom: 14px; }
+.view-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.view-tabs button, .tabs button { flex: 1; text-align: center; padding: 8px; border-radius: 10px; font-size: 13px; font-weight: 500; border: 1px solid #e0e0e0; background: white; color: #888; cursor: pointer; }
+.view-tabs button.active, .tabs button.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
 .pager { display: flex; align-items: center; gap: 8px; }
 .pager button { width: 32px; height: 32px; border-radius: 10px; border: 1px solid #e0e0e0; background: white; color: #1a1a1a; font-size: 15px; cursor: pointer; }
 .pager button:disabled { color: #ccc; cursor: default; }
 .pager .date-label { font-size: 13px; font-weight: 600; min-width: 96px; text-align: center; }
 .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
-.tabs button { flex: 1; text-align: center; padding: 8px; border-radius: 10px; font-size: 13px; font-weight: 500; border: 1px solid #e0e0e0; background: white; color: #888; cursor: pointer; }
-.tabs button.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
-.totals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-.metric { background: white; border: 1px solid #efefef; border-radius: 16px; padding: 14px 16px; }
-.metric-label { font-size: 12px; color: #888; margin-bottom: 2px; }
-.metric-value { font-size: 22px; font-weight: 600; }
+.totals { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.metric { background: white; border: 1px solid #efefef; border-radius: 16px; padding: 12px 14px; }
+.metric-label { font-size: 11px; color: #888; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.4px; }
+.metric-value { font-size: 20px; font-weight: 600; }
+.metric.sat { border-left: 4px solid #ef6c00; border-radius: 0 16px 16px 0; }
+.metric.sat .metric-value { color: #ef6c00; }
 .site-card { background: white; border-radius: 16px; border: 1px solid #efefef; margin-bottom: 12px; padding: 14px 16px; }
-.site-header { display: flex; align-items: center; justify-content: space-between; }
+.site-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .site-name { font-size: 15px; font-weight: 600; }
-.site-sub { font-size: 13px; font-weight: 600; }
+.site-right { display: flex; align-items: center; gap: 8px; }
+.site-sub { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.sat-chip { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; background: #fff3e0; color: #ef6c00; white-space: nowrap; }
 .nodata-badge { font-size: 11px; padding: 4px 12px; border-radius: 20px; background: #f5f5f5; color: #aaa; white-space: nowrap; }
-.plat-table { border-top: 1px solid #f0f0f0; margin-top: 8px; padding-top: 6px; }
+.rev-bar { height: 5px; border-radius: 3px; background: #f0f0f0; margin-top: 9px; overflow: hidden; display: flex; }
+.rev-bar .seg-d { background: #00b8a9; height: 100%; }
+.rev-bar .seg-h { background: #f5b301; height: 100%; }
+.plat-table { border-top: 1px solid #f0f0f0; margin-top: 9px; padding-top: 6px; }
 .plat-head { display: flex; justify-content: space-between; font-size: 11px; color: #bbb; padding-bottom: 2px; }
-.plat-row { display: flex; justify-content: space-between; font-size: 13px; color: #666; padding: 3px 0; }
+.plat-row { display: flex; justify-content: space-between; font-size: 13px; color: #555; padding: 3px 0; align-items: center; }
+.plat-name { display: flex; align-items: center; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot-d { background: #00b8a9; } .dot-h { background: #f5b301; }
 .num { display: inline-block; min-width: 42px; text-align: right; }
-.rev { display: inline-block; min-width: 84px; text-align: right; }
-.plat-row .rev { color: #1a1a1a; font-weight: 600; }
+.rev { display: inline-block; min-width: 84px; text-align: right; color: #1a1a1a; font-weight: 600; }
 .note-line { font-size: 12px; color: #b26a00; margin-top: 7px; }
 .loading { text-align: center; padding: 60px; color: #888; }
+.sum-controls { background: white; border: 1px solid #efefef; border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sum-controls label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.4px; display: block; margin-bottom: 4px; }
+.sum-controls input, .sum-controls select { width: 100%; padding: 8px 10px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 13px; font-family: inherit; background: white; color: #1a1a1a; }
+.sum-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.sum-card { background: white; border: 1px solid #efefef; border-radius: 16px; padding: 14px 16px; border-top: 4px solid #e0e0e0; }
+.sum-card.d { border-top-color: #00b8a9; }
+.sum-card.h { border-top-color: #f5b301; }
+.sum-card.t { border-top-color: #1a1a1a; grid-column: 1 / -1; }
+.sum-title { font-size: 12px; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.sum-nums { display: flex; justify-content: space-between; align-items: baseline; }
+.sum-rev { font-size: 22px; font-weight: 700; }
+.sum-ord { font-size: 13px; color: #888; }
+.sum-table { background: white; border: 1px solid #efefef; border-radius: 16px; padding: 6px 16px 10px; }
+.sum-row { display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; align-items: center; }
+.sum-row:last-child { border-bottom: none; }
+.sum-row .site { font-weight: 600; }
+.sum-row .vals { color: #555; }
+.sum-row .vals b { color: #1a1a1a; }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="top-row">
     <h1>Daily Report</h1>
-    <div class="pager">
+    <div class="pager" id="pagerBox">
       <button id="prevBtn" aria-label="Previous day">&#8249;</button>
-      <span class="date-label" id="dateLabel">–</span>
+      <span class="date-label" id="dateLabel">&ndash;</span>
       <button id="nextBtn" aria-label="Next day">&#8250;</button>
     </div>
   </div>
   <div class="subtitle" id="subtitle">Loading...</div>
-  <div class="tabs" id="tabs">
-    <button data-p="All" class="active">All</button>
-    <button data-p="Deliveroo">Deliveroo</button>
-    <button data-p="HungryPanda">HungryPanda</button>
+
+  <div class="view-tabs" id="viewTabs">
+    <button data-v="daily" class="active">Daily</button>
+    <button data-v="summary">&Sigma; Summary</button>
   </div>
-  <div class="totals">
-    <div class="metric"><div class="metric-label">Total orders</div><div class="metric-value" id="totOrders">–</div></div>
-    <div class="metric"><div class="metric-label">Total revenue</div><div class="metric-value" id="totRev">–</div></div>
+
+  <div id="dailyView">
+    <div class="tabs" id="tabs">
+      <button data-p="All" class="active">All</button>
+      <button data-p="Deliveroo">Deliveroo</button>
+      <button data-p="HungryPanda">HungryPanda</button>
+    </div>
+    <div class="totals">
+      <div class="metric"><div class="metric-label">Orders</div><div class="metric-value" id="totOrders">&ndash;</div></div>
+      <div class="metric"><div class="metric-label">Revenue</div><div class="metric-value" id="totRev" style="font-size:17px;">&ndash;</div></div>
+      <div class="metric sat"><div class="metric-label">Orders / hr</div><div class="metric-value" id="totSat">&ndash;</div></div>
+    </div>
+    <div id="content"><div class="loading">Loading...</div></div>
   </div>
-  <div id="content"><div class="loading">Loading...</div></div>
+
+  <div id="summaryView" style="display:none;">
+    <div class="sum-controls">
+      <div><label>From</label><input type="date" id="sumFrom"></div>
+      <div><label>To</label><input type="date" id="sumTo"></div>
+      <div style="grid-column: 1 / -1;"><label>Site</label>
+        <select id="sumSite">
+          <option value="All">All sites</option>
+          <option>Shoreditch</option>
+          <option>Tower Bridge</option>
+          <option>Battersea</option>
+          <option>Brent Cross</option>
+        </select>
+      </div>
+    </div>
+    <div id="sumResult"></div>
+  </div>
 </div>
 <script>
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
 const DAILY_GID = '1203914948';
+const SITES_SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
 const SITES = ['Shoreditch', 'Tower Bridge', 'Battersea', 'Brent Cross'];
 const PLATFORMS = ['Deliveroo', 'HungryPanda'];
-const EXPECTED_HEADERS = ['date', 'site', 'platform', 'orders', 'revenue', 'notes'];
+const EXPECTED_HEADERS = ['date', 'site', 'platform', 'orders', 'revenue'];
+// Fallback active service hours; overridden by the Sites tab when reachable
+let SITE_HOURS = { 'Shoreditch': 13, 'Tower Bridge': 11, 'Battersea': 12, 'Brent Cross': 11 };
 
-let allRows = [];   // { date, site, platform, orders, revenue, notes }
-let dates = [];     // sorted ascending, unique
+let allRows = [];
+let dates = [];
 let dateIdx = 0;
 let platform = 'All';
+let view = 'daily';
 
-// --- CSV parsing (handles quoted fields, same approach as rota.html) ---
+// --- CSV parsing (handles quoted fields) ---
 function parseCSV(text) {
   const rows = [];
   let row = [], field = '', inQuotes = false;
@@ -99,16 +157,12 @@ async function fetchData() {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const rows = parseCSV(await res.text());
   if (!rows.length) throw new Error('Empty sheet');
-
-  // Guard against gviz silently returning the wrong tab on name mismatch
   const headers = rows[0].map(h => String(h).trim().toLowerCase());
-  const missing = EXPECTED_HEADERS.slice(0, 5).filter(h => !headers.includes(h));
+  const missing = EXPECTED_HEADERS.filter(h => !headers.includes(h));
   if (missing.length) throw new Error(`Wrong tab (gid ${DAILY_GID}) or headers wrong (missing: ${missing.join(', ')})`);
-
   const col = name => headers.indexOf(name);
   const [cDate, cSite, cPlat, cOrd, cRev, cNotes] =
     ['date', 'site', 'platform', 'orders', 'revenue', 'notes'].map(col);
-
   return rows.slice(1).map(r => ({
     date: String(r[cDate] || '').trim(),
     site: String(r[cSite] || '').trim(),
@@ -119,22 +173,33 @@ async function fetchData() {
   })).filter(r => /^\d{4}-\d{2}-\d{2}$/.test(r.date) && r.site && r.platform);
 }
 
-// --- Formatting ---
-const gbp = n => '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-function fmtDate(iso) {
-  return new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+async function fetchSiteHours() {
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${SITES_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Sites`;
+    const text = await (await fetch(url)).text();
+    const json = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
+    json.table.rows.forEach(r => {
+      const name = r.c[0]?.v, hrs = parseFloat(r.c[10]?.v);
+      if (name && hrs > 0) SITE_HOURS[String(name).trim()] = hrs;
+    });
+  } catch (e) { /* keep fallback hours */ }
 }
 
-// --- Rendering ---
-function render() {
+// --- Formatting ---
+const gbp = n => '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtDate = iso => new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+const satOf = (orders, site) => (orders / (SITE_HOURS[site] || 11));
+
+// --- Daily view ---
+function renderDaily() {
   const day = dates[dateIdx];
-  document.getElementById('dateLabel').textContent = day ? fmtDate(day) : '–';
+  document.getElementById('dateLabel').textContent = day ? fmtDate(day) : '\u2013';
   document.getElementById('prevBtn').disabled = dateIdx <= 0;
   document.getElementById('nextBtn').disabled = dateIdx >= dates.length - 1;
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('active', b.dataset.p === platform));
 
   const dayRows = allRows.filter(r => r.date === day);
-  let totO = 0, totR = 0;
+  let totO = 0, totR = 0, totHrs = 0;
 
   const html = SITES.map(site => {
     const siteRows = dayRows.filter(r => r.site === site);
@@ -147,28 +212,41 @@ function render() {
     const shown = siteRows.filter(r => platform === 'All' || r.platform === platform);
     const sO = shown.reduce((a, r) => a + r.orders, 0);
     const sR = shown.reduce((a, r) => a + r.revenue, 0);
-    totO += sO; totR += sR;
+    totO += sO; totR += sR; totHrs += (SITE_HOURS[site] || 11);
+    const sat = satOf(sO, site);
+
+    const dRev = shown.filter(r => r.platform === 'Deliveroo').reduce((a, r) => a + r.revenue, 0);
+    const hRev = shown.filter(r => r.platform === 'HungryPanda').reduce((a, r) => a + r.revenue, 0);
+    const dPct = sR > 0 ? (dRev / sR * 100) : 0;
 
     const rowsHtml = PLATFORMS
       .filter(p => platform === 'All' || p === platform)
       .map(p => {
         const r = siteRows.find(x => x.platform === p);
-        return `<div class="plat-row"><span>${p}</span><span>
-          <span class="num">${r ? r.orders : '—'}</span>
-          <span class="rev">${r ? gbp(r.revenue) : '—'}</span>
-        </span></div>`;
+        const cls = p === 'Deliveroo' ? 'dot-d' : 'dot-h';
+        return `<div class="plat-row">
+          <span class="plat-name"><span class="dot ${cls}"></span>${p}</span>
+          <span><span class="num">${r ? r.orders : '\u2014'}</span><span class="rev">${r ? gbp(r.revenue) : '\u2014'}</span></span>
+        </div>`;
       }).join('');
 
     const notes = [...new Set(siteRows.filter(r => r.notes).map(r => `${r.platform}: ${r.notes}`))];
-    const notesHtml = notes.length ? `<div class="note-line">&#9888; ${notes.join(' · ')}</div>` : '';
+    const notesHtml = notes.length ? `<div class="note-line">&#9888; ${notes.join(' \u00b7 ')}</div>` : '';
 
     return `<div class="site-card">
       <div class="site-header">
         <span class="site-name">${site}</span>
-        <span class="site-sub">${sO} · ${gbp(sR)}</span>
+        <span class="site-right">
+          <span class="sat-chip">${sat.toFixed(1)} /h</span>
+          <span class="site-sub">${sO} \u00b7 ${gbp(sR)}</span>
+        </span>
+      </div>
+      <div class="rev-bar" title="Deliveroo vs HungryPanda revenue split">
+        <span class="seg-d" style="width:${dPct.toFixed(1)}%"></span>
+        <span class="seg-h" style="width:${(100 - dPct).toFixed(1)}%"></span>
       </div>
       <div class="plat-table">
-        <div class="plat-head"><span>Platform</span><span><span class="num">Orders</span><span class="rev">Revenue</span></span></div>
+        <div class="plat-head"><span>Platform</span><span><span class="num">Orders</span><span class="rev" style="font-weight:400;color:#bbb;">Revenue</span></span></div>
         ${rowsHtml}
       </div>
       ${notesHtml}
@@ -178,29 +256,83 @@ function render() {
   document.getElementById('content').innerHTML = html;
   document.getElementById('totOrders').textContent = totO;
   document.getElementById('totRev').textContent = gbp(totR);
-  document.getElementById('subtitle').textContent = `Last updated: ${new Date().toLocaleString('en-GB')}`;
+  document.getElementById('totSat').textContent = totHrs > 0 ? (totO / totHrs).toFixed(1) : '\u2013';
 }
 
-// --- Events ---
-document.getElementById('prevBtn').onclick = () => { if (dateIdx > 0) { dateIdx--; render(); } };
-document.getElementById('nextBtn').onclick = () => { if (dateIdx < dates.length - 1) { dateIdx++; render(); } };
-document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { platform = b.dataset.p; render(); });
+// --- Summary view ---
+function renderSummary() {
+  const from = document.getElementById('sumFrom').value;
+  const to = document.getElementById('sumTo').value;
+  const site = document.getElementById('sumSite').value;
+  const box = document.getElementById('sumResult');
+  if (!from || !to) { box.innerHTML = '<div class="loading">Pick a date range.</div>'; return; }
+  if (from > to) { box.innerHTML = '<div class="loading">"From" is after "To".</div>'; return; }
+
+  const rows = allRows.filter(r => r.date >= from && r.date <= to && (site === 'All' || r.site === site));
+  if (!rows.length) { box.innerHTML = '<div class="loading">No data in this range.</div>'; return; }
+
+  const agg = p => {
+    const rs = rows.filter(r => r.platform === p);
+    return { o: rs.reduce((a, r) => a + r.orders, 0), v: rs.reduce((a, r) => a + r.revenue, 0) };
+  };
+  const d = agg('Deliveroo'), h = agg('HungryPanda');
+  const days = [...new Set(rows.map(r => r.date))].length;
+
+  let html = `<div class="sum-cards">
+    <div class="sum-card d"><div class="sum-title"><span class="dot dot-d"></span>Deliveroo</div>
+      <div class="sum-nums"><span class="sum-rev">${gbp(d.v)}</span><span class="sum-ord">${d.o} orders</span></div></div>
+    <div class="sum-card h"><div class="sum-title"><span class="dot dot-h"></span>HungryPanda</div>
+      <div class="sum-nums"><span class="sum-rev">${gbp(h.v)}</span><span class="sum-ord">${h.o} orders</span></div></div>
+    <div class="sum-card t"><div class="sum-title">Total \u00b7 ${site === 'All' ? 'All sites' : site} \u00b7 ${days} day${days > 1 ? 's' : ''}</div>
+      <div class="sum-nums"><span class="sum-rev">${gbp(d.v + h.v)}</span><span class="sum-ord">${d.o + h.o} orders</span></div></div>
+  </div>`;
+
+  if (site === 'All') {
+    const perSite = SITES.map(s => {
+      const rs = rows.filter(r => r.site === s);
+      return { s, o: rs.reduce((a, r) => a + r.orders, 0), v: rs.reduce((a, r) => a + r.revenue, 0) };
+    }).filter(x => x.o > 0 || x.v > 0);
+    if (perSite.length) {
+      html += `<div class="sum-table">` + perSite.map(x =>
+        `<div class="sum-row"><span class="site">${x.s}</span><span class="vals">${x.o} orders \u00b7 <b>${gbp(x.v)}</b></span></div>`
+      ).join('') + `</div>`;
+    }
+  }
+  box.innerHTML = html;
+}
+
+// --- View switching & events ---
+function setView(v) {
+  view = v;
+  document.querySelectorAll('#viewTabs button').forEach(b => b.classList.toggle('active', b.dataset.v === v));
+  document.getElementById('dailyView').style.display = v === 'daily' ? '' : 'none';
+  document.getElementById('summaryView').style.display = v === 'summary' ? '' : 'none';
+  document.getElementById('pagerBox').style.visibility = v === 'daily' ? 'visible' : 'hidden';
+  if (v === 'summary') renderSummary();
+}
+
+document.getElementById('prevBtn').onclick = () => { if (dateIdx > 0) { dateIdx--; renderDaily(); } };
+document.getElementById('nextBtn').onclick = () => { if (dateIdx < dates.length - 1) { dateIdx++; renderDaily(); } };
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { platform = b.dataset.p; renderDaily(); });
+document.querySelectorAll('#viewTabs button').forEach(b => b.onclick = () => setView(b.dataset.v));
+['sumFrom', 'sumTo', 'sumSite'].forEach(id => document.getElementById(id).onchange = renderSummary);
 
 async function init() {
   try {
-    allRows = await fetchData();
+    const [rows] = await Promise.all([fetchData(), fetchSiteHours()]);
+    allRows = rows;
     dates = [...new Set(allRows.map(r => r.date))].sort();
+    document.getElementById('subtitle').textContent = `Last updated: ${new Date().toLocaleString('en-GB')}`;
     if (!dates.length) {
-      document.getElementById('content').innerHTML = '<div class="loading">No data yet — add rows to the DailyReport tab.</div>';
-      document.getElementById('subtitle').textContent = `Last updated: ${new Date().toLocaleString('en-GB')}`;
+      document.getElementById('content').innerHTML = '<div class="loading">No data yet \u2014 add rows to the DailyReport tab.</div>';
       return;
     }
-    // Default to yesterday if present, otherwise the latest date available
     const y = new Date(); y.setDate(y.getDate() - 1);
-    const yISO = y.toISOString().slice(0, 10);
-    const yi = dates.indexOf(yISO);
+    const yi = dates.indexOf(y.toISOString().slice(0, 10));
     dateIdx = yi !== -1 ? yi : dates.length - 1;
-    render();
+    document.getElementById('sumFrom').value = dates[0];
+    document.getElementById('sumTo').value = dates[dates.length - 1];
+    renderDaily();
   } catch (e) {
     document.getElementById('content').innerHTML = `<div class="loading" style="color:#c62828;">Failed: ${e.message}</div>`;
   }
