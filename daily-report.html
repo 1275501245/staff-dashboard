@@ -61,7 +61,7 @@ h1 { font-size: 20px; font-weight: 600; }
 </div>
 <script>
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
-const SHEET_NAME = 'DailyReport';
+const DAILY_GID = '1203914948';
 const SITES = ['Shoreditch', 'Tower Bridge', 'Battersea', 'Brent Cross'];
 const PLATFORMS = ['Deliveroo', 'HungryPanda'];
 const EXPECTED_HEADERS = ['date', 'site', 'platform', 'orders', 'revenue', 'notes'];
@@ -94,7 +94,7 @@ function parseCSV(text) {
 }
 
 async function fetchData() {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${DAILY_GID}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const rows = parseCSV(await res.text());
@@ -103,7 +103,7 @@ async function fetchData() {
   // Guard against gviz silently returning the wrong tab on name mismatch
   const headers = rows[0].map(h => String(h).trim().toLowerCase());
   const missing = EXPECTED_HEADERS.slice(0, 5).filter(h => !headers.includes(h));
-  if (missing.length) throw new Error(`Tab "${SHEET_NAME}" not found or headers wrong (missing: ${missing.join(', ')})`);
+  if (missing.length) throw new Error(`Wrong tab (gid ${DAILY_GID}) or headers wrong (missing: ${missing.join(', ')})`);
 
   const col = name => headers.indexOf(name);
   const [cDate, cSite, cPlat, cOrd, cRev, cNotes] =
