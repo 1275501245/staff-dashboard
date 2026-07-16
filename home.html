@@ -83,7 +83,7 @@ function render(items) {
             <span class="coming-soon-tag">Coming soon</span>
           </div>
         ` : `
-          <a class="nav-item" href="${item.url}">
+          <a class="nav-item" href="${item.url}"${item.url.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>
             <div class="nav-left">
               <div class="nav-icon">${ICONS[item.name] || '📌'}</div>
               <div class="nav-text">
