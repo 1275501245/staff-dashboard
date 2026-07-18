@@ -84,10 +84,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
   letter-spacing: 0.3px;
 }
 
-.table-wrap {
+.table-wrap { padding: 14px 14px 4px; }
+.table-card {
+  background: #fff;
+  border: 1px solid #e5e5e3;
+  border-radius: 12px;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
+.table-scroll { overflow: auto; -webkit-overflow-scrolling: touch; }
 
 table {
   border-collapse: separate;
@@ -96,189 +101,6 @@ table {
   min-width: 100%;
 }
 
-/* Sticky columns */
-td.col-site, th.col-site {
-  position: sticky;
-  left: 0;
-  z-index: 20;
-  min-width: 90px;
-  max-width: 90px;
-}
-td.col-name, th.col-name {
-  position: sticky;
-  left: 90px;
-  z-index: 20;
-  min-width: 80px;
-  max-width: 80px;
-}
-
-/* Sticky rows */
-thead tr th {
-  position: sticky;
-  z-index: 30;
-}
-thead tr:first-child th { top: 0; }
-thead tr:last-child th  { top: 36px; }
-
-/* Σ 合计表:thead 只有一行,同时命中 first/last-child,
-   会被上面 top:36px 的规则下移并盖住 tbody 第一行(Shoreditch/Surbhi 消失的原因) */
-.sum-table thead tr:first-child th,
-.sum-table thead tr:last-child th { top: 0; }
-
-thead th.col-site { z-index: 40; }
-thead th.col-name { z-index: 40; }
-
-/* Header row 1 */
-thead tr:first-child th {
-  background: #1a1a1a;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 600;
-  text-align: center;
-  padding: 8px 10px;
-  border-right: 1px solid #333;
-  height: 36px;
-  white-space: nowrap;
-}
-thead tr:first-child th.col-site,
-thead tr:first-child th.col-name {
-  background: #1a1a1a;
-}
-thead tr:first-child th.th-today {
-  background: #1a3a5c;
-  color: #7ec8f7;
-}
-thead tr:first-child th.col-site-total {
-  background: #1e1030;
-  color: #c4b5fd;
-  border-left: 2px solid #6d28d9;
-}
-
-/* Header row 2 (dates) */
-thead tr:last-child th {
-  background: #f0f0f0;
-  color: #666;
-  font-size: 10px;
-  font-weight: 500;
-  text-align: center;
-  padding: 5px 10px;
-  border-right: 1px solid #e0e0e0;
-  border-bottom: 2px solid #ccc;
-  height: 30px;
-}
-thead tr:last-child th.col-site,
-thead tr:last-child th.col-name {
-  background: #f0f0f0;
-}
-thead tr:last-child th.th-today {
-  background: #e3f2fd;
-  color: #0d47a1;
-}
-thead tr:last-child th.col-site-total {
-  background: #ede9fe;
-  color: #6d28d9;
-  border-left: 2px solid #c4b5fd;
-}
-
-/* Body cells */
-tbody td {
-  font-size: 11px;
-  padding: 7px 10px;
-  border-right: 1px solid #e8e8e8;
-  border-bottom: 1px solid #f0f0f0;
-  text-align: center;
-  white-space: nowrap;
-  background: #fff;
-  min-width: 110px;
-}
-
-/* site label cell */
-td.col-site {
-  font-size: 10px;
-  font-weight: 700;
-  text-align: center;
-  border-right: 2px solid #ccc;
-  letter-spacing: 0.3px;
-  background: #fff;
-}
-td.col-site.site-shoreditch  { background: #e8f4ff; color: #1565C0; border-left: 3px solid #1E88E5; }
-td.col-site.site-battersea   { background: #fff8e1; color: #E65100; border-left: 3px solid #FB8C00; }
-td.col-site.site-towerbridge { background: #e8f5e9; color: #2E7D32; border-left: 3px solid #43A047; }
-td.col-site.site-piccadilly  { background: #e0f2f1; color: #00695C; border-left: 3px solid #00897B; }
-td.col-site.site-brentcross  { background: #ffe8e8; color: #B91C1C; border-left: 3px solid #EF4444; }
-
-/* name cell */
-td.col-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: #222;
-  text-align: left;
-  border-right: 2px solid #ddd;
-  background: #fafafa;
-  padding-left: 10px;
-}
-
-/* day cells */
-td.day-cell { color: #333; }
-td.day-off  { color: #bbb; font-style: italic; background: #fafafa; }
-td.day-dash { color: #ddd; background: #fafafa; }
-td.day-today { background: #e8f4ff !important; }
-
-/* cross-site marker: plain coloured text, no pill */
-.badge {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-}
-.badge-shoreditch   { color: #1565C0; }
-.badge-battersea    { color: #E65100; }
-.badge-towerbridge  { color: #2E7D32; }
-.badge-piccadilly   { color: #00695C; }
-.badge-brentcross   { color: #B91C1C; }
-
-/* individual total cell */
-td.col-ind-total {
-  font-size: 11px;
-  font-weight: 600;
-  color: #555;
-  min-width: 55px;
-  background: #fafafa;
-}
-td.col-ind-total-empty {
-  min-width: 55px;
-  background: #fafafa;
-  color: #ddd;
-}
-
-/* site total cell */
-td.col-site-total {
-  min-width: 80px;
-  font-size: 15px;
-  font-weight: 700;
-  text-align: center;
-  vertical-align: middle;
-  background: #f5f3ff;
-  color: #5b21b6;
-  border-left: 2px solid #ddd6fe;
-}
-td.col-site-total-empty {
-  min-width: 80px;
-  background: #faf9ff;
-  border-left: 2px solid #ede9fe;
-}
-
-/* row alternate */
-tbody tr:nth-child(even) td { background: #fcfcfc; }
-tbody tr:nth-child(even) td.col-name { background: #f5f5f5; }
-tbody tr:nth-child(even) td.col-ind-total,
-tbody tr:nth-child(even) td.col-ind-total-empty { background: #f5f5f5; }
-tbody tr:nth-child(even) td.col-site-total { background: #f0ecff; }
-tbody tr:nth-child(even) td.col-site-total-empty { background: #f7f5ff; }
-tbody tr:nth-child(even) td.day-off,
-tbody tr:nth-child(even) td.day-dash { background: #f7f7f7; }
-
-/* site group row separator */
-tr.site-separator td { border-top: 3px solid #ddd; }
 
 .loading { padding: 40px; text-align: center; color: #999; font-size: 14px; }
 .error   { padding: 40px; text-align: center; color: #c00; font-size: 14px; }
@@ -375,42 +197,94 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 .card-adj-val.adj-neg { color: #c62828; }
 .card-adj-val.adj-pos { color: #2e7d32; }
 
-/* == v2 optimisations == */
-.week-total { font-size: 12px; color: #888; white-space: nowrap; }
-.week-total b { color: #5b21b6; font-size: 14px; font-weight: 700; }
 
+/* ── header: single light row, day + date ── */
+thead th {
+  position: sticky; top: 0; z-index: 30;
+  background: #fbfbfa;
+  color: #6e6e73;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  padding: 9px 12px 8px;
+  border-bottom: 1px solid #e5e5e3;
+  white-space: nowrap;
+}
+thead th .th-date { display: block; font-size: 10px; font-weight: 400; color: #aeaeb2; margin-top: 2px; }
+thead th.col-name { text-align: left; padding-left: 16px; z-index: 40; }
+thead th.th-today { color: #0a66c2; background: #f0f7ff; }
+thead th.th-promo { color: #b45309; }
 
+/* ── sticky name column ── */
+td.col-name, th.col-name {
+  position: sticky; left: 0; z-index: 20;
+  min-width: 96px; max-width: 130px;
+  background: #fff;
+}
+thead th.col-name { background: #fbfbfa; }
 
-.site-cell-hours { margin-top: 4px; font-size: 15px; font-weight: 700; color: #5b21b6; line-height: 1.15; }
-.site-cell-hours span { display: block; font-size: 8px; font-weight: 500; color: #7c3aed; letter-spacing: 0.3px; }
+/* ── body cells: horizontal hairlines only ── */
+tbody td {
+  font-size: 12px;
+  padding: 9px 12px;
+  border-bottom: 1px solid #f1f1ef;
+  text-align: center;
+  white-space: nowrap;
+  background: #fff;
+  min-width: 108px;
+}
+td.col-name { font-weight: 600; color: #1d1d1f; text-align: left; padding-left: 16px; }
 
+td.day-off  { color: #c7c7cc; font-size: 11px; letter-spacing: 0.04em; }
+td.day-dash { color: #e3e3e0; }
+td.day-today { background: #f0f7ff !important; }
 
+.sh-t { font-weight: 500; color: #1d1d1f; }
+.sh-h { font-weight: 400; color: #a1a1a6; font-size: 11px; }
 
-/* one-line shift text: time + hours, no pill */
-.sh-t { font-weight: 600; color: #222; }
-.sh-h { font-weight: 400; color: #999; }
+td.col-ind-total { font-weight: 600; color: #1d1d1f; min-width: 52px; }
+td.col-ind-total-empty { color: #d6d6d3; min-width: 52px; }
 
-/* per-site row tint (subtle band per site, incl. name cell) */
-tbody tr.row-shoreditch  td.day-cell, tbody tr.row-shoreditch  td.col-name { background: #f3f9ff; }
-tbody tr.row-battersea   td.day-cell, tbody tr.row-battersea   td.col-name { background: #fffbef; }
-tbody tr.row-towerbridge td.day-cell, tbody tr.row-towerbridge td.col-name { background: #f2faf3; }
-tbody tr.row-piccadilly  td.day-cell, tbody tr.row-piccadilly  td.col-name { background: #eff8f7; }
-tbody tr.row-brentcross  td.day-cell, tbody tr.row-brentcross  td.col-name { background: #fff5f5; }
+/* ── site section header row ── */
+tr.site-head td { padding: 0; background: #fff; border-bottom: 1px solid #ececea; border-top: 1px solid #ececea; }
+tr.site-head:first-child td { border-top: none; }
+.sh-line {
+  position: sticky; left: 0;
+  display: flex; align-items: baseline; gap: 8px;
+  width: max-content;
+  padding: 10px 16px 9px;
+  font-size: 13px; font-weight: 700;
+}
+.sh-line .dot { width: 8px; height: 8px; border-radius: 50%; align-self: center; }
+.sh-line .sh-hrs { font-size: 11px; font-weight: 500; color: #86868b; }
+.sh-line .sh-hrs b { font-size: 13px; font-weight: 700; color: #1d1d1f; margin-right: 1px; }
+
+tr.site-head.head-shoreditch  td { background: #f6faff; } .head-shoreditch  .sh-line { color: #1565C0; } .head-shoreditch  .dot { background: #1E88E5; }
+tr.site-head.head-battersea   td { background: #fffcf2; } .head-battersea   .sh-line { color: #E65100; } .head-battersea   .dot { background: #FB8C00; }
+tr.site-head.head-towerbridge td { background: #f4faf5; } .head-towerbridge .sh-line { color: #2E7D32; } .head-towerbridge .dot { background: #43A047; }
+tr.site-head.head-piccadilly  td { background: #f1f9f8; } .head-piccadilly  .sh-line { color: #00695C; } .head-piccadilly  .dot { background: #00897B; }
+tr.site-head.head-brentcross  td { background: #fff6f6; } .head-brentcross  .sh-line { color: #B91C1C; } .head-brentcross  .dot { background: #EF4444; }
+
+/* thin site rail on the sticky name cell */
+tbody tr.row-shoreditch  td.col-name { box-shadow: inset 3px 0 0 #1E88E5; }
+tbody tr.row-battersea   td.col-name { box-shadow: inset 3px 0 0 #FB8C00; }
+tbody tr.row-towerbridge td.col-name { box-shadow: inset 3px 0 0 #43A047; }
+tbody tr.row-piccadilly  td.col-name { box-shadow: inset 3px 0 0 #00897B; }
+tbody tr.row-brentcross  td.col-name { box-shadow: inset 3px 0 0 #EF4444; }
+
+/* ── week total in topbar ── */
+.week-total { font-size: 12px; color: #86868b; white-space: nowrap; }
+.week-total b { color: #1d1d1f; font-size: 14px; font-weight: 700; }
+
+/* ── collapsed unscheduled rows ── */
 tr.row-empty { display: none; }
 table.show-empty tr.row-empty { display: table-row; }
 tbody tr.row-empty td { color: #c9c9c5; }
 tbody tr.row-empty td.col-name { color: #b3b3af; }
-.empty-toggle td {
-  background: #fbfbfa !important;
-  color: #999;
-  font-size: 11px;
-  text-align: left !important;
-  padding: 8px 14px;
-  cursor: pointer;
-  border-top: 2px solid #eee;
-}
-.empty-toggle td:hover { background: #f4f4f2 !important; }
-.tg-arrow { display: inline-block; margin-right: 6px; transition: transform 0.15s; color: #bbb; }
+.empty-toggle td { background: #fbfbfa; color: #98989d; font-size: 11px; padding: 0; cursor: pointer; border-top: 1px solid #ececea; }
+.empty-toggle td:hover { background: #f4f4f2; }
+.tg-line { position: sticky; left: 0; width: max-content; display: flex; align-items: center; gap: 6px; padding: 9px 16px; }
+.tg-arrow { display: inline-block; transition: transform 0.15s; color: #c7c7cc; }
 table.show-empty .tg-arrow { transform: rotate(90deg); }
 </style>
 </head>
@@ -694,31 +568,21 @@ function buildTable(rows, agency, todayIdx, adjustments) {
 
   const dayHeaders = allHeaders.slice(2, dayEndIdx);
   const dateRow    = rows[1].slice(2, dayEndIdx);
+  const colCount   = dayHeaders.length + 2; // Name + days + Hrs
 
-  // Per-column classes: weekend tint, promotion tint, today highlight
-  const tdCls = [], thCls = [];
+  // Single header row: short day name + date underneath
+  let thead = '<thead><tr><th class="col-name">Name</th>';
   dayHeaders.forEach((h, i) => {
-    let td = '', th = '';
-    if (i === todayIdx) { td += ' day-today'; th += ' th-today'; }
-    tdCls.push(td); thCls.push(th);
+    const hl = (h || '').toLowerCase();
+    const isPromo = hl.includes('promo');
+    const cls = (i === todayIdx ? ' th-today' : '') + (isPromo ? ' th-promo' : '');
+    let label = (h || '').trim().slice(0, 3);
+    if (isPromo) label += ' \u00b7 Promo';
+    const iso = parseSheetDate(dateRow[i]);
+    const dateTxt = iso ? fmtDDMM(iso, 0) : (dateRow[i] || '');
+    thead += `<th class="col-day${cls}">${label}<span class="th-date">${dateTxt}</span></th>`;
   });
-
-  // Build thead (site weekly hours now live in the sticky site cell, so no Site Hours column)
-  let thead = '<thead><tr>';
-  thead += '<th class="col-site">Site</th>';
-  thead += '<th class="col-name">Name</th>';
-  dayHeaders.forEach((h, i) => {
-    thead += `<th class="col-day${thCls[i]}">${h}</th>`;
-  });
-  thead += '<th class="col-ind-total">Hrs</th>';
-  thead += '</tr><tr>';
-  thead += '<th class="col-site"></th>';
-  thead += '<th class="col-name"></th>';
-  dateRow.forEach((d, i) => {
-    thead += `<th class="col-day${thCls[i]}">${d}</th>`;
-  });
-  thead += '<th class="col-ind-total">hrs</th>';
-  thead += '</tr></thead>';
+  thead += '<th class="col-ind-total">Hrs</th></tr></thead>';
 
   // Group rows by site
   const dataRows = rows.slice(2).filter(r => r.some(c => c.trim()));
@@ -739,8 +603,9 @@ function buildTable(rows, agency, todayIdx, adjustments) {
   let grandTotal = 0;
   let hiddenCount = 0;
 
-  siteGroups.forEach((group, gi) => {
-    const sc = siteClass(group.site);
+  siteGroups.forEach(group => {
+    const sc = siteClass(group.site);               // e.g. 'site-shoreditch'
+    const suffix = sc ? sc.replace('site-', '') : '';
     const siteDisplay = group.site.split(/[\s,\(\uff08]/)[0].trim() || group.site;
 
     let siteTotal = 0;
@@ -750,16 +615,15 @@ function buildTable(rows, agency, todayIdx, adjustments) {
         siteTotal += rowHoursOf(row, totalHoursIdx, dayEndIdx);
       }
     });
-    const groupSiteCls = siteClass(group.site);
     (adjustments || []).forEach(adj => {
-      if (agency.has(adj.name) && groupSiteCls && siteClass(adj.site) === groupSiteCls) {
+      if (agency.has(adj.name) && sc && siteClass(adj.site) === sc) {
         siteTotal += adj.hours;
       }
     });
     siteTotal = Math.round(siteTotal * 100) / 100;
     grandTotal += siteTotal;
 
-    // Split rows: unscheduled (no shifts, no OFF, zero hours) are collapsed by default
+    // Unscheduled rows (no shifts, no OFF, zero hours) collapse by default
     const info = group.rows.map(row => {
       const days = row.slice(2, dayEndIdx);
       const hasContent = days.some(v => { const s = (v || '').trim(); return s && s !== '-'; });
@@ -767,12 +631,20 @@ function buildTable(rows, agency, todayIdx, adjustments) {
       return { row, empty: !hasContent && !h };
     });
     const ordered = info.filter(r => !r.empty).concat(info.filter(r => r.empty));
-    hiddenCount += info.filter(r => r.empty).length;
+    const emptyN = info.filter(r => r.empty).length;
+    hiddenCount += emptyN;
+    const groupAllEmpty = (emptyN === group.rows.length);
 
-    ordered.forEach((it, ri) => {
+    // Site section header row (full width, sticky label)
+    const headCls = ['site-head'];
+    if (suffix) headCls.push('head-' + suffix);
+    if (groupAllEmpty) headCls.push('row-empty');
+    const hrsHTML = siteTotal > 0 ? `<span class="sh-hrs"><b>${siteTotal}</b>h / week</span>` : '<span class="sh-hrs">\u2013</span>';
+    tbody += `<tr class="${headCls.join(' ')}"><td colspan="${colCount}">` +
+      `<div class="sh-line"><span class="dot"></span><span>${siteDisplay}</span>${hrsHTML}</div></td></tr>`;
+
+    ordered.forEach(it => {
       const row = it.row;
-      const isFirst = (ri === 0);
-      const isSeparator = (gi > 0 && isFirst);
       const name = (row[1] || '').trim();
       const days = row.slice(2, dayEndIdx);
       let indHours = totalHoursIdx > 0 ? (row[totalHoursIdx] || '').trim() : '';
@@ -782,21 +654,13 @@ function buildTable(rows, agency, todayIdx, adjustments) {
       }
 
       const rowCls = [];
-      if (isSeparator) rowCls.push('site-separator');
       if (it.empty) rowCls.push('row-empty');
-      if (sc) rowCls.push(sc.replace('site-', 'row-'));
+      if (suffix) rowCls.push('row-' + suffix);
       tbody += `<tr${rowCls.length ? ' class="' + rowCls.join(' ') + '"' : ''}>`;
-
-      if (isFirst) {
-        const hoursHTML = siteTotal > 0
-          ? `<div class="site-cell-hours">${siteTotal}<span>hrs / week</span></div>`
-          : '';
-        tbody += `<td class="col-site ${sc}" rowspan="${ordered.length}">${siteDisplay}${hoursHTML}</td>`;
-      }
       tbody += `<td class="col-name">${name}</td>`;
 
       days.forEach((val, di) => {
-        tbody += renderCell(val, tdCls[di]);
+        tbody += renderCell(val, di === todayIdx ? ' day-today' : '');
       });
 
       if (indHours) {
@@ -804,7 +668,6 @@ function buildTable(rows, agency, todayIdx, adjustments) {
       } else {
         tbody += `<td class="col-ind-total-empty">\u2013</td>`;
       }
-
       tbody += '</tr>';
     });
   });
@@ -814,15 +677,13 @@ function buildTable(rows, agency, todayIdx, adjustments) {
   const totalEl = document.getElementById('week-total');
   if (totalEl) totalEl.innerHTML = grandTotal > 0 ? `Week total <b>${grandTotal}</b> h` : '';
 
-  // Toggle row for collapsed unscheduled rows
   if (hiddenCount > 0) {
-    const colCount = 2 + dayHeaders.length + 1;
     tbody += `<tr class="empty-toggle"><td colspan="${colCount}" data-count="${hiddenCount}" onclick="toggleEmptyRows(this)">` +
-      `<span class="tg-arrow">\u25b8</span><span class="tg-text">${hiddenCount} unscheduled row${hiddenCount > 1 ? 's' : ''} hidden \u2014 show</span></td></tr>`;
+      `<div class="tg-line"><span class="tg-arrow">\u25b8</span><span class="tg-text">${hiddenCount} unscheduled row${hiddenCount > 1 ? 's' : ''} hidden \u2014 show</span></div></td></tr>`;
   }
 
   tbody += '</tbody>';
-  return `<table>${thead}${tbody}</table>`;
+  return `<div class="table-card"><table>${thead}${tbody}</table></div>`;
 }
 
 function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) {
