@@ -382,46 +382,23 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 .week-total { font-size: 12px; color: #888; white-space: nowrap; }
 .week-total b { color: #5b21b6; font-size: 14px; font-weight: 700; }
 
-.shift-chip {
-  display: inline-block;
-  background: #e8f1fb;
-  color: #1d5ca8;
-  border-radius: 6px;
-  padding: 2px 7px;
-  line-height: 1.3;
-  font-weight: 600;
-  font-size: 11px;
-}
-.shift-chip small {
-  display: block;
-  font-size: 9px;
-  font-weight: 600;
-  opacity: 0.72;
-  letter-spacing: 0.2px;
-}
 
-tbody tr td.day-wknd  { background: #f4f4f2; }
-tbody tr td.day-promo { background: #fdf8ec; }
-thead tr:first-child th.th-promo { background: #3b2f0e; color: #fbbf24; }
-thead tr:last-child  th.th-promo { background: #fdf3d7; color: #92400e; }
-thead tr:first-child th.th-wknd  { background: #262626; }
-thead tr:last-child  th.th-wknd  { background: #e9e9e6; }
 
 .site-cell-hours { margin-top: 4px; font-size: 15px; font-weight: 700; color: #5b21b6; line-height: 1.15; }
 .site-cell-hours span { display: block; font-size: 8px; font-weight: 500; color: #7c3aed; letter-spacing: 0.3px; }
 
-td.col-ind-total.hrs-hot { color: #c2410c; }
-.ot-flag {
-  display: block;
-  font-size: 8px;
-  font-weight: 700;
-  background: #fdeee6;
-  color: #c2410c;
-  border-radius: 4px;
-  padding: 1px 4px;
-  margin-top: 2px;
-}
 
+
+/* one-line shift text: time + hours, no pill */
+.sh-t { font-weight: 600; color: #222; }
+.sh-h { font-weight: 400; color: #999; }
+
+/* per-site row tint (subtle band per site, incl. name cell) */
+tbody tr.row-shoreditch  td.day-cell, tbody tr.row-shoreditch  td.col-name { background: #f3f9ff; }
+tbody tr.row-battersea   td.day-cell, tbody tr.row-battersea   td.col-name { background: #fffbef; }
+tbody tr.row-towerbridge td.day-cell, tbody tr.row-towerbridge td.col-name { background: #f2faf3; }
+tbody tr.row-piccadilly  td.day-cell, tbody tr.row-piccadilly  td.col-name { background: #eff8f7; }
+tbody tr.row-brentcross  td.day-cell, tbody tr.row-brentcross  td.col-name { background: #fff5f5; }
 tr.row-empty { display: none; }
 table.show-empty tr.row-empty { display: table-row; }
 tbody tr.row-empty td { color: #c9c9c5; }
@@ -679,7 +656,7 @@ function renderCell(val, extraCls) {
   }
   const sh = formatShift(v);
   if (sh) {
-    return `<td class="day-cell${cls}"><span class="shift-chip">${sh.start}\u2013${sh.end}<small>${sh.hrs}h</small></span></td>`;
+    return `<td class="day-cell${cls}"><span class="sh-t">${sh.start}\u2013${sh.end}</span><span class="sh-h"> \u00b7 ${sh.hrs}h</span></td>`;
   }
   return `<td class="day-cell${cls}">${v}</td>`;
 }
@@ -724,10 +701,7 @@ function buildTable(rows, agency, todayIdx, adjustments) {
   // Per-column classes: weekend tint, promotion tint, today highlight
   const tdCls = [], thCls = [];
   dayHeaders.forEach((h, i) => {
-    const hl = (h || '').toLowerCase();
     let td = '', th = '';
-    if (hl.startsWith('sat') || hl.startsWith('sun')) { td += ' day-wknd'; th += ' th-wknd'; }
-    if (hl.includes('promo')) { td += ' day-promo'; th += ' th-promo'; }
     if (i === todayIdx) { td += ' day-today'; th += ' th-today'; }
     tdCls.push(td); thCls.push(th);
   });
@@ -813,6 +787,7 @@ function buildTable(rows, agency, todayIdx, adjustments) {
       const rowCls = [];
       if (isSeparator) rowCls.push('site-separator');
       if (it.empty) rowCls.push('row-empty');
+      if (sc) rowCls.push(sc.replace('site-', 'row-'));
       tbody += `<tr${rowCls.length ? ' class="' + rowCls.join(' ') + '"' : ''}>`;
 
       if (isFirst) {
@@ -828,9 +803,7 @@ function buildTable(rows, agency, todayIdx, adjustments) {
       });
 
       if (indHours) {
-        const hNum = parseFloat(indHours);
-        const hot = !isNaN(hNum) && hNum > 48;
-        tbody += `<td class="col-ind-total${hot ? ' hrs-hot' : ''}">${indHours}${hot ? '<span class="ot-flag">&gt;48h</span>' : ''}</td>`;
+        tbody += `<td class="col-ind-total">${indHours}</td>`;
       } else {
         tbody += `<td class="col-ind-total-empty">\u2013</td>`;
       }
