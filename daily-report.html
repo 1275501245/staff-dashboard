@@ -274,20 +274,23 @@ function buildPerfMap(dayRows) {
   const fmt = v => v.toLocaleString('en-GB', { maximumFractionDigits: 1 });
 
   let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Site performance map">`;
-  // grade-zone grid fills
+  // coloured grade strips on each axis (each dimension reads independently),
+  // plot area stays clean except a light tint on the best (Exc x Exc) cell
   const xEdges = [x0, ...PREP_T.filter(t => t > x0 && t < x1), x1];
   const yEdges = [y0, ...ACC_T.filter(t => t > y0 && t < y1), y1];
   const zone = (v, T) => gradeOf(v + 1e-9, T);
-  for (let i = 0; i < xEdges.length - 1; i++) {
-    for (let j = 0; j < yEdges.length - 1; j++) {
-      const gx = zone(xEdges[i], PREP_T), gy = zone(yEdges[j], ACC_T);
-      const g = Math.round((gx + gy) / 2); // blend both dimensions: one strong metric softens the cell
-      const rx = X(xEdges[i]), rw = X(xEdges[i + 1]) - rx;
-      const ry = Y(yEdges[j + 1]), rh = Y(yEdges[j]) - ry;
-      svg += `<rect x="${rx.toFixed(1)}" y="${ry.toFixed(1)}" width="${rw.toFixed(1)}" height="${rh.toFixed(1)}" fill="${ZONE_FILL[g]}"/>`;
-    }
+  const bx1 = Math.min(PREP_T[0], x1), by1 = Math.min(ACC_T[0], y1);
+  if (bx1 > x0 && by1 > y0) {
+    svg += `<rect x="${X(x0).toFixed(1)}" y="${Y(by1).toFixed(1)}" width="${(X(bx1) - X(x0)).toFixed(1)}" height="${(Y(y0) - Y(by1)).toFixed(1)}" fill="rgba(76,175,80,0.09)"/>`;
   }
-  // best-corner tag inside the excellent x excellent cell
+  for (let i = 0; i < xEdges.length - 1; i++) {
+    const g = zone(xEdges[i], PREP_T);
+    svg += `<rect x="${X(xEdges[i]).toFixed(1)}" y="${(H - mB + 3).toFixed(1)}" width="${(X(xEdges[i + 1]) - X(xEdges[i])).toFixed(1)}" height="5" rx="2" fill="${GRADE_COLOR[g]}" opacity="0.75"/>`;
+  }
+  for (let j = 0; j < yEdges.length - 1; j++) {
+    const g = zone(yEdges[j], ACC_T);
+    svg += `<rect x="${(mL - 8).toFixed(1)}" y="${Y(yEdges[j + 1]).toFixed(1)}" width="5" rx="2" height="${(Y(yEdges[j]) - Y(yEdges[j + 1])).toFixed(1)}" fill="${GRADE_COLOR[g]}" opacity="0.75"/>`;
+  }
   svg += `<text x="${(X(x0) + 10).toFixed(1)}" y="${(Y(y0) - 10).toFixed(1)}" text-anchor="start" font-size="10.5" font-weight="600" fill="#2e7d32">\u2199 Best zone</text>`;
   // threshold lines + tick values
   PREP_T.forEach(t => { if (t <= x0 || t >= x1) return;
@@ -301,7 +304,7 @@ function buildPerfMap(dayRows) {
   // grade labels along top (prep) using zone centres
   for (let i = 0; i < xEdges.length - 1; i++) {
     const g = zone(xEdges[i], PREP_T);
-    svg += `<text x="${((X(xEdges[i]) + X(xEdges[i + 1])) / 2).toFixed(1)}" y="${mT - 8}" text-anchor="middle" font-size="9.5" fill="${GRADE_COLOR[g]}" opacity="0.65">${GRADES[g]}</text>`;
+    svg += `<text x="${((X(xEdges[i]) + X(xEdges[i + 1])) / 2).toFixed(1)}" y="${mT - 8}" text-anchor="middle" font-size="9.5" font-weight="600" fill="${GRADE_COLOR[g]}" opacity="0.8">${GRADES[g]}</text>`;
   }
   // axis titles
   svg += `<text x="${((mL + W - mR) / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle" font-size="11" fill="#888">Prep time (min) \u2192 slower</text>`;
