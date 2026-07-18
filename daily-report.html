@@ -63,6 +63,19 @@ h1 { font-size: 20px; font-weight: 600; }
 .sum-row .site { font-weight: 600; }
 .sum-row .vals { color: #555; }
 .sum-row .vals b { color: #1a1a1a; }
+.site-tabs { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.site-tabs::-webkit-scrollbar { display: none; }
+.site-tabs button { padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; border: 1px solid #e0e0e0; background: white; color: #888; cursor: pointer; white-space: nowrap; }
+.site-tabs button.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+.chart-card { background: white; border: 1px solid #efefef; border-radius: 16px; padding: 14px 16px 10px; margin-bottom: 12px; }
+.chart-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+.chart-title { font-size: 13px; font-weight: 600; }
+.chart-unit { font-size: 11px; color: #bbb; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; color: #888; margin: 2px 0 6px; }
+.chart-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.chart-card svg { width: 100%; height: auto; display: block; touch-action: pan-y; }
+.chart-empty { font-size: 12px; color: #aaa; padding: 18px 0 12px; text-align: center; }
+#chartTip { position: fixed; z-index: 10; background: #1a1a1a; color: white; font-size: 12px; padding: 6px 10px; border-radius: 8px; pointer-events: none; display: none; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
 </style>
 </head>
 <body>
@@ -80,6 +93,7 @@ h1 { font-size: 20px; font-weight: 600; }
   <div class="view-tabs" id="viewTabs">
     <button data-v="daily" class="active">Daily</button>
     <button data-v="summary">&Sigma; Summary</button>
+    <button data-v="metrics">Metrics</button>
   </div>
 
   <div id="dailyView">
@@ -112,10 +126,23 @@ h1 { font-size: 20px; font-weight: 600; }
     </div>
     <div id="sumResult"></div>
   </div>
+
+  <div id="metricsView" style="display:none;">
+    <div class="site-tabs" id="mSiteTabs">
+      <button data-s="All" class="active">All</button>
+      <button data-s="Shoreditch">Shoreditch</button>
+      <button data-s="Tower Bridge">Tower Bridge</button>
+      <button data-s="Battersea">Battersea</button>
+      <button data-s="Brent Cross">Brent Cross</button>
+    </div>
+    <div id="metricsContent"><div class="loading">Loading...</div></div>
+  </div>
 </div>
+<div id="chartTip"></div>
 <script>
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
 const DAILY_GID = '1203914948';
+const METRICS_GID = '72312209'; // DailyReport_Metrics tab (Deliveroo service metrics)
 const SITES_SHEET_ID = '1ZTljEXM9SPKUzy4rIjGSEvEDMH3ctZlVWbU3a0bBV8s';
 const SITES = ['Shoreditch', 'Tower Bridge', 'Battersea', 'Brent Cross'];
 const PLATFORMS = ['Deliveroo', 'HungryPanda'];
@@ -128,6 +155,10 @@ let dates = [];
 let dateIdx = 0;
 let platform = 'All';
 let view = 'daily';
+let metricsRows = null;   // null = not fetched yet
+let metricsError = null;
+let mSite = 'All';
+const SITE_COLORS = { 'Shoreditch': '#00b8a9', 'Tower Bridge': '#4a7de0', 'Battersea': '#f5b301', 'Brent Cross': '#e0567a' };
 
 // --- CSV parsing (handles quoted fields) ---
 function parseCSV(text) {
@@ -189,6 +220,136 @@ async function fetchSiteHours() {
 const gbp = n => '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtDate = iso => new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 const satOf = (orders, site) => (orders / (SITE_HOURS[site] || 11));
+
+// --- Service metrics (DailyReport_Metrics tab, Deliveroo only) ---
+async function fetchMetrics() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${METRICS_GID}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const rows = parseCSV(await res.text());
+  if (!rows.length) throw new Error('Empty sheet');
+  const headers = rows[0].map(h => String(h).trim().toLowerCase());
+  const missing = ['date', 'site', 'preptime', 'accuracy', 'rating'].filter(h => !headers.includes(h));
+  if (missing.length) throw new Error(`Wrong tab (gid ${METRICS_GID}) or headers wrong (missing: ${missing.join(', ')})`);
+  const col = name => headers.indexOf(name);
+  const num = v => { const s = String(v ?? '').replace(/[%,]/g, '').trim(); if (s === '') return null; const n = parseFloat(s); return isNaN(n) ? null : n; };
+  const [cDate, cSite, cPrep, cAcc, cRat, cNotes] =
+    ['date', 'site', 'preptime', 'accuracy', 'rating', 'notes'].map(col);
+  return rows.slice(1).map(r => ({
+    date: String(r[cDate] || '').trim(),
+    site: String(r[cSite] || '').trim(),
+    preptime: num(r[cPrep]),
+    accuracy: num(r[cAcc]),
+    rating: num(r[cRat]),
+    notes: cNotes === -1 ? '' : String(r[cNotes] || '').trim(),
+  })).filter(r => /^\d{4}-\d{2}-\d{2}$/.test(r.date) && r.site)
+    .sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+}
+
+// Build one SVG line chart for a metric. Sparse dates: x is time-proportional.
+function buildChart(rows, key, opts) {
+  const sitesToShow = mSite === 'All' ? SITES : [mSite];
+  const series = sitesToShow.map(s => ({
+    site: s,
+    pts: rows.filter(r => r.site === s && r[key] != null).map(r => ({ d: r.date, v: r[key] })),
+  })).filter(sr => sr.pts.length);
+
+  const head = `<div class="chart-head"><span class="chart-title">${opts.title}</span><span class="chart-unit">${opts.unit}</span></div>`;
+  if (!series.length) return `<div class="chart-card">${head}<div class="chart-empty">No ${opts.title.toLowerCase()} data yet</div></div>`;
+
+  const allPts = series.flatMap(sr => sr.pts);
+  const ts = d => new Date(d + 'T00:00:00').getTime();
+  const dayList = [...new Set(allPts.map(p => p.d))].sort();
+  const t0 = ts(dayList[0]), t1 = ts(dayList[dayList.length - 1]);
+  let vMin = Math.min(...allPts.map(p => p.v)), vMax = Math.max(...allPts.map(p => p.v));
+  let pad = (vMax - vMin) * 0.15;
+  if (pad === 0) pad = Math.max(Math.abs(vMax) * 0.05, 0.5); // flat line
+  vMin -= pad; vMax += pad;
+  if (opts.cap != null) vMax = Math.min(vMax, opts.cap);
+  if (opts.floor != null) vMin = Math.max(vMin, opts.floor);
+
+  const W = 640, H = 240, mL = 44, mR = 14, mT = 12, mB = 28;
+  const x = d => t1 === t0 ? mL + (W - mL - mR) / 2 : mL + (ts(d) - t0) / (t1 - t0) * (W - mL - mR);
+  const y = v => mT + (1 - (v - vMin) / (vMax - vMin)) * (H - mT - mB);
+  const fmtV = v => v.toLocaleString('en-GB', { maximumFractionDigits: opts.dec });
+  const fmtD = iso => new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${opts.title} trend">`;
+  // y gridlines + labels (4 ticks)
+  for (let i = 0; i <= 3; i++) {
+    const v = vMin + (vMax - vMin) * i / 3, yy = y(v);
+    svg += `<line x1="${mL}" y1="${yy.toFixed(1)}" x2="${W - mR}" y2="${yy.toFixed(1)}" stroke="#f0f0f0" stroke-width="1"/>`;
+    svg += `<text x="${mL - 8}" y="${(yy + 3.5).toFixed(1)}" text-anchor="end" font-size="10.5" fill="#bbb">${fmtV(v)}</text>`;
+  }
+  // x tick labels: up to 6, evenly picked from recorded dates
+  const step = Math.max(1, Math.ceil(dayList.length / 6));
+  dayList.forEach((d, i) => {
+    if (i % step !== 0 && i !== dayList.length - 1) return;
+    svg += `<text x="${x(d).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="10.5" fill="#bbb">${fmtD(d)}</text>`;
+  });
+  // lines + points
+  series.forEach(sr => {
+    const c = SITE_COLORS[sr.site] || '#888';
+    if (sr.pts.length > 1) {
+      const path = sr.pts.map(p => `${x(p.d).toFixed(1)},${y(p.v).toFixed(1)}`).join(' ');
+      svg += `<polyline points="${path}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    }
+    sr.pts.forEach(p => {
+      const px = x(p.d).toFixed(1), py = y(p.v).toFixed(1);
+      svg += `<circle cx="${px}" cy="${py}" r="3.5" fill="${c}" stroke="white" stroke-width="1.5"/>`;
+      svg += `<circle cx="${px}" cy="${py}" r="12" fill="transparent" class="hit" data-tip="${sr.site} \u00b7 ${fmtD(p.d)} \u00b7 ${fmtV(p.v)}${opts.tipUnit}"/>`;
+    });
+  });
+  svg += `</svg>`;
+
+  const legend = mSite === 'All'
+    ? `<div class="chart-legend">` + series.map(sr =>
+        `<span><span class="dot" style="background:${SITE_COLORS[sr.site]}"></span>${sr.site}</span>`).join('') + `</div>`
+    : '';
+  return `<div class="chart-card">${head}${legend}${svg}</div>`;
+}
+
+function renderMetrics() {
+  document.querySelectorAll('#mSiteTabs button').forEach(b => b.classList.toggle('active', b.dataset.s === mSite));
+  const box = document.getElementById('metricsContent');
+  if (metricsError) { box.innerHTML = `<div class="loading" style="color:#c62828;">Failed: ${metricsError}</div>`; return; }
+  if (metricsRows === null) { box.innerHTML = '<div class="loading">Loading...</div>'; return; }
+  if (!metricsRows.length) { box.innerHTML = '<div class="loading">No data yet \u2014 add rows to the DailyReport_Metrics tab.</div>'; return; }
+  box.innerHTML =
+    buildChart(metricsRows, 'preptime', { title: 'Prep time', unit: 'Deliveroo \u00b7 minutes', tipUnit: ' min', dec: 1, floor: 0 }) +
+    buildChart(metricsRows, 'accuracy', { title: 'Order accuracy', unit: 'Deliveroo \u00b7 %', tipUnit: '%', dec: 1, cap: 100 }) +
+    buildChart(metricsRows, 'rating', { title: 'Rating', unit: 'Deliveroo \u00b7 out of 5', tipUnit: ' \u2605', dec: 2, cap: 5, floor: 0 });
+}
+
+async function loadMetrics() {
+  try { metricsRows = await fetchMetrics(); }
+  catch (e) { metricsError = e.message; }
+  if (view === 'metrics') renderMetrics();
+}
+
+// Tooltip on chart points (tap or hover)
+const tip = document.getElementById('chartTip');
+function showTip(target, cx, cy) {
+  tip.textContent = target.dataset.tip;
+  tip.style.display = 'block';
+  const r = tip.getBoundingClientRect();
+  let left = cx - r.width / 2;
+  left = Math.max(6, Math.min(left, window.innerWidth - r.width - 6));
+  tip.style.left = left + 'px';
+  tip.style.top = Math.max(6, cy - r.height - 12) + 'px';
+}
+document.addEventListener('pointerover', e => {
+  if (e.target.classList && e.target.classList.contains('hit')) {
+    const b = e.target.getBoundingClientRect();
+    showTip(e.target, b.left + b.width / 2, b.top);
+  } else if (!tip.contains(e.target)) tip.style.display = 'none';
+});
+document.addEventListener('pointerdown', e => {
+  if (e.target.classList && e.target.classList.contains('hit')) {
+    const b = e.target.getBoundingClientRect();
+    showTip(e.target, b.left + b.width / 2, b.top);
+  } else tip.style.display = 'none';
+});
 
 // --- Daily view ---
 function renderDaily() {
@@ -307,14 +468,20 @@ function setView(v) {
   document.querySelectorAll('#viewTabs button').forEach(b => b.classList.toggle('active', b.dataset.v === v));
   document.getElementById('dailyView').style.display = v === 'daily' ? '' : 'none';
   document.getElementById('summaryView').style.display = v === 'summary' ? '' : 'none';
+  document.getElementById('metricsView').style.display = v === 'metrics' ? '' : 'none';
   document.getElementById('pagerBox').style.visibility = v === 'daily' ? 'visible' : 'hidden';
   if (v === 'summary') renderSummary();
+  if (v === 'metrics') {
+    renderMetrics();
+    if (metricsRows === null && !metricsError) loadMetrics(); // lazy fetch on first open
+  }
 }
 
 document.getElementById('prevBtn').onclick = () => { if (dateIdx > 0) { dateIdx--; renderDaily(); } };
 document.getElementById('nextBtn').onclick = () => { if (dateIdx < dates.length - 1) { dateIdx++; renderDaily(); } };
 document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { platform = b.dataset.p; renderDaily(); });
 document.querySelectorAll('#viewTabs button').forEach(b => b.onclick = () => setView(b.dataset.v));
+document.querySelectorAll('#mSiteTabs button').forEach(b => b.onclick = () => { mSite = b.dataset.s; renderMetrics(); });
 ['sumFrom', 'sumTo', 'sumSite'].forEach(id => document.getElementById(id).onchange = renderSummary);
 
 async function init() {
