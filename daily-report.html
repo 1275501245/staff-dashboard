@@ -281,7 +281,7 @@ function buildPerfMap(dayRows) {
   for (let i = 0; i < xEdges.length - 1; i++) {
     for (let j = 0; j < yEdges.length - 1; j++) {
       const gx = zone(xEdges[i], PREP_T), gy = zone(yEdges[j], ACC_T);
-      const g = Math.max(gx, gy);
+      const g = Math.round((gx + gy) / 2); // blend both dimensions: one strong metric softens the cell
       const rx = X(xEdges[i]), rw = X(xEdges[i + 1]) - rx;
       const ry = Y(yEdges[j + 1]), rh = Y(yEdges[j]) - ry;
       svg += `<rect x="${rx.toFixed(1)}" y="${ry.toFixed(1)}" width="${rw.toFixed(1)}" height="${rh.toFixed(1)}" fill="${ZONE_FILL[g]}"/>`;
@@ -314,8 +314,11 @@ function buildPerfMap(dayRows) {
     const right = px > W - 150;
     const ax = right ? 'end' : 'start', dx = right ? -11 : 11;
     svg += `<text x="${(px + dx).toFixed(1)}" y="${(py - 2).toFixed(1)}" text-anchor="${ax}" font-size="12" font-weight="600" fill="#1a1a1a">${p.site}</text>`;
-    svg += `<text x="${(px + dx).toFixed(1)}" y="${(py + 11).toFixed(1)}" text-anchor="${ax}" font-size="10.5" fill="#666">${fmt(p.r.preptime)} min \u00b7 ${fmt(p.r.accuracy)}%</text>`;
     const gp = gradeOf(p.r.preptime, PREP_T), ga = gradeOf(p.r.accuracy, ACC_T);
+    svg += `<text x="${(px + dx).toFixed(1)}" y="${(py + 11).toFixed(1)}" text-anchor="${ax}" font-size="10.5" font-weight="600">` +
+      `<tspan fill="${GRADE_COLOR[gp]}">${fmt(p.r.preptime)} min</tspan>` +
+      `<tspan fill="#bbb" font-weight="400"> \u00b7 </tspan>` +
+      `<tspan fill="${GRADE_COLOR[ga]}">${fmt(p.r.accuracy)}%</tspan></text>`;
     svg += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="14" fill="transparent" class="hit" data-tip="${p.site} \u00b7 prep ${fmt(p.r.preptime)} min (${GRADES[gp]}) \u00b7 inaccuracy ${fmt(p.r.accuracy)}% (${GRADES[ga]})"/>`;
   });
   svg += `</svg>`;
