@@ -357,6 +357,26 @@ document.addEventListener('pointerdown', e => {
   } else tip.style.display = 'none';
 });
 
+let mDates = [];
+let mDateIdx = 0;
+
+function renderPerfMap() {
+  const slot = document.getElementById('perfMap');
+  if (!mDates.length) { slot.innerHTML = ''; return; }
+  const day = mDates[mDateIdx];
+  const card = buildPerfMap(metricsRows.filter(r => r.date === day));
+  const pager = `<div class="pager" style="justify-content:center;margin-top:10px;">
+    <button id="mPrevBtn" aria-label="Previous reading" ${mDateIdx <= 0 ? 'disabled' : ''}>&#8249;</button>
+    <span class="date-label">${fmtDate(day)}</span>
+    <button id="mNextBtn" aria-label="Next reading" ${mDateIdx >= mDates.length - 1 ? 'disabled' : ''}>&#8250;</button>
+  </div>`;
+  // pager sits below the chart, inside the card (card ends with "</div>")
+  slot.innerHTML = card.slice(0, -6) + pager + '</div>';
+  const prev = document.getElementById('mPrevBtn'), next = document.getElementById('mNextBtn');
+  if (prev) prev.onclick = () => { if (mDateIdx > 0) { mDateIdx--; renderPerfMap(); } };
+  if (next) next.onclick = () => { if (mDateIdx < mDates.length - 1) { mDateIdx++; renderPerfMap(); } };
+}
+
 // --- Daily view ---
 function renderDaily() {
   const day = dates[dateIdx];
@@ -421,8 +441,6 @@ function renderDaily() {
   }).join('');
 
   document.getElementById('content').innerHTML = html;
-  const dayMetrics = (metricsRows || []).filter(r => r.date === day);
-  document.getElementById('perfMap').innerHTML = dayMetrics.length ? buildPerfMap(dayMetrics) : '';
   document.getElementById('totOrders').textContent = totO;
   document.getElementById('totRev').textContent = gbp(totR);
   document.getElementById('totSat').textContent = totHrs > 0 ? (totO / totHrs).toFixed(1) : '\u2013';
@@ -495,7 +513,10 @@ async function init() {
     ]);
     allRows = rows;
     metricsRows = mrows;
-    dates = [...new Set([...allRows.map(r => r.date), ...metricsRows.map(r => r.date)])].sort();
+    mDates = [...new Set(metricsRows.map(r => r.date))].sort();
+    mDateIdx = mDates.length - 1;
+    renderPerfMap();
+    dates = [...new Set(allRows.map(r => r.date))].sort();
     document.getElementById('subtitle').textContent = `Last updated: ${new Date().toLocaleString('en-GB')}`;
     if (!dates.length) {
       document.getElementById('content').innerHTML = '<div class="loading">No data yet \u2014 add rows to the DailyReport tab.</div>';
