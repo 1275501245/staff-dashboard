@@ -63,7 +63,7 @@ h1 { font-size: 20px; font-weight: 600; }
 .sum-row .site { font-weight: 600; }
 .sum-row .vals { color: #555; }
 .sum-row .vals b { color: #1a1a1a; }
-.chart-card { background: white; border: 1px solid #efefef; border-radius: 16px; padding: 14px 16px 10px; margin-bottom: 12px; }
+.chart-card { background: white; border: 1px solid #efefef; border-radius: 16px; padding: 14px 16px 10px; margin-bottom: 14px; }
 .chart-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
 .chart-title { font-size: 13px; font-weight: 600; }
 .chart-unit { font-size: 11px; color: #bbb; }
@@ -89,7 +89,6 @@ h1 { font-size: 20px; font-weight: 600; }
   <div class="view-tabs" id="viewTabs">
     <button data-v="daily" class="active">Daily</button>
     <button data-v="summary">&Sigma; Summary</button>
-    <button data-v="metrics">Metrics</button>
   </div>
 
   <div id="dailyView">
@@ -103,6 +102,7 @@ h1 { font-size: 20px; font-weight: 600; }
       <div class="metric"><div class="metric-label">Revenue</div><div class="metric-value" id="totRev" style="font-size:17px;">&ndash;</div></div>
       <div class="metric sat"><div class="metric-label">Orders / hr</div><div class="metric-value" id="totSat">&ndash;</div></div>
     </div>
+    <div id="perfMap"></div>
     <div id="content"><div class="loading">Loading...</div></div>
   </div>
 
@@ -123,14 +123,6 @@ h1 { font-size: 20px; font-weight: 600; }
     <div id="sumResult"></div>
   </div>
 
-  <div id="metricsView" style="display:none;">
-    <div class="pager" id="mPager" style="justify-content:center;margin-bottom:14px;">
-      <button id="mPrevBtn" aria-label="Previous reading">&#8249;</button>
-      <span class="date-label" id="mDateLabel">&ndash;</span>
-      <button id="mNextBtn" aria-label="Next reading">&#8250;</button>
-    </div>
-    <div id="metricsContent"><div class="loading">Loading...</div></div>
-  </div>
 </div>
 <div id="chartTip"></div>
 <script>
@@ -249,9 +241,6 @@ const gradeOf = (v, T) => v < T[0] ? 0 : v < T[1] ? 1 : v < T[2] ? 2 : 3;
 const ZONE_FILL = ['rgba(76,175,80,0.16)', 'rgba(139,195,74,0.11)', 'rgba(255,167,38,0.10)', 'rgba(239,83,80,0.08)'];
 const GRADE_COLOR = ['#2e7d32', '#7cb342', '#ef6c00', '#c62828'];
 
-let mDates = [];
-let mDateIdx = 0;
-
 // Performance map: one dot per site, x = prep time, y = inaccuracy, for one recorded date
 function buildPerfMap(dayRows) {
   const pts = SITES.map(s => {
@@ -342,32 +331,7 @@ function buildPerfMap(dayRows) {
   return `<div class="chart-card">${head}${svg}${note}</div>`;
 }
 
-function renderMetrics() {
-  const box = document.getElementById('metricsContent');
-  const label = document.getElementById('mDateLabel');
-  const prev = document.getElementById('mPrevBtn');
-  const next = document.getElementById('mNextBtn');
-  if (metricsError) { box.innerHTML = `<div class="loading" style="color:#c62828;">Failed: ${metricsError}</div>`; label.textContent = '\u2013'; prev.disabled = next.disabled = true; return; }
-  if (metricsRows === null) { box.innerHTML = '<div class="loading">Loading...</div>'; label.textContent = '\u2013'; prev.disabled = next.disabled = true; return; }
-  if (!metricsRows.length) { box.innerHTML = '<div class="loading">No data yet \u2014 add rows to the DailyReport_Metrics tab.</div>'; label.textContent = '\u2013'; prev.disabled = next.disabled = true; return; }
-  const day = mDates[mDateIdx];
-  label.textContent = fmtDate(day);
-  prev.disabled = mDateIdx <= 0;
-  next.disabled = mDateIdx >= mDates.length - 1;
-  box.innerHTML = buildPerfMap(metricsRows.filter(r => r.date === day));
-}
 
-document.getElementById('mPrevBtn').onclick = () => { if (mDateIdx > 0) { mDateIdx--; renderMetrics(); } };
-document.getElementById('mNextBtn').onclick = () => { if (mDateIdx < mDates.length - 1) { mDateIdx++; renderMetrics(); } };
-
-async function loadMetrics() {
-  try {
-    metricsRows = await fetchMetrics();
-    mDates = [...new Set(metricsRows.map(r => r.date))].sort();
-    mDateIdx = mDates.length - 1;
-  } catch (e) { metricsError = e.message; }
-  if (view === 'metrics') renderMetrics();
-}
 
 // Tooltip on chart points (tap or hover)
 const tip = document.getElementById('chartTip');
@@ -457,6 +421,8 @@ function renderDaily() {
   }).join('');
 
   document.getElementById('content').innerHTML = html;
+  const dayMetrics = (metricsRows || []).filter(r => r.date === day);
+  document.getElementById('perfMap').innerHTML = dayMetrics.length ? buildPerfMap(dayMetrics) : '';
   document.getElementById('totOrders').textContent = totO;
   document.getElementById('totRev').textContent = gbp(totR);
   document.getElementById('totSat').textContent = totHrs > 0 ? (totO / totHrs).toFixed(1) : '\u2013';
@@ -510,13 +476,8 @@ function setView(v) {
   document.querySelectorAll('#viewTabs button').forEach(b => b.classList.toggle('active', b.dataset.v === v));
   document.getElementById('dailyView').style.display = v === 'daily' ? '' : 'none';
   document.getElementById('summaryView').style.display = v === 'summary' ? '' : 'none';
-  document.getElementById('metricsView').style.display = v === 'metrics' ? '' : 'none';
   document.getElementById('pagerBox').style.visibility = v === 'daily' ? 'visible' : 'hidden';
   if (v === 'summary') renderSummary();
-  if (v === 'metrics') {
-    renderMetrics();
-    if (metricsRows === null && !metricsError) loadMetrics(); // lazy fetch on first open
-  }
 }
 
 document.getElementById('prevBtn').onclick = () => { if (dateIdx > 0) { dateIdx--; renderDaily(); } };
@@ -527,9 +488,14 @@ document.querySelectorAll('#viewTabs button').forEach(b => b.onclick = () => set
 
 async function init() {
   try {
-    const [rows] = await Promise.all([fetchData(), fetchSiteHours()]);
+    const [rows, , mrows] = await Promise.all([
+      fetchData(),
+      fetchSiteHours(),
+      fetchMetrics().catch(e => { metricsError = e.message; return []; }),
+    ]);
     allRows = rows;
-    dates = [...new Set(allRows.map(r => r.date))].sort();
+    metricsRows = mrows;
+    dates = [...new Set([...allRows.map(r => r.date), ...metricsRows.map(r => r.date)])].sort();
     document.getElementById('subtitle').textContent = `Last updated: ${new Date().toLocaleString('en-GB')}`;
     if (!dates.length) {
       document.getElementById('content').innerHTML = '<div class="loading">No data yet \u2014 add rows to the DailyReport tab.</div>';
