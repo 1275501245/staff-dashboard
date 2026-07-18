@@ -229,83 +229,104 @@ async function fetchMetrics() {
   const rows = parseCSV(await res.text());
   if (!rows.length) throw new Error('Empty sheet');
   const headers = rows[0].map(h => String(h).trim().toLowerCase());
-  const missing = ['date', 'site', 'preptime', 'accuracy', 'rating'].filter(h => !headers.includes(h));
+  const missing = ['date', 'site', 'preptime', 'accuracy'].filter(h => !headers.includes(h));
   if (missing.length) throw new Error(`Wrong tab (gid ${METRICS_GID}) or headers wrong (missing: ${missing.join(', ')})`);
   const col = name => headers.indexOf(name);
   const num = v => { const s = String(v ?? '').replace(/[%,]/g, '').trim(); if (s === '') return null; const n = parseFloat(s); return isNaN(n) ? null : n; };
-  const [cDate, cSite, cPrep, cAcc, cRat, cNotes] =
-    ['date', 'site', 'preptime', 'accuracy', 'rating', 'notes'].map(col);
-  return rows.slice(1).map(r => ({
+  const [cDate, cSite, cPrep, cAcc, cNotes] =
+    ['date', 'site', 'preptime', 'accuracy', 'notes'].map(col);
+  const parsed = rows.slice(1).map(r => ({
     date: String(r[cDate] || '').trim(),
     site: String(r[cSite] || '').trim(),
     preptime: num(r[cPrep]),
     accuracy: num(r[cAcc]),
-    rating: num(r[cRat]),
     notes: cNotes === -1 ? '' : String(r[cNotes] || '').trim(),
-  })).filter(r => /^\d{4}-\d{2}-\d{2}$/.test(r.date) && r.site)
-    .sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+  })).filter(r => /^\d{4}-\d{2}-\d{2}$/.test(r.date) && r.site);
+  const byKey = new Map(); // same site + date entered twice -> last row wins
+  parsed.forEach(r => byKey.set(r.site + '|' + r.date, r));
+  return [...byKey.values()].sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
 }
 
-// Build one SVG line chart for a metric. Sparse dates: x is time-proportional.
-function buildChart(rows, key, opts) {
+// One dual-axis SVG line chart: prep time (left, minutes, solid) + accuracy (right, %, dashed)
+function buildDualChart(rows) {
   const sitesToShow = mSite === 'All' ? SITES : [mSite];
   const series = sitesToShow.map(s => ({
     site: s,
-    pts: rows.filter(r => r.site === s && r[key] != null).map(r => ({ d: r.date, v: r[key] })),
-  })).filter(sr => sr.pts.length);
+    prep: rows.filter(r => r.site === s && r.preptime != null).map(r => ({ d: r.date, v: r.preptime })),
+    acc: rows.filter(r => r.site === s && r.accuracy != null).map(r => ({ d: r.date, v: r.accuracy })),
+  })).filter(sr => sr.prep.length || sr.acc.length);
 
-  const head = `<div class="chart-head"><span class="chart-title">${opts.title}</span><span class="chart-unit">${opts.unit}</span></div>`;
-  if (!series.length) return `<div class="chart-card">${head}<div class="chart-empty">No ${opts.title.toLowerCase()} data yet</div></div>`;
+  const head = `<div class="chart-head"><span class="chart-title">Prep time &amp; accuracy</span><span class="chart-unit">Deliveroo</span></div>`;
+  if (!series.length) return `<div class="chart-card">${head}<div class="chart-empty">No data for this site yet</div></div>`;
 
-  const allPts = series.flatMap(sr => sr.pts);
+  const prepAll = series.flatMap(sr => sr.prep);
+  const accAll = series.flatMap(sr => sr.acc);
   const ts = d => new Date(d + 'T00:00:00').getTime();
-  const dayList = [...new Set(allPts.map(p => p.d))].sort();
+  const dayList = [...new Set([...prepAll, ...accAll].map(p => p.d))].sort();
   const t0 = ts(dayList[0]), t1 = ts(dayList[dayList.length - 1]);
-  let vMin = Math.min(...allPts.map(p => p.v)), vMax = Math.max(...allPts.map(p => p.v));
-  let pad = (vMax - vMin) * 0.15;
-  if (pad === 0) pad = Math.max(Math.abs(vMax) * 0.05, 0.5); // flat line
-  vMin -= pad; vMax += pad;
-  if (opts.cap != null) vMax = Math.min(vMax, opts.cap);
-  if (opts.floor != null) vMin = Math.max(vMin, opts.floor);
 
-  const W = 640, H = 240, mL = 44, mR = 14, mT = 12, mB = 28;
+  const domain = (pts, cap, floor) => {
+    if (!pts.length) return [0, 1];
+    let lo = Math.min(...pts.map(p => p.v)), hi = Math.max(...pts.map(p => p.v));
+    let pad = (hi - lo) * 0.15;
+    if (pad === 0) pad = Math.max(Math.abs(hi) * 0.05, 0.5);
+    lo -= pad; hi += pad;
+    if (cap != null) hi = Math.min(hi, cap);
+    if (floor != null) lo = Math.max(lo, floor);
+    return [lo, hi];
+  };
+  const [pLo, pHi] = domain(prepAll, null, 0);
+  const [aLo, aHi] = domain(accAll, 100, 0);
+
+  const W = 640, H = 260, mL = 44, mR = 48, mT = 14, mB = 28;
   const x = d => t1 === t0 ? mL + (W - mL - mR) / 2 : mL + (ts(d) - t0) / (t1 - t0) * (W - mL - mR);
-  const y = v => mT + (1 - (v - vMin) / (vMax - vMin)) * (H - mT - mB);
-  const fmtV = v => v.toLocaleString('en-GB', { maximumFractionDigits: opts.dec });
+  const yP = v => mT + (1 - (v - pLo) / (pHi - pLo)) * (H - mT - mB);
+  const yA = v => mT + (1 - (v - aLo) / (aHi - aLo)) * (H - mT - mB);
+  const fmt1 = v => v.toLocaleString('en-GB', { maximumFractionDigits: 1 });
   const fmtD = iso => new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
-  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${opts.title} trend">`;
-  // y gridlines + labels (4 ticks)
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Prep time and accuracy trend">`;
+  svg += `<text x="${mL - 8}" y="${mT - 3}" text-anchor="end" font-size="10" fill="#999" font-weight="600">min</text>`;
+  svg += `<text x="${W - mR + 8}" y="${mT - 3}" text-anchor="start" font-size="10" fill="#999" font-weight="600">%</text>`;
   for (let i = 0; i <= 3; i++) {
-    const v = vMin + (vMax - vMin) * i / 3, yy = y(v);
+    const fr = i / 3, yy = mT + (1 - fr) * (H - mT - mB);
     svg += `<line x1="${mL}" y1="${yy.toFixed(1)}" x2="${W - mR}" y2="${yy.toFixed(1)}" stroke="#f0f0f0" stroke-width="1"/>`;
-    svg += `<text x="${mL - 8}" y="${(yy + 3.5).toFixed(1)}" text-anchor="end" font-size="10.5" fill="#bbb">${fmtV(v)}</text>`;
+    if (prepAll.length) svg += `<text x="${mL - 8}" y="${(yy + 3.5).toFixed(1)}" text-anchor="end" font-size="10.5" fill="#bbb">${fmt1(pLo + (pHi - pLo) * fr)}</text>`;
+    if (accAll.length) svg += `<text x="${W - mR + 8}" y="${(yy + 3.5).toFixed(1)}" text-anchor="start" font-size="10.5" fill="#bbb">${fmt1(aLo + (aHi - aLo) * fr)}</text>`;
   }
-  // x tick labels: up to 6, evenly picked from recorded dates
   const step = Math.max(1, Math.ceil(dayList.length / 6));
   dayList.forEach((d, i) => {
     if (i % step !== 0 && i !== dayList.length - 1) return;
     svg += `<text x="${x(d).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="10.5" fill="#bbb">${fmtD(d)}</text>`;
   });
-  // lines + points
+  const drawSeries = (pts, c, yFn, dash, label, unit) => {
+    let out = '';
+    if (pts.length > 1) {
+      const path = pts.map(p => `${x(p.d).toFixed(1)},${yFn(p.v).toFixed(1)}`).join(' ');
+      out += `<polyline points="${path}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"${dash ? ' stroke-dasharray="5 4"' : ''} opacity="${dash ? 0.75 : 1}"/>`;
+    }
+    pts.forEach(p => {
+      const px = x(p.d).toFixed(1), py = yFn(p.v).toFixed(1);
+      out += dash
+        ? `<circle cx="${px}" cy="${py}" r="3.2" fill="white" stroke="${c}" stroke-width="1.8"/>`
+        : `<circle cx="${px}" cy="${py}" r="3.5" fill="${c}" stroke="white" stroke-width="1.5"/>`;
+      out += `<circle cx="${px}" cy="${py}" r="12" fill="transparent" class="hit" data-tip="${label} \u00b7 ${fmtD(p.d)} \u00b7 ${fmt1(p.v)}${unit}"/>`;
+    });
+    return out;
+  };
   series.forEach(sr => {
     const c = SITE_COLORS[sr.site] || '#888';
-    if (sr.pts.length > 1) {
-      const path = sr.pts.map(p => `${x(p.d).toFixed(1)},${y(p.v).toFixed(1)}`).join(' ');
-      svg += `<polyline points="${path}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-    }
-    sr.pts.forEach(p => {
-      const px = x(p.d).toFixed(1), py = y(p.v).toFixed(1);
-      svg += `<circle cx="${px}" cy="${py}" r="3.5" fill="${c}" stroke="white" stroke-width="1.5"/>`;
-      svg += `<circle cx="${px}" cy="${py}" r="12" fill="transparent" class="hit" data-tip="${sr.site} \u00b7 ${fmtD(p.d)} \u00b7 ${fmtV(p.v)}${opts.tipUnit}"/>`;
-    });
+    svg += drawSeries(sr.acc, c, yA, true, `${sr.site} accuracy`, '%');
+    svg += drawSeries(sr.prep, c, yP, false, `${sr.site} prep`, ' min');
   });
   svg += `</svg>`;
 
-  const legend = mSite === 'All'
-    ? `<div class="chart-legend">` + series.map(sr =>
-        `<span><span class="dot" style="background:${SITE_COLORS[sr.site]}"></span>${sr.site}</span>`).join('') + `</div>`
-    : '';
+  let legend = `<div class="chart-legend">`;
+  if (mSite === 'All') legend += series.map(sr =>
+    `<span><span class="dot" style="background:${SITE_COLORS[sr.site]}"></span>${sr.site}</span>`).join('');
+  legend += `<span><svg width="22" height="8"><line x1="1" y1="4" x2="21" y2="4" stroke="#888" stroke-width="2"/></svg>Prep time (min)</span>`;
+  legend += `<span><svg width="22" height="8"><line x1="1" y1="4" x2="21" y2="4" stroke="#888" stroke-width="2" stroke-dasharray="5 4"/></svg>Accuracy (%)</span>`;
+  legend += `</div>`;
   return `<div class="chart-card">${head}${legend}${svg}</div>`;
 }
 
@@ -315,10 +336,7 @@ function renderMetrics() {
   if (metricsError) { box.innerHTML = `<div class="loading" style="color:#c62828;">Failed: ${metricsError}</div>`; return; }
   if (metricsRows === null) { box.innerHTML = '<div class="loading">Loading...</div>'; return; }
   if (!metricsRows.length) { box.innerHTML = '<div class="loading">No data yet \u2014 add rows to the DailyReport_Metrics tab.</div>'; return; }
-  box.innerHTML =
-    buildChart(metricsRows, 'preptime', { title: 'Prep time', unit: 'Deliveroo \u00b7 minutes', tipUnit: ' min', dec: 1, floor: 0 }) +
-    buildChart(metricsRows, 'accuracy', { title: 'Order accuracy', unit: 'Deliveroo \u00b7 %', tipUnit: '%', dec: 1, cap: 100 }) +
-    buildChart(metricsRows, 'rating', { title: 'Rating', unit: 'Deliveroo \u00b7 out of 5', tipUnit: ' \u2605', dec: 2, cap: 5, floor: 0 });
+  box.innerHTML = buildDualChart(metricsRows);
 }
 
 async function loadMetrics() {
