@@ -84,15 +84,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
   letter-spacing: 0.3px;
 }
 
-.table-wrap { padding: 14px 14px 4px; }
-.table-card {
-  background: #fff;
-  border: 1px solid #e5e5e3;
-  border-radius: 12px;
+.table-wrap {
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
-.table-scroll { overflow: auto; -webkit-overflow-scrolling: touch; }
 
 table {
   border-collapse: separate;
@@ -101,6 +96,192 @@ table {
   min-width: 100%;
 }
 
+/* Sticky columns */
+td.col-site, th.col-site {
+  position: sticky;
+  left: 0;
+  z-index: 20;
+  min-width: 90px;
+  max-width: 90px;
+}
+td.col-name, th.col-name {
+  position: sticky;
+  left: 90px;
+  z-index: 20;
+  min-width: 80px;
+  max-width: 80px;
+}
+
+/* Sticky rows */
+thead tr th {
+  position: sticky;
+  z-index: 30;
+}
+thead tr:first-child th { top: 0; }
+thead tr:last-child th  { top: 36px; }
+
+/* Σ 合计表:thead 只有一行,同时命中 first/last-child,
+   会被上面 top:36px 的规则下移并盖住 tbody 第一行(Shoreditch/Surbhi 消失的原因) */
+.sum-table thead tr:first-child th,
+.sum-table thead tr:last-child th { top: 0; }
+
+thead th.col-site { z-index: 40; }
+thead th.col-name { z-index: 40; }
+
+/* Header row 1 */
+thead tr:first-child th {
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  padding: 8px 10px;
+  border-right: 1px solid #333;
+  height: 36px;
+  white-space: nowrap;
+}
+thead tr:first-child th.col-site,
+thead tr:first-child th.col-name {
+  background: #1a1a1a;
+}
+thead tr:first-child th.th-today {
+  background: #1a3a5c;
+  color: #7ec8f7;
+}
+thead tr:first-child th.col-site-total {
+  background: #1e1030;
+  color: #c4b5fd;
+  border-left: 2px solid #6d28d9;
+}
+
+/* Header row 2 (dates) */
+thead tr:last-child th {
+  background: #f0f0f0;
+  color: #666;
+  font-size: 10px;
+  font-weight: 500;
+  text-align: center;
+  padding: 5px 10px;
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 2px solid #ccc;
+  height: 30px;
+}
+thead tr:last-child th.col-site,
+thead tr:last-child th.col-name {
+  background: #f0f0f0;
+}
+thead tr:last-child th.th-today {
+  background: #e3f2fd;
+  color: #0d47a1;
+}
+thead tr:last-child th.col-site-total {
+  background: #ede9fe;
+  color: #6d28d9;
+  border-left: 2px solid #c4b5fd;
+}
+
+/* Body cells */
+tbody td {
+  font-size: 11px;
+  padding: 7px 10px;
+  border-right: 1px solid #e8e8e8;
+  border-bottom: 1px solid #f0f0f0;
+  text-align: center;
+  white-space: nowrap;
+  background: #fff;
+  min-width: 110px;
+}
+
+/* site label cell */
+td.col-site {
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  border-right: 2px solid #ccc;
+  letter-spacing: 0.3px;
+  background: #fff;
+}
+td.col-site.site-shoreditch  { background: #e8f4ff; color: #1565C0; border-left: 3px solid #1E88E5; }
+td.col-site.site-battersea   { background: #fff8e1; color: #E65100; border-left: 3px solid #FB8C00; }
+td.col-site.site-towerbridge { background: #e8f5e9; color: #2E7D32; border-left: 3px solid #43A047; }
+td.col-site.site-piccadilly  { background: #e0f2f1; color: #00695C; border-left: 3px solid #00897B; }
+td.col-site.site-brentcross  { background: #ffe8e8; color: #B91C1C; border-left: 3px solid #EF4444; }
+
+/* name cell */
+td.col-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #222;
+  text-align: left;
+  border-right: 2px solid #ddd;
+  background: #fafafa;
+  padding-left: 10px;
+}
+
+/* day cells */
+td.day-cell { color: #333; }
+td.day-off  { color: #bbb; font-style: italic; background: #fafafa; }
+td.day-dash { color: #ddd; background: #fafafa; }
+td.day-today { background: #e8f4ff !important; }
+
+/* cross-site badge */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+.badge-shoreditch   { background: #dbeafe; color: #1d4ed8; }
+.badge-battersea    { background: #fef3c7; color: #b45309; }
+.badge-towerbridge  { background: #d1fae5; color: #065f46; }
+.badge-piccadilly   { background: #b2dfdb; color: #004D40; }
+.badge-brentcross   { background: #fee2e2; color: #b91c1c; }
+
+/* individual total cell */
+td.col-ind-total {
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+  min-width: 55px;
+  background: #fafafa;
+}
+td.col-ind-total-empty {
+  min-width: 55px;
+  background: #fafafa;
+  color: #ddd;
+}
+
+/* site total cell */
+td.col-site-total {
+  min-width: 80px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  vertical-align: middle;
+  background: #f5f3ff;
+  color: #5b21b6;
+  border-left: 2px solid #ddd6fe;
+}
+td.col-site-total-empty {
+  min-width: 80px;
+  background: #faf9ff;
+  border-left: 2px solid #ede9fe;
+}
+
+/* row alternate */
+tbody tr:nth-child(even) td { background: #fcfcfc; }
+tbody tr:nth-child(even) td.col-name { background: #f5f5f5; }
+tbody tr:nth-child(even) td.col-ind-total,
+tbody tr:nth-child(even) td.col-ind-total-empty { background: #f5f5f5; }
+tbody tr:nth-child(even) td.col-site-total { background: #f0ecff; }
+tbody tr:nth-child(even) td.col-site-total-empty { background: #f7f5ff; }
+tbody tr:nth-child(even) td.day-off,
+tbody tr:nth-child(even) td.day-dash { background: #f7f7f7; }
+
+/* site group row separator */
+tr.site-separator td { border-top: 3px solid #ddd; }
 
 .loading { padding: 40px; text-align: center; color: #999; font-size: 14px; }
 .error   { padding: 40px; text-align: center; color: #c00; font-size: 14px; }
@@ -196,108 +377,17 @@ table {
 .card-adj-val { font-weight: 600; white-space: nowrap; }
 .card-adj-val.adj-neg { color: #c62828; }
 .card-adj-val.adj-pos { color: #2e7d32; }
-
-
-/* ── header: single light row, day + date ── */
-thead th {
-  position: sticky; top: 0; z-index: 30;
-  background: #fbfbfa;
-  color: #6e6e73;
-  font-size: 11px;
-  font-weight: 600;
-  text-align: center;
-  padding: 9px 12px 8px;
-  border-bottom: 1px solid #e5e5e3;
-  white-space: nowrap;
-}
-thead th .th-date { display: block; font-size: 10px; font-weight: 400; color: #aeaeb2; margin-top: 2px; }
-thead th.col-name { text-align: left; padding-left: 16px; z-index: 40; }
-thead th.th-today { color: #0a66c2; background: #f0f7ff; }
-thead th.th-promo { color: #b45309; }
-
-/* ── sticky name column ── */
-td.col-name, th.col-name {
-  position: sticky; left: 0; z-index: 20;
-  min-width: 96px; max-width: 130px;
-  background: #fff;
-}
-thead th.col-name { background: #fbfbfa; }
-
-/* ── body cells: horizontal hairlines only ── */
-tbody td {
-  font-size: 12px;
-  padding: 9px 12px;
-  border-bottom: 1px solid #f1f1ef;
-  text-align: center;
-  white-space: nowrap;
-  background: #fff;
-  min-width: 108px;
-}
-td.col-name { font-weight: 600; color: #1d1d1f; text-align: left; padding-left: 16px; }
-
-td.day-off  { color: #c7c7cc; font-size: 11px; letter-spacing: 0.04em; }
-td.day-dash { color: #e3e3e0; }
-td.day-today { background: #f0f7ff !important; }
-
-.sh-t { font-weight: 500; color: #1d1d1f; }
-.sh-h { font-weight: 400; color: #a1a1a6; font-size: 11px; }
-
-td.col-ind-total { font-weight: 600; color: #1d1d1f; min-width: 52px; }
-td.col-ind-total-empty { color: #d6d6d3; min-width: 52px; }
-
-/* ── site section header row ── */
-tr.site-head td { padding: 0; background: #fff; border-bottom: 1px solid #ececea; border-top: 1px solid #ececea; }
-tr.site-head:first-child td { border-top: none; }
-.sh-line {
-  position: sticky; left: 0;
-  display: flex; align-items: baseline; gap: 8px;
-  width: max-content;
-  padding: 10px 16px 9px;
-  font-size: 13px; font-weight: 700;
-}
-.sh-line .dot { width: 8px; height: 8px; border-radius: 50%; align-self: center; }
-.sh-line .sh-hrs { font-size: 11px; font-weight: 500; color: #86868b; }
-.sh-line .sh-hrs b { font-size: 13px; font-weight: 700; color: #1d1d1f; margin-right: 1px; }
-
-tr.site-head.head-shoreditch  td { background: #f6faff; } .head-shoreditch  .sh-line { color: #1565C0; } .head-shoreditch  .dot { background: #1E88E5; }
-tr.site-head.head-battersea   td { background: #fffcf2; } .head-battersea   .sh-line { color: #E65100; } .head-battersea   .dot { background: #FB8C00; }
-tr.site-head.head-towerbridge td { background: #f4faf5; } .head-towerbridge .sh-line { color: #2E7D32; } .head-towerbridge .dot { background: #43A047; }
-tr.site-head.head-piccadilly  td { background: #f1f9f8; } .head-piccadilly  .sh-line { color: #00695C; } .head-piccadilly  .dot { background: #00897B; }
-tr.site-head.head-brentcross  td { background: #fff6f6; } .head-brentcross  .sh-line { color: #B91C1C; } .head-brentcross  .dot { background: #EF4444; }
-
-/* thin site rail on the sticky name cell */
-tbody tr.row-shoreditch  td.col-name { box-shadow: inset 3px 0 0 #1E88E5; }
-tbody tr.row-battersea   td.col-name { box-shadow: inset 3px 0 0 #FB8C00; }
-tbody tr.row-towerbridge td.col-name { box-shadow: inset 3px 0 0 #43A047; }
-tbody tr.row-piccadilly  td.col-name { box-shadow: inset 3px 0 0 #00897B; }
-tbody tr.row-brentcross  td.col-name { box-shadow: inset 3px 0 0 #EF4444; }
-
-/* ── week total in topbar ── */
-.week-total { font-size: 12px; color: #86868b; white-space: nowrap; }
-.week-total b { color: #1d1d1f; font-size: 14px; font-weight: 700; }
-
-/* ── collapsed unscheduled rows ── */
-tr.row-empty { display: none; }
-table.show-empty tr.row-empty { display: table-row; }
-tbody tr.row-empty td { color: #c9c9c5; }
-tbody tr.row-empty td.col-name { color: #b3b3af; }
-.empty-toggle td { background: #fbfbfa; color: #98989d; font-size: 11px; padding: 0; cursor: pointer; border-top: 1px solid #ececea; }
-.empty-toggle td:hover { background: #f4f4f2; }
-.tg-line { position: sticky; left: 0; width: max-content; display: flex; align-items: center; gap: 6px; padding: 9px 16px; }
-.tg-arrow { display: inline-block; transition: transform 0.15s; color: #c7c7cc; }
-table.show-empty .tg-arrow { transform: rotate(90deg); }
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <h1>Rota</h1>
-  <div class="week-total" id="week-total"></div>
   <div class="pager">
     <button class="pager-btn" id="pg-prev" onclick="shiftWeek(-1)" disabled>‹</button>
     <div class="pager-label" id="pg-label">…</div>
     <button class="pager-btn" id="pg-next" onclick="shiftWeek(1)" disabled>›</button>
-    <button class="pager-btn" id="btn-sum" onclick="toggleSummary()" title="Multi-week totals" disabled>Σ</button>
+    <button class="pager-btn" id="btn-sum" onclick="toggleSummary()" title="多周合计" disabled>Σ</button>
   </div>
 </div>
 
@@ -494,42 +584,22 @@ function badgeClass(val) {
   return '';
 }
 
-// '1030-0030(13)' / '1030-0100(13.5)' -> parts for the shift chip
-function formatShift(v) {
-  const m = (v || '').trim().match(/^(\d{3,4})\s*[-\u2013]\s*(\d{3,4})\s*[\uff08(](\d+(?:\.\d+)?)[)\uff09]$/);
-  if (!m) return null;
-  const t = s => { s = s.padStart(4, '0'); return s.slice(0, 2) + ':' + s.slice(2); };
-  return { start: t(m[1]), end: t(m[2]), hrs: m[3] };
-}
-
-function toggleEmptyRows(td) {
-  const table = td.closest('table');
-  const on = table.classList.toggle('show-empty');
-  const n = +td.getAttribute('data-count');
-  const label = n + ' unscheduled row' + (n > 1 ? 's' : '');
-  td.querySelector('.tg-text').textContent = on ? ('Hide ' + label) : (label + ' hidden \u2014 show');
-}
-
-function renderCell(val, extraCls) {
+function renderCell(val, isToday) {
   const v = (val || '').trim();
   const vl = v.toLowerCase();
-  const cls = extraCls || '';
+  const todayCls = isToday ? ' day-today' : '';
 
   if (!v || v === '-') {
-    return `<td class="day-cell day-dash${cls}">\u2013</td>`;
+    return `<td class="day-cell day-dash${todayCls}">–</td>`;
   }
   if (vl === 'off') {
-    return `<td class="day-cell day-off${cls}">OFF</td>`;
+    return `<td class="day-cell day-off${todayCls}">OFF</td>`;
   }
   if (vl.includes('shoreditch') || vl.includes('battersea') || vl.includes('tower') || vl.includes('piccadilly') || vl.includes('brent')) {
     const bc = badgeClass(v);
-    return `<td class="day-cell${cls}"><span class="badge ${bc}">${v}</span></td>`;
+    return `<td class="day-cell${todayCls}"><span class="badge ${bc}">${v}</span></td>`;
   }
-  const sh = formatShift(v);
-  if (sh) {
-    return `<td class="day-cell${cls}"><span class="sh-t">${sh.start}\u2013${sh.end}</span><span class="sh-h"> \u00b7 ${sh.hrs}h</span></td>`;
-  }
-  return `<td class="day-cell${cls}">${v}</td>`;
+  return `<td class="day-cell${todayCls}">${v}</td>`;
 }
 
 function parseHours(val) {
@@ -560,29 +630,37 @@ function rowHoursOf(row, totalHoursIdx, dayEndIdx) {
 function buildTable(rows, agency, todayIdx, adjustments) {
   const allHeaders = rows[0];
   const totalHoursIdx = allHeaders.findIndex(h => h.toLowerCase().includes('total hours'));
+  // Guard: if a legacy refund/deduction column still exists, keep it out of day cols
   const legacyIdx = allHeaders.findIndex(h => /refund|deduction/i.test(h));
 
+  // Day cols: from col 2 up to (not including) total hours (or legacy column), max 7 days
   let dayEndIdx = totalHoursIdx > 0 ? totalHoursIdx : allHeaders.length;
   if (legacyIdx > 0 && legacyIdx < dayEndIdx) dayEndIdx = legacyIdx;
   if (dayEndIdx > 9) dayEndIdx = 9;
 
   const dayHeaders = allHeaders.slice(2, dayEndIdx);
   const dateRow    = rows[1].slice(2, dayEndIdx);
-  const colCount   = dayHeaders.length + 2; // Name + days + Hrs
 
-  // Single header row: short day name + date underneath
-  let thead = '<thead><tr><th class="col-name">Name</th>';
+  // Build thead
+  let thead = '<thead><tr>';
+  thead += '<th class="col-site">Site</th>';
+  thead += '<th class="col-name">Name</th>';
   dayHeaders.forEach((h, i) => {
-    const hl = (h || '').toLowerCase();
-    const isPromo = hl.includes('promo');
-    const cls = (i === todayIdx ? ' th-today' : '') + (isPromo ? ' th-promo' : '');
-    let label = (h || '').trim().slice(0, 3);
-    if (isPromo) label += ' \u00b7 Promo';
-    const iso = parseSheetDate(dateRow[i]);
-    const dateTxt = iso ? fmtDDMM(iso, 0) : (dateRow[i] || '');
-    thead += `<th class="col-day${cls}">${label}<span class="th-date">${dateTxt}</span></th>`;
+    const cls = (i === todayIdx) ? ' th-today' : '';
+    thead += `<th class="col-day${cls}">${h}</th>`;
   });
-  thead += '<th class="col-ind-total">Hrs</th></tr></thead>';
+  thead += '<th class="col-ind-total">Hrs</th>';
+  thead += '<th class="col-site-total">Site Hours</th>';
+  thead += '</tr><tr>';
+  thead += '<th class="col-site"></th>';
+  thead += '<th class="col-name"></th>';
+  dateRow.forEach((d, i) => {
+    const cls = (i === todayIdx) ? ' th-today' : '';
+    thead += `<th class="col-day${cls}">${d}</th>`;
+  });
+  thead += '<th class="col-ind-total">hrs</th>';
+  thead += '<th class="col-site-total">hrs</th>';
+  thead += '</tr></thead>';
 
   // Group rows by site
   const dataRows = rows.slice(2).filter(r => r.some(c => c.trim()));
@@ -600,13 +678,10 @@ function buildTable(rows, agency, todayIdx, adjustments) {
   if (curGroup) siteGroups.push(curGroup);
 
   let tbody = '<tbody>';
-  let grandTotal = 0;
-  let hiddenCount = 0;
 
-  siteGroups.forEach(group => {
-    const sc = siteClass(group.site);               // e.g. 'site-shoreditch'
-    const suffix = sc ? sc.replace('site-', '') : '';
-    const siteDisplay = group.site.split(/[\s,\(\uff08]/)[0].trim() || group.site;
+  siteGroups.forEach((group, gi) => {
+    const sc = siteClass(group.site);
+    const siteDisplay = group.site.split(/[\s,\(（]/)[0].trim() || group.site;
 
     let siteTotal = 0;
     group.rows.forEach(row => {
@@ -615,36 +690,21 @@ function buildTable(rows, agency, todayIdx, adjustments) {
         siteTotal += rowHoursOf(row, totalHoursIdx, dayEndIdx);
       }
     });
+    // Apply signed adjustments (deductions/bonuses) attributed to this site
+    const groupSiteCls = siteClass(group.site);
     (adjustments || []).forEach(adj => {
-      if (agency.has(adj.name) && sc && siteClass(adj.site) === sc) {
+      if (agency.has(adj.name) && groupSiteCls && siteClass(adj.site) === groupSiteCls) {
         siteTotal += adj.hours;
       }
     });
     siteTotal = Math.round(siteTotal * 100) / 100;
-    grandTotal += siteTotal;
+    const siteTotalDisplay = siteTotal > 0
+      ? `<span style="font-size:18px;font-weight:700">${siteTotal}</span><br><span style="font-size:9px;font-weight:400;color:#7c3aed;letter-spacing:0.3px">hrs / week</span>`
+      : '–';
 
-    // Unscheduled rows (no shifts, no OFF, zero hours) collapse by default
-    const info = group.rows.map(row => {
-      const days = row.slice(2, dayEndIdx);
-      const hasContent = days.some(v => { const s = (v || '').trim(); return s && s !== '-'; });
-      const h = rowHoursOf(row, totalHoursIdx, dayEndIdx);
-      return { row, empty: !hasContent && !h };
-    });
-    const ordered = info.filter(r => !r.empty).concat(info.filter(r => r.empty));
-    const emptyN = info.filter(r => r.empty).length;
-    hiddenCount += emptyN;
-    const groupAllEmpty = (emptyN === group.rows.length);
-
-    // Site section header row (full width, sticky label)
-    const headCls = ['site-head'];
-    if (suffix) headCls.push('head-' + suffix);
-    if (groupAllEmpty) headCls.push('row-empty');
-    const hrsHTML = siteTotal > 0 ? `<span class="sh-hrs"><b>${siteTotal}</b>h / week</span>` : '<span class="sh-hrs">\u2013</span>';
-    tbody += `<tr class="${headCls.join(' ')}"><td colspan="${colCount}">` +
-      `<div class="sh-line"><span class="dot"></span><span>${siteDisplay}</span>${hrsHTML}</div></td></tr>`;
-
-    ordered.forEach(it => {
-      const row = it.row;
+    group.rows.forEach((row, ri) => {
+      const isFirst = (ri === 0);
+      const isSeparator = (gi > 0 && isFirst);
       const name = (row[1] || '').trim();
       const days = row.slice(2, dayEndIdx);
       let indHours = totalHoursIdx > 0 ? (row[totalHoursIdx] || '').trim() : '';
@@ -653,37 +713,32 @@ function buildTable(rows, agency, todayIdx, adjustments) {
         indHours = calc > 0 ? String(calc) : '';
       }
 
-      const rowCls = [];
-      if (it.empty) rowCls.push('row-empty');
-      if (suffix) rowCls.push('row-' + suffix);
-      tbody += `<tr${rowCls.length ? ' class="' + rowCls.join(' ') + '"' : ''}>`;
+      tbody += `<tr${isSeparator ? ' class="site-separator"' : ''}>`;
+      if (isFirst) {
+        tbody += `<td class="col-site ${sc}" rowspan="${group.rows.length}">${siteDisplay}</td>`;
+      }
       tbody += `<td class="col-name">${name}</td>`;
 
       days.forEach((val, di) => {
-        tbody += renderCell(val, di === todayIdx ? ' day-today' : '');
+        tbody += renderCell(val, di === todayIdx);
       });
 
       if (indHours) {
         tbody += `<td class="col-ind-total">${indHours}</td>`;
       } else {
-        tbody += `<td class="col-ind-total-empty">\u2013</td>`;
+        tbody += `<td class="col-ind-total-empty">–</td>`;
       }
+
+      if (isFirst) {
+        tbody += `<td class="col-site-total" rowspan="${group.rows.length}">${siteTotalDisplay}</td>`;
+      }
+
       tbody += '</tr>';
     });
   });
 
-  // Week grand total in the topbar
-  grandTotal = Math.round(grandTotal * 100) / 100;
-  const totalEl = document.getElementById('week-total');
-  if (totalEl) totalEl.innerHTML = grandTotal > 0 ? `Week total <b>${grandTotal}</b> h` : '';
-
-  if (hiddenCount > 0) {
-    tbody += `<tr class="empty-toggle"><td colspan="${colCount}" data-count="${hiddenCount}" onclick="toggleEmptyRows(this)">` +
-      `<div class="tg-line"><span class="tg-arrow">\u25b8</span><span class="tg-text">${hiddenCount} unscheduled row${hiddenCount > 1 ? 's' : ''} hidden \u2014 show</span></div></td></tr>`;
-  }
-
   tbody += '</tbody>';
-  return `<div class="table-card"><table>${thead}${tbody}</table></div>`;
+  return `<table>${thead}${tbody}</table>`;
 }
 
 function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) {
@@ -760,9 +815,7 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
       } else if (vl === 'off') {
         valHTML = `<span class="card-day-val is-off">OFF</span>`;
       } else {
-        const sh = formatShift(val);
-        const disp = sh ? `${sh.start}\u2013${sh.end} \u00b7 ${sh.hrs}h` : val;
-        valHTML = `<span class="card-day-val${isToday ? ' is-today-val' : ''}">${disp}</span>`;
+        valHTML = `<span class="card-day-val${isToday ? ' is-today-val' : ''}">${val}</span>`;
       }
       const label = DAY_NAMES[i] || h.slice(0,3);
       dayRowsHTML += `<div class="card-day-row${todayRowCls}"><span class="card-day-label">${label}</span>${valHTML}</div>`;
@@ -999,7 +1052,7 @@ function renderSummaryShell(fromIdx, toIdx) {
   const opts = weekList.map((w, i) =>
     '<option value="' + i + '">' + fmtDDMM(w.iso, 0) + ' – ' + fmtDDMM(w.iso, 6) + '</option>').join('');
   el.innerHTML =
-    '<div class="sum-bar"><span class="sum-title">Multi-week totals</span>' +
+    '<div class="sum-bar"><span class="sum-title">多周合计</span>' +
     '<select id="sum-from" onchange="onSumRangeChange()">' + opts + '</select><span>→</span>' +
     '<select id="sum-to" onchange="onSumRangeChange()">' + opts + '</select></div>' +
     '<div id="sum-result"><div class="loading">Loading…</div></div>';
