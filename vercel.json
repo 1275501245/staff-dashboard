@@ -139,6 +139,14 @@
     {
       "src": "/working-handbook",
       "dest": "/working-handbook.html"
+    },
+    {
+      "src": "/customer-refund-summary",
+      "dest": "/customer-refund-summary.html"
+    },
+    {
+      "src": "/CustomerRefundSummary",
+      "dest": "/customer-refund-summary.html"
     }
   ]
 }
