@@ -65,16 +65,6 @@
     padding:40px 20px;text-align:center;color:var(--muted)}
   .empty b{color:var(--ink)}
 
-  footer{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);
-    display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--faint);font-size:12px}
-  footer a{color:var(--brand);text-decoration:none;font-weight:600}
-  .synced{display:inline-flex;align-items:center;gap:6px}
-  .live{width:7px;height:7px;border-radius:50%;background:#30A46C}
-  .live.stale{background:#F0A020}
-  .refresh{margin-left:auto;border:1px solid var(--line);background:var(--surface);
-    color:var(--ink);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer}
-  .refresh:hover{border-color:#CBD2DA}
-
   @media (max-width:640px){
     thead{display:none}
     table,tbody,tr,td{display:block;width:100%}
@@ -103,12 +93,6 @@
   </div>
 
   <main id="content" aria-live="polite"></main>
-
-  <footer>
-    <span class="synced"><span class="live" id="liveDot"></span><span id="syncText">Loading…</span></span>
-    <a href="https://docs.google.com/spreadsheets/d/189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc/edit?gid=621965218" target="_blank" rel="noopener">Open source sheet ↗</a>
-    <button class="refresh" id="refresh">Refresh</button>
-  </footer>
 </div>
 
 <script>
@@ -172,13 +156,6 @@ async function loadLive(){
   return out;
 }
 
-function setSync(live){
-  const dot=$("#liveDot"), t=$("#syncText");
-  const now=new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
-  if(live){ dot.classList.remove("stale"); t.textContent=`Live from sheet · synced ${now}`; }
-  else{ dot.classList.add("stale"); t.textContent=`Offline snapshot · sheet unreachable`; }
-}
-
 function renderFilters(){
   const el=$("#siteFilters"); el.innerHTML="";
   const mk=(label,key)=>{
@@ -229,11 +206,9 @@ function renderContent(){
   });
 }
 
-$("#refresh").addEventListener("click",init);
-
 async function init(){
-  try{ DATA = await loadLive(); setSync(true); }
-  catch(e){ DATA = FALLBACK.slice(); setSync(false); }
+  try{ DATA = await loadLive(); }
+  catch(e){ DATA = FALLBACK.slice(); }
   renderFilters(); renderContent();
 }
 init();
