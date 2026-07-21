@@ -3,211 +3,215 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Working Hours Rules · HDL Delivery Kitchen</title>
+<title>Standards & Rules · HDL Delivery Kitchen</title>
 <style>
   :root{
-    --brand:#C8102E;
-    --ink:#191C20; --muted:#636B76; --faint:#8A929D;
-    --canvas:#F4F5F7; --surface:#FFFFFF; --line:#E5E8EC; --hair:#EEF0F3;
-    --minus-txt:#B23B3B; --minus-bg:#FBECEC; --minus-line:#EFCBCB;
-    --plus-txt:#1F7A48;  --plus-bg:#E6F2EA;  --plus-line:#C3E1CF;
-    --zero-txt:#636B76;  --zero-bg:#F0F2F4;  --zero-line:#E1E5EA;
-    --std-txt:#2B5C9B; --std-bg:#EAF1FA; --std-line:#CFE0F2;
-    --rec-txt:#7A6100; --rec-bg:#FBF4DC; --rec-line:#EDE0B4;
+    --brand:#C8102E;--ink:#191C20;--muted:#5F6772;--faint:#98A0AB;
+    --canvas:#F3F4F6;--surface:#FFF;--line:#E6E8EC;--hair:#F0F1F4;
+    --minus-txt:#B23B3B;--minus-bg:#FBECEC;--minus-line:#EFCBCB;
+    --plus-txt:#1F7A48;--plus-bg:#E7F3EB;--plus-line:#C5E2CF;
+    --zero-txt:#6B7280;--zero-bg:#EFF1F4;--zero-line:#E0E4E9;
+    --std-txt:#2B5C9B;--std-bg:#EAF1FA;--std-line:#CFE0F2;
+    --rec-txt:#7A6100;--rec-bg:#FBF4DC;--rec-line:#EDE0B4;
   }
-  *{box-sizing:border-box}
-  html,body{margin:0}
-  body{
-    background:var(--canvas); color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Roboto,Helvetica,Arial,sans-serif;
-    -webkit-font-smoothing:antialiased; line-height:1.5;
-    padding:0 16px 64px;
-  }
-  .wrap{max-width:860px;margin:0 auto}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--canvas);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Roboto,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;padding:0 16px 60px}
+  .wrap{max-width:760px;margin:0 auto}
+  .top{padding:30px 2px 6px}
+  .top h1{font-size:25px;font-weight:800;letter-spacing:-.02em}
+  .top .cn{color:var(--muted);font-weight:700;font-size:17px;margin-left:8px}
 
-  header{padding:30px 0 4px}
-  h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .group{margin-top:34px}
+  .ghead{display:flex;align-items:baseline;gap:10px;padding-bottom:9px;
+    border-bottom:2px solid var(--ink);margin-bottom:14px}
+  .ghead .gt{font-size:19px;font-weight:800;letter-spacing:-.01em}
+  .ghead .gt .c{color:var(--muted);font-weight:700;font-size:14px;margin-left:6px}
+  .ghead .gmeta{margin-left:auto;font-size:12px;font-weight:700;color:var(--faint);
+    text-transform:uppercase;letter-spacing:.06em}
 
-  .list{margin-top:22px;display:flex;flex-direction:column;gap:12px}
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
-  .card .item{font-size:16px;font-weight:800;color:var(--ink);line-height:1.35;margin-bottom:4px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;
+    overflow:hidden;margin-bottom:12px}
+  .chead{display:flex;align-items:center;gap:13px;padding:15px 17px}
+  .tile{flex:none;width:42px;height:42px;border-radius:11px;display:grid;place-items:center;font-size:21px;
+    border:1px solid var(--line)}
+  .ctitle .en{font-size:16.5px;font-weight:800;line-height:1.2}
+  .ctitle .cn{font-size:12.5px;color:var(--muted);font-weight:600;margin-top:1px}
 
-  .details{display:flex;flex-direction:column}
-  .detail{display:flex;align-items:flex-start;gap:14px;padding:11px 0}
-  .detail + .detail{border-top:1px solid var(--hair)}
-  .detail .bar{flex:none;width:3px;align-self:stretch;min-height:20px;border-radius:2px;margin-top:2px}
-  .detail.minus .bar{background:var(--minus-txt)}
-  .detail.plus  .bar{background:var(--plus-txt)}
-  .detail.zero  .bar{background:var(--zero-line)}
-  .detail .rtext{flex:1;font-size:14px;color:var(--muted);line-height:1.5}
-  .detail .hours{flex:none;font-weight:800;font-size:14px;font-variant-numeric:tabular-nums;
-    padding:7px 13px;border-radius:10px;white-space:nowrap;text-align:center}
-  .detail.minus .hours{color:var(--minus-txt);background:var(--minus-bg);border:1px solid var(--minus-line)}
-  .detail.plus  .hours{color:var(--plus-txt); background:var(--plus-bg); border:1px solid var(--plus-line)}
-  .detail.zero  .hours{color:var(--zero-txt); background:var(--zero-bg); border:1px solid var(--zero-line)}
+  .rows{padding:2px 17px 8px}
+  .row{display:flex;align-items:center;gap:14px;padding:11px 0;border-top:1px solid var(--hair)}
+  .ev{flex:1;font-size:14px;color:var(--ink);line-height:1.4}
+  .h{flex:none;font-weight:800;font-size:14px;font-variant-numeric:tabular-nums;
+    padding:7px 13px;border-radius:10px;white-space:nowrap;min-width:78px;text-align:center}
+  .minus{color:var(--minus-txt);background:var(--minus-bg);border:1px solid var(--minus-line)}
+  .plus{color:var(--plus-txt);background:var(--plus-bg);border:1px solid var(--plus-line)}
+  .zero{color:var(--zero-txt);background:var(--zero-bg);border:1px solid var(--zero-line)}
 
-  .refs{margin-top:13px;padding-top:12px;border-top:1px dashed var(--line);
-    display:flex;flex-wrap:wrap;gap:8px 16px}
-  .ref{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}
-  .ref .rtag{font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
-    padding:2px 7px;border-radius:5px}
-  .ref .rtag.std{color:var(--std-txt);background:var(--std-bg);border:1px solid var(--std-line)}
-  .ref .rtag.rec{color:var(--rec-txt);background:var(--rec-bg);border:1px solid var(--rec-line)}
+  .sub{padding:12px 17px 2px 17px;font-size:11px;font-weight:800;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--faint)}
+  .sub + .rows{padding-top:0}
+  .sub + .rows .row:first-child{border-top:none}
+
+  .foot{display:flex;flex-wrap:wrap;gap:8px 16px;padding:13px 17px;
+    border-top:1px dashed var(--line);background:#FCFCFD}
+  .ref{display:inline-flex;align-items:center;gap:7px;font-size:13px}
+  .rtag{font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:5px}
+  .rtag.std{color:var(--std-txt);background:var(--std-bg);border:1px solid var(--std-line)}
+  .rtag.rec{color:var(--rec-txt);background:var(--rec-bg);border:1px solid var(--rec-line)}
   .ref a{color:var(--ink);text-decoration:none;font-weight:600;border-bottom:1px solid var(--line)}
   .ref a:hover{border-bottom-color:var(--brand);color:var(--brand)}
   .ref .plain{color:var(--ink);font-weight:600}
 
-  .empty{background:var(--surface);border:1px dashed var(--line);border-radius:14px;
-    padding:44px 20px;text-align:center;color:var(--muted)}
-
-  @media (max-width:560px){
-    .detail{flex-wrap:wrap}
-    .detail .rtext{min-width:0}
-    .detail .hours{margin-left:17px}
-  }
+  .empty{background:var(--surface);border:1px dashed var(--line);border-radius:16px;
+    padding:44px 20px;text-align:center;color:var(--muted);margin-top:24px}
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header><h1>Working Hours Rules</h1></header>
-  <main id="list" class="list" aria-live="polite"></main>
+  <div class="top" id="top"><h1>Standards &amp; Rules</h1></div>
+  <main id="content" aria-live="polite"></main>
 </div>
 
 <script>
 const SHEET_ID = "189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc";
-const SHEET_NAME = "HoursRules";
-// Row layout: A Item | B Rule | C Hours | then repeating (Ref, RefType, RefURL) triplets: D/E/F, G/H/I, ...
-// Read via CSV (no type inference) so Hours works with OR without a unit. Rows sharing an Item merge into one card.
+const SHEET_NAME = "StandardsRules";
 
-/* Fallback — used only if the live sheet is unreachable. Live data drives the page. */
+/* Fallback — used only if the live sheet is unreachable. Mirrors the seed. */
 const FALLBACK = [
-  { item:"Kitchen Standard Checking", rule:"Any checklist item that is not up to standard. Items not on the checklist will not be checked.", hours:"−0.25 / item", refs:[
-    { ref:"Kitchen Standards", reftype:"Standard", refurl:"https://docs.google.com/spreadsheets/d/1XU-jCtTVIWB-wtu1SDsaFJ0C5Zrpg3R8s-lubtu1KDk/edit?gid=2142851671" },
-    { ref:"Kitchen Checking Record", reftype:"Record", refurl:"https://docs.google.com/spreadsheets/d/1XU-jCtTVIWB-wtu1SDsaFJ0C5Zrpg3R8s-lubtu1KDk/edit?gid=2142851671" },
-  ]},
-  { item:"Product Quality", rule:"Any checklist item that is not up to standard. Items not on the checklist will not be checked.", hours:"−0.25 / item", refs:[
-    { ref:"Product Quality Standards", reftype:"Standard", refurl:"/product-quality" },
-    { ref:"Product Quality Checking Record", reftype:"Record", refurl:"https://docs.google.com/spreadsheets/d/1i6r0w8gt6D2R0lv8eHUh7vtKCYszOpO9Q3Q5EQ7nu4Q/edit?gid=2104766772" },
-  ]},
-  { item:"Customer Refunds", rule:"No deduction for malicious refund requests or refunds without a valid reason.", hours:"−0.25 / item", refs:[
-    { ref:"Product Quality Standards", reftype:"Standard", refurl:"/product-quality" },
-    { ref:"Customer Refunds Records", reftype:"Record", refurl:"https://drive.google.com/drive/folders/1DzzNJI7cKz8ZuIbehr7de3YCu4A4QW9v" },
-  ]},
-  { item:"Customer Refunds", rule:"Zero Refunds (Weekly)", hours:"+0.5 / week", refs:[] },
-  { item:"Shift Attendance", rule:"Unable to attend a scheduled shift", hours:"−1.5 / shift", refs:[] },
-  { item:"Shift Attendance", rule:"Cover a colleague's shift", hours:"+1.5 / week", refs:[] },
-  { item:"Late Arrival", rule:"Report in advance. Up to 15 mins late", hours:"0", refs:[] },
-  { item:"Late Arrival", rule:"15–30 mins late", hours:"−0.25", refs:[] },
-  { item:"Late Arrival", rule:"30 mins–2 hours late", hours:"−0.5", refs:[] },
-  { item:"Late Arrival", rule:"2–4 hours late", hours:"−1", refs:[] },
-  { item:"Late Arrival", rule:"4+ hours late", hours:"−2", refs:[] },
-];
+  ['PAGE','','','','Standards & Rules','标准与规则','','','','',''],
+  ['GROUP','work-standards','','','Work Standards','工作标准','','','','','在这上班要达标的'],
+  ['CATEGORY','work-standards','kitchen','','Kitchen Standards','厨房现场','','','','🍳',''],
+  ['EVENT','work-standards','kitchen','','Any checklist item below standard','检查项不达标','−0.25 / item','','','',''],
+  ['REF','work-standards','kitchen','','Kitchen Standards','','','Standard','','',''],
+  ['REF','work-standards','kitchen','','Kitchen Checking Record','','','Record','https://docs.google.com/spreadsheets/d/1XU-jCtTVIWB-wtu1SDsaFJ0C5Zrpg3R8s-lubtu1KDk/edit?gid=2142851671','',''],
+  ['CATEGORY','work-standards','quality','','Product Quality','产品质量','','','','✅',''],
+  ['EVENT','work-standards','quality','','Any checklist item below standard','检查项不达标','−0.25 / item','','','',''],
+  ['REF','work-standards','quality','','Product Quality Standards','','','Standard','/product-quality','',''],
+  ['REF','work-standards','quality','','Product Quality Checking Record','','','Record','https://docs.google.com/spreadsheets/d/1i6r0w8gt6D2R0lv8eHUh7vtKCYszOpO9Q3Q5EQ7nu4Q/edit?gid=1526883024','',''],
+  ['CATEGORY','work-standards','platform','','Platform Performance','平台表现','','','','📱',''],
+  ['SECTION','work-standards','platform','refunds','Refunds','退款','','','','',''],
+  ['EVENT','work-standards','platform','refunds','Valid refund (excl. malicious / no-reason)','有效退款','−0.25 / order','','','',''],
+  ['EVENT','work-standards','platform','refunds','Zero refunds for the week','周零退款','+0.5 / week','','','',''],
+  ['REF','work-standards','platform','','Customer Refunds Records','','','Record','https://drive.google.com/drive/folders/1DzzNJI7cKz8ZuIbehr7de3YCu4A4QW9v','',''],
+  ['GROUP','attendance','','','Attendance','出勤','','','','','按事件计'],
+  ['CATEGORY','attendance','shift','','Shift Attendance','出勤','','','','🕐',''],
+  ['EVENT','attendance','shift','','Missed shift (cover required)','缺勤（需顶班）','−1.5 / shift','','','',''],
+  ['EVENT','attendance','shift','','Cover a colleague’s shift','顶班','+1.5 / week','','','',''],
+  ['CATEGORY','attendance','late','','Late Arrival','迟到','','','','⏰',''],
+  ['EVENT','attendance','late','','Report in advance · up to 15 mins','提前报备·15分钟内','0','','','',''],
+  ['EVENT','attendance','late','','15–30 mins late','迟到15–30分钟','−0.25','','','',''],
+  ['EVENT','attendance','late','','30 mins–2 hours late','迟到30分–2小时','−0.5','','','',''],
+  ['EVENT','attendance','late','','2–4 hours late','迟到2–4小时','−1','','','',''],
+  ['EVENT','attendance','late','','4+ hours late','迟到4小时以上','−2','','','','']
+].map(r=>({type:r[0],group:r[1],category:r[2],section:r[3],en:r[4],cn:r[5],hours:r[6],reftype:r[7],url:r[8],icon:r[9],meta:r[10]}));
 
 const $ = s=>document.querySelector(s);
 const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const sign = h => { const t=String(h).trim(); if(/^[−-]/.test(t))return"minus"; if(/^\+/.test(t))return"plus";
+  const n=parseFloat(t.replace(/[−]/g,'-').replace(/[^0-9.\-]/g,'')); return (isNaN(n)||n===0)?"zero":(n>0?"plus":"minus"); };
 const refCls = t => { const s=String(t||"").toLowerCase(); return (s.includes("record")||s.includes("记")||s.includes("扣"))?"rec":"std"; };
+const bilingual = (en,cn)=> esc(en) + (cn?` <span style="color:var(--muted)">${esc(cn)}</span>`:"");
 
-// Colour by sign; works with units ("−0.25 / item"), without units ("−0.25"), and bare positives ("1.5").
-function sign(h){
-  const t=String(h).trim();
-  if(/^[−-]/.test(t)) return "minus";
-  if(/^\+/.test(t)) return "plus";
-  const num=parseFloat(t.replace(/[−]/g,'-').replace(/[^0-9.\-]/g,''));
-  if(isNaN(num)||num===0) return "zero";
-  return num>0?"plus":"minus";
-}
+const TILE = {kitchen:'#EAF4F4',quality:'#E9F4EC',platform:'#EEF0FB',shift:'#FBF3E4',late:'#FBEEE4'};
+const TILE_ROT = ['#EAF4F4','#E9F4EC','#EEF0FB','#FBF3E4','#FBEEE4','#F3F0FA'];
 
-/* CSV parser — handles quoted fields, escaped quotes, commas & newlines inside fields. */
+/* CSV parser — quoted fields, escaped quotes, commas & newlines inside fields. */
 function parseCSV(text){
-  const rows=[]; let row=[]; let field=""; let i=0; let inQ=false;
+  const rows=[]; let row=[],field="",i=0,inQ=false;
   if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
-  while(i<text.length){
-    const ch=text[i];
-    if(inQ){
-      if(ch === '"'){ if(text[i+1]==='"'){ field+='"'; i+=2; continue; } inQ=false; i++; continue; }
-      field+=ch; i++; continue;
-    } else {
-      if(ch === '"'){ inQ=true; i++; continue; }
-      if(ch === ','){ row.push(field); field=""; i++; continue; }
-      if(ch === '\r'){ i++; continue; }
-      if(ch === '\n'){ row.push(field); rows.push(row); row=[]; field=""; i++; continue; }
-      field+=ch; i++; continue;
-    }
+  while(i<text.length){const ch=text[i];
+    if(inQ){ if(ch==='"'){ if(text[i+1]==='"'){field+='"';i+=2;continue;} inQ=false;i++;continue;} field+=ch;i++;continue; }
+    else { if(ch==='"'){inQ=true;i++;continue;} if(ch===','){row.push(field);field="";i++;continue;}
+      if(ch==='\r'){i++;continue;} if(ch==='\n'){row.push(field);rows.push(row);row=[];field="";i++;continue;} field+=ch;i++;continue; }
   }
   row.push(field); rows.push(row);
-  return rows.filter(r=>r.length>1 || (r[0]&&r[0].trim()!==""));
+  return rows.filter(r=>r.length>1||(r[0]&&r[0].trim()!==""));
 }
 
 async function loadLive(){
   const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}&headers=1&t=${Date.now()}`;
   const res=await fetch(url,{cache:"no-store"});
-  const text=await res.text();
-  const rows=parseCSV(text); const out=[];
-  for(const cells of rows){
-    const item=(cells[0]||"").trim();
-    if(!item || item.toLowerCase()==="item") continue;
-    const refs=[];
-    for(let i=3;i<cells.length;i+=3){
-      const ref=(cells[i]||"").trim(), reftype=(cells[i+1]||"").trim(), refurl=(cells[i+2]||"").trim();
-      if(ref) refs.push({ref,reftype,refurl});
-    }
-    out.push({item, rule:(cells[1]||"").trim(), hours:(cells[2]||"").trim(), refs});
+  const rows=parseCSV(await res.text()); const out=[];
+  for(const c of rows){
+    const type=(c[0]||"").trim();
+    if(!type || type.toLowerCase()==="type") continue;
+    out.push({type, group:(c[1]||"").trim(), category:(c[2]||"").trim(), section:(c[3]||"").trim(),
+      en:(c[4]||"").trim(), cn:(c[5]||"").trim(), hours:(c[6]||"").trim(),
+      reftype:(c[7]||"").trim(), url:(c[8]||"").trim(), icon:(c[9]||"").trim(), meta:(c[10]||"").trim()});
   }
   if(!out.length) throw new Error("no rows");
   return out;
 }
 
-function groupByItem(rows){
-  const map=new Map(); const order=[];
+/* Build hierarchy from the flat rows. */
+function build(rows){
+  let page={en:"Standards & Rules",cn:""};
+  const groups=[], gmap={}, cmap={}; let ci=0;
+  const ck=(g,c)=>g+"||"+c;
   rows.forEach(r=>{
-    if(!map.has(r.item)){ map.set(r.item,{item:r.item,details:[],refs:[],seen:new Set()}); order.push(r.item); }
-    const g=map.get(r.item);
-    g.details.push({rule:r.rule,hours:r.hours});
-    (r.refs||[]).forEach(x=>{
-      const key=(x.ref+"|"+x.refurl).toLowerCase();
-      if(!g.seen.has(key)){ g.seen.add(key); g.refs.push(x); }
-    });
+    if(r.type==="PAGE"){ page={en:r.en,cn:r.cn}; }
+    else if(r.type==="GROUP"){ const g={key:r.group,en:r.en,cn:r.cn,meta:r.meta,cats:[]}; gmap[r.group]=g; groups.push(g); }
+    else if(r.type==="CATEGORY"){ const cat={key:r.category,en:r.en,cn:r.cn,icon:r.icon,idx:ci++,
+        events:[],refs:[],sections:{}}; cmap[ck(r.group,r.category)]=cat; if(gmap[r.group]) gmap[r.group].cats.push(cat); }
+    else if(r.type==="SECTION"){ const cat=cmap[ck(r.group,r.category)]; if(cat) cat.sections[r.section]={en:r.en,cn:r.cn}; }
+    else if(r.type==="EVENT"){ const cat=cmap[ck(r.group,r.category)]; if(cat) cat.events.push({section:r.section,en:r.en,cn:r.cn,hours:r.hours}); }
+    else if(r.type==="REF"){ const cat=cmap[ck(r.group,r.category)]; if(cat) cat.refs.push({en:r.en,reftype:r.reftype,url:r.url}); }
   });
-  return order.map(k=>map.get(k));
+  return {page,groups};
 }
 
-function detailHTML(d){
-  const s=sign(d.hours);
-  return `<div class="detail ${s}">
-    <span class="bar" aria-hidden="true"></span>
-    <div class="rtext">${esc(d.rule)}</div>
-    <div class="hours">${esc(d.hours)}</div>
-  </div>`;
+function eventHTML(e){
+  const label = e.en + (e.cn? " "+e.cn : "");
+  return `<div class="row"><div class="ev">${esc(label)}</div><div class="h ${sign(e.hours)}">${esc(e.hours)}</div></div>`;
 }
 function refHTML(x){
   const tag = x.reftype ? `<span class="rtag ${refCls(x.reftype)}">${esc(x.reftype)}</span>` : "";
-  const name = x.refurl
-    ? `<a href="${esc(x.refurl)}" target="_blank" rel="noopener">${esc(x.ref)} ↗</a>`
-    : `<span class="plain">${esc(x.ref)}</span>`;
+  const name = x.url ? `<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.en)} ↗</a>` : `<span class="plain">${esc(x.en)}</span>`;
   return `<span class="ref">${tag}${name}</span>`;
 }
 
-function render(rows){
-  const el=$("#list"); el.innerHTML="";
-  const groups=groupByItem(rows);
-  if(!groups.length){ el.innerHTML=`<div class="empty">No rules yet.</div>`; return; }
-  groups.forEach(g=>{
-    const details=g.details.map(detailHTML).join("");
-    const refs=g.refs.length?`<div class="refs">${g.refs.map(refHTML).join("")}</div>`:"";
-    el.insertAdjacentHTML("beforeend",
-      `<div class="card">
-        <div class="item">${esc(g.item)}</div>
-        <div class="details">${details}</div>
-        ${refs}
-      </div>`);
+function cardHTML(cat){
+  const tile = TILE[cat.key] || TILE_ROT[cat.idx % TILE_ROT.length];
+  let inner="", printed=null, openRows=false;
+  cat.events.forEach(e=>{
+    if(e.section!==printed){
+      if(openRows){ inner+="</div>"; openRows=false; }
+      printed=e.section;
+      if(e.section && cat.sections[e.section]){
+        const s=cat.sections[e.section];
+        inner+=`<div class="sub">${bilingual(s.en,s.cn)}</div>`;
+      }
+      inner+=`<div class="rows">`; openRows=true;
+    }
+    inner+=eventHTML(e);
   });
+  if(openRows) inner+="</div>";
+  const foot = cat.refs.length? `<div class="foot">${cat.refs.map(refHTML).join("")}</div>` : "";
+  return `<div class="card">
+    <div class="chead"><div class="tile" style="background:${tile}">${esc(cat.icon||'📌')}</div>
+      <div class="ctitle"><div class="en">${esc(cat.en)}</div>${cat.cn?`<div class="cn">${esc(cat.cn)}</div>`:""}</div></div>
+    ${inner}${foot}
+  </div>`;
+}
+
+function render(model){
+  $("#top").innerHTML = `<h1>${esc(model.page.en)}${model.page.cn?`<span class="cn">${esc(model.page.cn)}</span>`:""}</h1>`;
+  const main=$("#content");
+  if(!model.groups.length){ main.innerHTML=`<div class="empty">No content yet.</div>`; return; }
+  main.innerHTML = model.groups.map(g=>`
+    <div class="group">
+      <div class="ghead"><div class="gt">${esc(g.en)}${g.cn?`<span class="c">${esc(g.cn)}</span>`:""}</div>
+        ${g.meta?`<div class="gmeta">${esc(g.meta)}</div>`:""}</div>
+      ${g.cats.map(cardHTML).join("")}
+    </div>`).join("");
 }
 
 async function init(){
-  let data;
-  try{ data=await loadLive(); }catch(e){ data=FALLBACK.slice(); }
-  render(data);
+  let rows;
+  try{ rows=await loadLive(); }catch(e){ rows=FALLBACK.slice(); }
+  render(build(rows));
 }
 init();
 </script>
