@@ -29,8 +29,7 @@
   h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em}
 
   .list{margin-top:22px;display:flex;flex-direction:column;gap:12px}
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;
-    padding:16px 18px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
   .card .item{font-size:16px;font-weight:800;color:var(--ink);line-height:1.35;margin-bottom:4px}
 
   .details{display:flex;flex-direction:column}
@@ -71,25 +70,23 @@
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1>Working Hours Rules</h1>
-  </header>
+  <header><h1>Working Hours Rules</h1></header>
   <main id="list" class="list" aria-live="polite"></main>
 </div>
 
 <script>
 const SHEET_ID = "189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc";
 const SHEET_NAME = "HoursRules";
-// Row layout: A Item | B Rule | C Hours | then repeating (Ref, RefType, RefURL) triplets: D/E/F, G/H/I, J/K/L, ...
-// Rows sharing the same Item merge into ONE card. Each row = one rule line (Rule + Hours). Refs are pooled & de-duped.
+// Row layout: A Item | B Rule | C Hours | then repeating (Ref, RefType, RefURL) triplets: D/E/F, G/H/I, ...
+// Read via CSV (no type inference) so Hours works with OR without a unit. Rows sharing an Item merge into one card.
 
 /* Fallback — used only if the live sheet is unreachable. Live data drives the page. */
 const FALLBACK = [
-  { item:"Kitchen Standard Checking", rule:"Any checklist item that is not up to standard = −0.25 working hours per item. Items not on the checklist will not be checked. Checklist updates will be shared in the group.", hours:"−0.25 / item", refs:[
+  { item:"Kitchen Standard Checking", rule:"Any checklist item that is not up to standard. Items not on the checklist will not be checked.", hours:"−0.25 / item", refs:[
     { ref:"Kitchen Standards", reftype:"Standard", refurl:"https://docs.google.com/spreadsheets/d/1XU-jCtTVIWB-wtu1SDsaFJ0C5Zrpg3R8s-lubtu1KDk/edit?gid=2142851671" },
     { ref:"Kitchen Checking Record", reftype:"Record", refurl:"https://docs.google.com/spreadsheets/d/1XU-jCtTVIWB-wtu1SDsaFJ0C5Zrpg3R8s-lubtu1KDk/edit?gid=2142851671" },
   ]},
-  { item:"Product Quality", rule:"Any checklist item that is not up to standard = −0.25 working hours per item. Items not on the checklist will not be checked. Checklist updates will be shared in the group.", hours:"−0.25 / item", refs:[
+  { item:"Product Quality", rule:"Any checklist item that is not up to standard. Items not on the checklist will not be checked.", hours:"−0.25 / item", refs:[
     { ref:"Product Quality Standards", reftype:"Standard", refurl:"/product-quality" },
     { ref:"Product Quality Checking Record", reftype:"Record", refurl:"https://docs.google.com/spreadsheets/d/1i6r0w8gt6D2R0lv8eHUh7vtKCYszOpO9Q3Q5EQ7nu4Q/edit?gid=2104766772" },
   ]},
@@ -97,37 +94,70 @@ const FALLBACK = [
     { ref:"Product Quality Standards", reftype:"Standard", refurl:"/product-quality" },
     { ref:"Customer Refunds Records", reftype:"Record", refurl:"https://drive.google.com/drive/folders/1DzzNJI7cKz8ZuIbehr7de3YCu4A4QW9v" },
   ]},
-  { item:"Customer Refunds", rule:"Zero Refunds (Weekly)", hours:"+0.5 / item", refs:[] },
+  { item:"Customer Refunds", rule:"Zero Refunds (Weekly)", hours:"+0.5 / week", refs:[] },
+  { item:"Shift Attendance", rule:"Unable to attend a scheduled shift", hours:"−1.5 / shift", refs:[] },
+  { item:"Shift Attendance", rule:"Cover a colleague's shift", hours:"+1.5 / week", refs:[] },
+  { item:"Late Arrival", rule:"Report in advance. Up to 15 mins late", hours:"0", refs:[] },
+  { item:"Late Arrival", rule:"15–30 mins late", hours:"−0.25", refs:[] },
+  { item:"Late Arrival", rule:"30 mins–2 hours late", hours:"−0.5", refs:[] },
+  { item:"Late Arrival", rule:"2–4 hours late", hours:"−1", refs:[] },
+  { item:"Late Arrival", rule:"4+ hours late", hours:"−2", refs:[] },
 ];
 
 const $ = s=>document.querySelector(s);
 const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const sign = h => { const t=String(h).trim(); return /^[−-]/.test(t)?"minus":(/^\+/.test(t)?"plus":"zero"); };
 const refCls = t => { const s=String(t||"").toLowerCase(); return (s.includes("record")||s.includes("记")||s.includes("扣"))?"rec":"std"; };
 
+// Colour by sign; works with units ("−0.25 / item"), without units ("−0.25"), and bare positives ("1.5").
+function sign(h){
+  const t=String(h).trim();
+  if(/^[−-]/.test(t)) return "minus";
+  if(/^\+/.test(t)) return "plus";
+  const num=parseFloat(t.replace(/[−]/g,'-').replace(/[^0-9.\-]/g,''));
+  if(isNaN(num)||num===0) return "zero";
+  return num>0?"plus":"minus";
+}
+
+/* CSV parser — handles quoted fields, escaped quotes, commas & newlines inside fields. */
+function parseCSV(text){
+  const rows=[]; let row=[]; let field=""; let i=0; let inQ=false;
+  if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+  while(i<text.length){
+    const ch=text[i];
+    if(inQ){
+      if(ch === '"'){ if(text[i+1]==='"'){ field+='"'; i+=2; continue; } inQ=false; i++; continue; }
+      field+=ch; i++; continue;
+    } else {
+      if(ch === '"'){ inQ=true; i++; continue; }
+      if(ch === ','){ row.push(field); field=""; i++; continue; }
+      if(ch === '\r'){ i++; continue; }
+      if(ch === '\n'){ row.push(field); rows.push(row); row=[]; field=""; i++; continue; }
+      field+=ch; i++; continue;
+    }
+  }
+  row.push(field); rows.push(row);
+  return rows.filter(r=>r.length>1 || (r[0]&&r[0].trim()!==""));
+}
+
 async function loadLive(){
-  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&t=${Date.now()}`;
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}&t=${Date.now()}`;
   const res=await fetch(url,{cache:"no-store"});
   const text=await res.text();
-  const json=JSON.parse(text.slice(text.indexOf("{"),text.lastIndexOf("}")+1));
-  const cols=(json.table.cols||[]).length;
-  const rows=json.table.rows||[]; const out=[];
-  for(const r of rows){
-    const c=r.c||[]; const v=i=>c[i]?(c[i].v!=null?String(c[i].v):(c[i].f!=null?String(c[i].f):"")):"";
-    const item=v(0).trim();
+  const rows=parseCSV(text); const out=[];
+  for(const cells of rows){
+    const item=(cells[0]||"").trim();
     if(!item || item.toLowerCase()==="item") continue;
     const refs=[];
-    for(let i=3;i<cols;i+=3){
-      const ref=v(i).trim(), reftype=v(i+1).trim(), refurl=v(i+2).trim();
+    for(let i=3;i<cells.length;i+=3){
+      const ref=(cells[i]||"").trim(), reftype=(cells[i+1]||"").trim(), refurl=(cells[i+2]||"").trim();
       if(ref) refs.push({ref,reftype,refurl});
     }
-    out.push({item, rule:v(1).trim(), hours:v(2).trim(), refs});
+    out.push({item, rule:(cells[1]||"").trim(), hours:(cells[2]||"").trim(), refs});
   }
   if(!out.length) throw new Error("no rows");
   return out;
 }
 
-/* Merge rows by Item: one card, many rule lines, pooled + de-duped refs. */
 function groupByItem(rows){
   const map=new Map(); const order=[];
   rows.forEach(r=>{
