@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Working Hours Rules · HDL Delivery Kitchen</title>
+<style>
+  :root{
+    --brand:#C8102E;
+    --ink:#191C20; --muted:#636B76; --faint:#8A929D;
+    --canvas:#F4F5F7; --surface:#FFFFFF; --line:#E5E8EC;
+    --minus-txt:#B23B3B; --minus-bg:#FBECEC; --minus-line:#EFCBCB;
+    --plus-txt:#1F7A48;  --plus-bg:#E6F2EA;  --plus-line:#C3E1CF;
+    --zero-txt:#636B76;  --zero-bg:#F0F2F4;  --zero-line:#E1E5EA;
+    --std-txt:#2B5C9B; --std-bg:#EAF1FA; --std-line:#CFE0F2;
+    --rec-txt:#7A6100; --rec-bg:#FBF4DC; --rec-line:#EDE0B4;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--canvas); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.5;
+    padding:0 16px 64px;
+  }
+  .wrap{max-width:840px;margin:0 auto}
+
+  header{padding:30px 0 4px}
+  h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em}
+  h1 .zh{font-weight:700;color:var(--muted);font-size:18px;margin-left:8px}
+
+  .list{margin-top:22px;display:flex;flex-direction:column;gap:10px}
+  .rule{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px;position:relative;overflow:hidden}
+  .rule .spine{position:absolute;left:0;top:0;bottom:0;width:4px}
+  .rule.minus .spine{background:var(--minus-txt)}
+  .rule.plus .spine{background:var(--plus-txt)}
+  .rule.zero .spine{background:var(--zero-line)}
+  .top{display:flex;align-items:flex-start;gap:16px}
+  .head{flex:1;min-width:0}
+  .item{font-size:16px;font-weight:800;color:var(--ink);line-height:1.35}
+  .ruletext{margin-top:3px;font-size:14px;color:var(--muted);line-height:1.45}
+  .hours{flex:none;font-weight:800;font-size:15px;font-variant-numeric:tabular-nums;
+    padding:8px 14px;border-radius:10px;white-space:nowrap;text-align:center}
+  .minus .hours{color:var(--minus-txt);background:var(--minus-bg);border:1px solid var(--minus-line)}
+  .plus  .hours{color:var(--plus-txt); background:var(--plus-bg); border:1px solid var(--plus-line)}
+  .zero  .hours{color:var(--zero-txt); background:var(--zero-bg); border:1px solid var(--zero-line)}
+
+  .refs{margin-top:13px;padding-top:12px;border-top:1px dashed var(--line);
+    display:flex;flex-wrap:wrap;gap:8px 16px}
+  .ref{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}
+  .ref .rtag{font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 7px;border-radius:5px}
+  .ref .rtag.std{color:var(--std-txt);background:var(--std-bg);border:1px solid var(--std-line)}
+  .ref .rtag.rec{color:var(--rec-txt);background:var(--rec-bg);border:1px solid var(--rec-line)}
+  .ref a{color:var(--ink);text-decoration:none;font-weight:600;border-bottom:1px solid var(--line)}
+  .ref a:hover{border-bottom-color:var(--brand);color:var(--brand)}
+  .ref .plain{color:var(--ink);font-weight:600}
+
+  .empty{background:var(--surface);border:1px dashed var(--line);border-radius:14px;
+    padding:44px 20px;text-align:center;color:var(--muted)}
+
+  @media (max-width:560px){
+    .top{flex-direction:column;gap:12px}
+    .hours{align-self:flex-start;font-size:16px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Working Hours Rules<span class="zh">工时加减规则</span></h1>
+  </header>
+  <main id="list" class="list" aria-live="polite"></main>
+</div>
+
+<script>
+const SHEET_ID = "189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc";
+const SHEET_NAME = "HoursRules";
+// Row layout: A Item | B Rule | C Hours | then repeating triplets (Ref, RefType, RefURL): D/E/F, G/H/I, J/K/L, ...
+
+/* Fallback — used only if the live sheet is unreachable. Live data drives the page. */
+const FALLBACK = [
+  { item:"Kitchen Standard Checking", rule:"Any checklist item not up to standard", hours:"−0.25 / item", refs:[
+    { ref:"Kitchen Standards", reftype:"Standard", refurl:"https://docs.google.com/spreadsheets/d/1XU-jCtTVIWB-wtu1SDsaFJ0C5Zrpg3R8s-lubtu1KDk/edit?gid=2142851671" },
+    { ref:"Kitchen Standards Checking Record", reftype:"Record", refurl:"https://docs.google.com/spreadsheets/d/1XU-jCtTVIWB-wtu1SDsaFJ0C5Zrpg3R8s-lubtu1KDk/edit?gid=2142851671" },
+  ]},
+]
+
+const $ = s=>document.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const sign = h => { const t=String(h).trim(); return /^[−-]/.test(t)?"minus":(/^\+/.test(t)?"plus":"zero"); };
+const refCls = t => { const s=String(t||"").toLowerCase(); return (s.includes("record")||s.includes("记")||s.includes("扣"))?"rec":"std"; };
+
+async function loadLive(){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&t=${Date.now()}`;
+  const res=await fetch(url,{cache:"no-store"});
+  const text=await res.text();
+  const json=JSON.parse(text.slice(text.indexOf("{"),text.lastIndexOf("}")+1));
+  const cols=(json.table.cols||[]).length;
+  const rows=json.table.rows||[]; const out=[];
+  for(const r of rows){
+    const c=r.c||[]; const v=i=>c[i]?(c[i].v!=null?String(c[i].v):(c[i].f!=null?String(c[i].f):"")):"";
+    const item=v(0).trim();
+    if(!item || item.toLowerCase()==="item") continue;
+    const refs=[];
+    for(let i=3;i<cols;i+=3){
+      const ref=v(i).trim(), reftype=v(i+1).trim(), refurl=v(i+2).trim();
+      if(ref) refs.push({ref,reftype,refurl});
+    }
+    out.push({item, rule:v(1).trim(), hours:v(2).trim(), refs});
+  }
+  if(!out.length) throw new Error("no rows");
+  return out;
+}
+
+function refHTML(x){
+  const tag = x.reftype ? `<span class="rtag ${refCls(x.reftype)}">${esc(x.reftype)}</span>` : "";
+  const name = x.refurl
+    ? `<a href="${esc(x.refurl)}" target="_blank" rel="noopener">${esc(x.ref)} ↗</a>`
+    : `<span class="plain">${esc(x.ref)}</span>`;
+  return `<span class="ref">${tag}${name}</span>`;
+}
+
+function render(data){
+  const el=$("#list"); el.innerHTML="";
+  if(!data.length){ el.innerHTML=`<div class="empty">No rules yet.</div>`; return; }
+  data.forEach(r=>{
+    const refs = (r.refs&&r.refs.length) ? `<div class="refs">${r.refs.map(refHTML).join("")}</div>` : "";
+    el.insertAdjacentHTML("beforeend",
+      `<div class="rule ${sign(r.hours)}">
+        <span class="spine"></span>
+        <div class="top">
+          <div class="head">
+            <div class="item">${esc(r.item)}</div>
+            ${r.rule?`<div class="ruletext">${esc(r.rule)}</div>`:""}
+          </div>
+          <div class="hours">${esc(r.hours)}</div>
+        </div>
+        ${refs}
+      </div>`);
+  });
+}
+
+async function init(){
+  let data;
+  try{ data=await loadLive(); }catch(e){ data=FALLBACK.slice(); }
+  render(data);
+}
+init();
+</script>
+</body>
+</html>
