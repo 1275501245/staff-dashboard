@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Common Refund Reasons · HDL Delivery Kitchen</title>
+<style>
+  :root{
+    --brand:#C8102E;
+    --ink:#191C20; --muted:#636B76; --faint:#8A929D;
+    --canvas:#F4F5F7; --surface:#FFFFFF; --line:#E5E8EC;
+
+    --fs-txt:#B23B3B; --fs-bg:#FBECEC; --fs-line:#EFCBCB;   /* Food Safety  */
+    --mi-txt:#9A6400; --mi-bg:#FBF2DE; --mi-line:#EEDCB2;   /* Missing Items */
+    --wi-txt:#1F7A48; --wi-bg:#E6F2EA; --wi-line:#C3E1CF;   /* Wrong Items  */
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--canvas); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.45;
+    padding:0 16px 64px;
+  }
+  .wrap{max-width:900px;margin:0 auto}
+
+  header{padding:28px 0 4px}
+  h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em}
+
+  .controls{position:sticky;top:0;z-index:5;background:var(--canvas);
+    padding:16px 0 12px;margin-top:8px}
+  .filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);
+    padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;
+    display:inline-flex;align-items:center;gap:7px;transition:.12s}
+  .chip .badge{font-size:11px;color:var(--faint);font-weight:700}
+  .chip:hover{border-color:#CBD2DA}
+  .chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+  .chip[aria-pressed="true"] .badge{color:#F4C4CB}
+
+  .cat{margin-top:22px}
+  .cat-head{display:flex;align-items:center;gap:10px;padding:0 2px 8px}
+  .cat-head .tag{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+    padding:3px 9px;border-radius:6px}
+  .cat-head .cnt{color:var(--faint);font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+  .fs .tag{color:var(--fs-txt);background:var(--fs-bg);border:1px solid var(--fs-line)}
+  .mi .tag{color:var(--mi-txt);background:var(--mi-bg);border:1px solid var(--mi-line)}
+  .wi .tag{color:var(--wi-txt);background:var(--wi-bg);border:1px solid var(--wi-line)}
+
+  table{width:100%;border-collapse:separate;border-spacing:0;background:var(--surface);
+    border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  thead th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);
+    font-weight:700;text-align:left;padding:10px 14px;background:#FAFBFC;border-bottom:1px solid var(--line)}
+  tbody td{padding:12px 14px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:0}
+  .row-spine{width:4px;padding:0!important}
+  .fs .row-spine{background:var(--fs-txt)} .mi .row-spine{background:var(--mi-txt)} .wi .row-spine{background:var(--wi-txt)}
+  .site{font-weight:700;white-space:nowrap}
+  .otime{color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .ono{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px;max-width:170px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .reason{color:var(--ink)}
+
+  .empty{background:var(--surface);border:1px dashed var(--line);border-radius:14px;
+    padding:40px 20px;text-align:center;color:var(--muted)}
+  .empty b{color:var(--ink)}
+
+  footer{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--faint);font-size:12px}
+  footer a{color:var(--brand);text-decoration:none;font-weight:600}
+  .synced{display:inline-flex;align-items:center;gap:6px}
+  .live{width:7px;height:7px;border-radius:50%;background:#30A46C}
+  .live.stale{background:#F0A020}
+  .refresh{margin-left:auto;border:1px solid var(--line);background:var(--surface);
+    color:var(--ink);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer}
+  .refresh:hover{border-color:#CBD2DA}
+
+  @media (max-width:640px){
+    thead{display:none}
+    table,tbody,tr,td{display:block;width:100%}
+    table{border:0;background:transparent;border-radius:0}
+    tbody tr{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+      margin-bottom:10px;padding:12px 14px 12px 16px;position:relative}
+    .row-spine{position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:14px 0 0 14px}
+    tbody td{border:0;padding:2px 0;display:flex;justify-content:space-between;gap:14px;align-items:baseline}
+    tbody td::before{content:attr(data-label);font-size:11px;letter-spacing:.04em;
+      text-transform:uppercase;color:var(--faint);font-weight:700;flex:none}
+    td.reason{text-align:right}
+    .ono{max-width:60vw;text-align:right}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  :focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Common Refund Reasons</h1>
+  </header>
+
+  <div class="controls">
+    <div class="filters" id="siteFilters"></div>
+  </div>
+
+  <main id="content" aria-live="polite"></main>
+
+  <footer>
+    <span class="synced"><span class="live" id="liveDot"></span><span id="syncText">Loading…</span></span>
+    <a href="https://docs.google.com/spreadsheets/d/189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc/edit?gid=621965218" target="_blank" rel="noopener">Open source sheet ↗</a>
+    <button class="refresh" id="refresh">Refresh</button>
+  </footer>
+</div>
+
+<script>
+const SHEET_ID = "189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc";
+const GID = "621965218";
+
+const CATS = [
+  { id:"Food Safety",   cls:"fs" },
+  { id:"Missing Items", cls:"mi" },
+  { id:"Wrong Items",   cls:"wi" },
+];
+const SITES = ["Battersea","Shoreditch","Tower Bridge","Brent Cross"];
+
+/* Embedded fallback — used only if the live sheet can't be reached. */
+const FALLBACK = [
+  ["Food Safety","Tower Bridge","13 Jul 11:29","#3363","Rice undercooked"],
+  ["Food Safety","Tower Bridge","18 Jul 19:24","#4800","Prawn paste raw / not cooked through"],
+  ["Food Safety","Shoreditch","18 Jul 21:38","#6978","Green ball looks mouldy (per customer)"],
+  ["Missing Items","Battersea","12 Jul 18:02","#2041","Drink (herbal tea) not included"],
+  ["Missing Items","Battersea","12 Jul 22:05","#9526","Fried chicken skewers not included"],
+  ["Missing Items","Battersea","17 Jul 17:54","#7568","Ordered 2 rice, only 1 received"],
+  ["Missing Items","Shoreditch","12 Jul 22:20","#7986","Extra vegetables and drink not included"],
+  ["Missing Items","Shoreditch","13 Jul 21:36","#1809","Condensed milk missing from fried mini buns"],
+  ["Missing Items","Shoreditch","14 Jul 19:31","#5776","Extra topping (beef tripe) not received"],
+  ["Missing Items","Shoreditch (HP)","17 Jul 11:02","2880295754787757831883","Condensed milk not in bun container, spilled"],
+  ["Wrong Items","Shoreditch","12 Jul 14:29","#432","Wrong noodle portion"],
+  ["Wrong Items","Tower Bridge","12 Jul 18:26","#7940","Sesame sauce ordered, chilli powder sent"],
+  ["Wrong Items","Tower Bridge","15 Jul 18:39","#3671","Cabbage dumplings ordered, chive filling sent"],
+  ["Wrong Items","Tower Bridge","18 Jul 13:26","#6721","Set meal should have 3 meats, only beef"],
+].map(r=>({category:r[0],site:r[1],orderTime:r[2],orderNo:r[3],reason:r[4]}));
+
+let DATA = [];
+let activeSite = "All";
+
+const $ = s=>document.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const siteKey = s => (s||"").replace(/\s*\(HP\)\s*/,"").trim();
+
+async function loadLive(){
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${GID}&t=${Date.now()}`;
+  const res = await fetch(url,{cache:"no-store"});
+  const text = await res.text();
+  const json = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1));
+  const rows = json.table.rows || [];
+  const out = [];
+  for(const r of rows){
+    const c = r.c || [];
+    const val = i => c[i] ? (c[i].v!=null ? c[i].v : (c[i].f!=null?c[i].f:"")) : "";
+    const category = String(val(0)||"").trim();
+    if(!category || category.toLowerCase()==="category") continue;
+    if(!CATS.some(x=>x.id===category)) continue;
+    out.push({
+      category,
+      site: String(val(1)||"").trim(),
+      orderTime: String(val(2)||"").trim(),
+      orderNo: String(val(3)||"").trim(),
+      reason: String(val(5)||"").trim(),
+    });
+  }
+  if(!out.length) throw new Error("no rows");
+  return out;
+}
+
+function setSync(live){
+  const dot=$("#liveDot"), t=$("#syncText");
+  const now=new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+  if(live){ dot.classList.remove("stale"); t.textContent=`Live from sheet · synced ${now}`; }
+  else{ dot.classList.add("stale"); t.textContent=`Offline snapshot · sheet unreachable`; }
+}
+
+function renderFilters(){
+  const el=$("#siteFilters"); el.innerHTML="";
+  const mk=(label,key)=>{
+    const n = key==="All" ? DATA.length : DATA.filter(r=>siteKey(r.site)===key).length;
+    return `<button class="chip" data-site="${esc(key)}" aria-pressed="${activeSite===key}">
+      ${esc(label)}<span class="badge">${n}</span></button>`;
+  };
+  el.insertAdjacentHTML("beforeend", mk("All sites","All"));
+  SITES.forEach(s=>{ if(DATA.some(r=>siteKey(r.site)===s)) el.insertAdjacentHTML("beforeend", mk(s,s)); });
+  el.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{
+    activeSite=b.dataset.site; renderFilters(); renderContent();
+  }));
+}
+
+function renderContent(){
+  const main=$("#content"); main.innerHTML="";
+  const rows = activeSite==="All" ? DATA : DATA.filter(r=>siteKey(r.site)===activeSite);
+  if(!rows.length){
+    main.innerHTML=`<div class="empty"><b>No refunds for this site.</b><br>Pick another site above.</div>`;
+    return;
+  }
+  CATS.forEach(cat=>{
+    const crows=rows.filter(r=>r.category===cat.id);
+    if(!crows.length) return;
+    let body="";
+    crows.forEach(r=>{
+      body += `<tr>
+        <td class="row-spine" aria-hidden="true"></td>
+        <td class="site" data-label="Site">${esc(r.site)}</td>
+        <td class="otime" data-label="Time">${esc(r.orderTime)}</td>
+        <td class="ono" data-label="Order #" title="${esc(r.orderNo)}">${esc(r.orderNo)}</td>
+        <td class="reason" data-label="Reason">${esc(r.reason)}</td>
+      </tr>`;
+    });
+    main.insertAdjacentHTML("beforeend",
+      `<section class="cat ${cat.cls}">
+        <div class="cat-head">
+          <span class="tag">${cat.id}</span>
+          <span class="cnt">${crows.length}</span>
+        </div>
+        <table>
+          <thead><tr>
+            <th class="row-spine"></th><th>Site</th><th>Time</th><th>Order #</th><th>Reason</th>
+          </tr></thead>
+          <tbody>${body}</tbody>
+        </table>
+      </section>`);
+  });
+}
+
+$("#refresh").addEventListener("click",init);
+
+async function init(){
+  try{ DATA = await loadLive(); setSync(true); }
+  catch(e){ DATA = FALLBACK.slice(); setSync(false); }
+  renderFilters(); renderContent();
+}
+init();
+</script>
+</body>
+</html>
