@@ -6,95 +6,165 @@
 <title>SOP · Mini Hot Pot</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;min-height:100vh}
-.page{max-width:680px;margin:0 auto;padding:1.25rem 1rem 5rem}
-.topbar{display:flex;align-items:center;margin-bottom:1.5rem}
-.back{display:flex;align-items:center;gap:4px;font-size:13px;color:#666;text-decoration:none}
-.back svg{width:16px;height:16px}
-.page-title{font-size:22px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
-.page-sub{font-size:13px;color:#888;margin-bottom:1.5rem}
-.section-label{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;padding-left:2px}
-.list{background:#fff;border-radius:12px;border:1px solid #e5e5e5;overflow:hidden;margin-bottom:1.5rem}
-.list-item{display:flex;align-items:center;padding:14px 16px;text-decoration:none;color:#1a1a1a;border-bottom:0.5px solid #f0f0f0;transition:background 0.12s}
-.list-item:last-child{border-bottom:none}
-.list-item:hover{background:#f9f9f9}
-.item-icon{width:36px;height:36px;border-radius:9px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;margin-right:12px}
-.item-text{flex:1}
-.item-name{font-size:15px;font-weight:500;color:#1a1a1a}
-.item-desc{font-size:12px;color:#888;margin-top:2px}
-.item-arrow svg{width:16px;height:16px;color:#ccc}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#F5F0E8;color:#1a1a1a;min-height:100vh}
+.page{max-width:620px;margin:0 auto;padding:22px 16px 56px}
+.topbar{margin-bottom:14px}
+.back{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#8a867d;text-decoration:none}
+.hd{border-bottom:1.5px solid #2C2C2A;padding-bottom:12px;margin-bottom:20px}
+.hd h1{font-size:22px;font-weight:700;letter-spacing:-.3px}
+.hd .s{font-size:12px;color:#888780;margin-top:3px}
+
+.lab{font-size:10px;color:#a09c93;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin:24px 2px 10px}
+
+.m{margin-bottom:18px}
+.mh{display:flex;align-items:center;gap:9px;padding-bottom:8px;margin-bottom:9px;border-bottom:2px solid #ccc;text-decoration:none;color:inherit}
+.mh .ic{font-size:17px;flex:none}
+.mh .n{font-size:15.5px;font-weight:800;letter-spacing:-.2px}
+.mh .z{font-size:12px;color:#8a867d;font-weight:600;margin-left:2px}
+.mh .tag{margin-left:auto;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:10px;background:#EDEBE7;color:#8A8478}
+.mh .go{margin-left:auto;color:#c4c0b6;font-size:16px}
+
+.aux{display:flex;align-items:center;gap:7px;padding:7px 11px;margin-bottom:8px;border-radius:8px;
+  border:1px dashed #D8D3C7;background:rgba(255,255,255,.55);font-size:12px;text-decoration:none;color:inherit}
+.aux .k{font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:1px 6px;border-radius:4px;background:#EDE8DC;color:#8a8477}
+.aux .n{font-weight:600}
+.aux .z{color:#a3a099;font-size:11px}
+.aux .ar{margin-left:auto;color:#c4c0b6}
+
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.t{background:#fff;border:.5px solid #DEDBD2;border-radius:11px;padding:11px 13px;display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit}
+.t .n{font-size:13.5px;font-weight:600;line-height:1.25}
+.t .z{font-size:11px;color:#a3a099;margin-top:1px}
+.t .ar{margin-left:auto;color:#ccc;flex:none}
+.none{font-size:12px;color:#b3afa6;font-style:italic;padding:2px 2px 0}
+.soon{opacity:.5}
+.loading{padding:40px;text-align:center;color:#b3afa6;font-size:13px}
+@media (max-width:430px){.tiles{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="page">
-  <div class="topbar">
-    <a href="/home" class="back">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 12L6 8l4-4"/></svg>
-      Back
-    </a>
-  </div>
-
-  <div class="page-title">SOP</div>
-  <div class="page-sub">Standards & procedures</div>
-
-  <div id="guides-sections">
-    <div class="section-label">Guides</div>
-    <div class="list"><div class="list-item"><div class="item-text"><div class="item-desc">Loading…</div></div></div></div>
-  </div>
+  <div class="topbar"><a href="/home" class="back">‹ Back</a></div>
+  <div class="hd"><h1>SOP</h1><div class="s">Standards &amp; procedures</div></div>
+  <main id="content"><div class="loading">Loading…</div></main>
 </div>
 
 <script>
-const SHEET_ID   = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
-const SHEET_NAME = 'SOP';
+const SHEET_ID = "189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc";
+const SHEET_NAME = "SOPNav";
 
-async function load() {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&headers=1`;
-  try {
-    const res  = await fetch(url);
-    const text = await res.text();
-    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);?\s*$/)[1]);
-    const rows = json.table.rows
-      .map(r => ({
-        icon: (r.c[0]?.v || '').trim(),
-        name: (r.c[1]?.v || '').trim(),
-        desc: (r.c[2]?.v || '').trim(),
-        url:  (r.c[3]?.v || '').trim(),
-        category: (r.c[4]?.v || 'Guides').trim() || 'Guides',
-      }))
-      .filter(r => r.name && r.url);
-    render(rows);
-  } catch (e) {
-    document.getElementById('guides-sections').innerHTML =
-      '<div class="section-label">Guides</div><div class="list"><div class="list-item"><div class="item-text"><div class="item-desc">Failed to load guides.</div></div></div></div>';
+/* Fallback — used only if the live sheet is unreachable. Mirrors the sheet. */
+const FALLBACK = [
+  ['SECTION','prep','','Preparation Method','制作类型','','','','',''],
+  ['METHOD','prep','boiled','Boiled','涮煮','🔥','#C4553D','','',''],
+  ['AUX','','boiled','Boiling Time Guide','涮煮时间参考卡','','','/boiling-guide','',''],
+  ['PRODUCT','','boiled','Mini Hot Pot','小火锅','','','/set-meal','',''],
+  ['PRODUCT','','boiled','Snakehead Fish Set Meal','黑鱼套餐','','','/snakehead-set-meal','',''],
+  ['PRODUCT','','boiled','Dumplings','水饺','','','/product-guide','',''],
+  ['METHOD','prep','deepfried','Deep Fried','油炸','🍤','#BA7517','','',''],
+  ['AUX','','deepfried','Deep-Fried Time Guide','油炸类炸制时间参考卡','','','/deep-fried-guide','',''],
+  ['METHOD','prep','microwave','Microwave','微波','♨️','#2C5F8A','','',''],
+  ['PRODUCT','','microwave','Rice Bowls & Noodles','盖饭 / 面','','','/rice-bowl-guide','',''],
+  ['PRODUCT','','microwave','Buns','馒头','','','/product-guide','',''],
+  ['PRODUCT','','microwave','Qingtuan','青团','','','/product-guide','',''],
+  ['METHOD','prep','cold','Cold Dishes','凉菜','🥗','#3B6D11','','',''],
+  ['METHOD','prep','soupbase','Soup Bases','锅底','🥣','#6B4E9B','/soup-base-guide','',''],
+  ['METHOD','prep','sauces','Sauces','蘸料','🧂','#8A6240','','',''],
+  ['METHOD','prep','drinks','Handcrafted Drinks','手作饮品','🧋','#1F7A6B','','',''],
+  ['SECTION','ops','','Operations','运营','','','','',''],
+  ['ITEM','ops','','Stock Receiving','收货','📦','','/receiving-sop','',''],
+  ['ITEM','ops','','Stocktake','盘点','🧮','','/stocktake-guide','',''],
+  ['ITEM','ops','','Stock & Out of Stock','库存与沽清','📋','','/inventory-management','',''],
+  ['ITEM','ops','','Use By Guide','出品时效参考表','⏱️','','/use-by-guide','',''],
+  ['ITEM','ops','','Label Guide','标签管理规范','🏷️','','/label-guide','','']
+].map(r=>({type:r[0],section:r[1],method:r[2],en:r[3],zh:r[4],icon:r[5],color:r[6],url:r[7],status:r[8],sort:r[9]}));
+
+const $ = s=>document.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const isSoon = s => String(s||"").trim().toLowerCase()==="soon";
+
+function parseCSV(text){
+  const rows=[]; let row=[],field="",i=0,inQ=false;
+  if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+  while(i<text.length){const ch=text[i];
+    if(inQ){ if(ch==='"'){ if(text[i+1]==='"'){field+='"';i+=2;continue;} inQ=false;i++;continue;} field+=ch;i++;continue; }
+    else { if(ch==='"'){inQ=true;i++;continue;} if(ch===','){row.push(field);field="";i++;continue;}
+      if(ch==='\r'){i++;continue;} if(ch==='\n'){row.push(field);rows.push(row);row=[];field="";i++;continue;} field+=ch;i++;continue; }
   }
+  row.push(field); rows.push(row);
+  return rows.filter(r=>r.length>1||(r[0]&&r[0].trim()!==""));
 }
 
-function render(rows) {
-  const groups = {};
-  const order = [];
-  rows.forEach(r => {
-    if (!groups[r.category]) { groups[r.category] = []; order.push(r.category); }
-    groups[r.category].push(r);
+async function loadLive(){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}&headers=1&t=${Date.now()}`;
+  const rows=parseCSV(await (await fetch(url,{cache:"no-store"})).text()); const out=[];
+  for(const c of rows){
+    const type=(c[0]||"").trim();
+    if(!type || type.toLowerCase()==="type") continue;
+    out.push({type, section:(c[1]||"").trim(), method:(c[2]||"").trim(), en:(c[3]||"").trim(),
+      zh:(c[4]||"").trim(), icon:(c[5]||"").trim(), color:(c[6]||"").trim(),
+      url:(c[7]||"").trim(), status:(c[8]||"").trim(), sort:(c[9]||"").trim()});
+  }
+  if(!out.length) throw new Error("no rows");
+  return out;
+}
+
+/* Flat rows → sections → methods → aux/products, or plain items. */
+function build(rows){
+  const sections=[], smap={}, mmap={};
+  rows.forEach(r=>{
+    if(r.type==="SECTION"){ const s={key:r.section,en:r.en,zh:r.zh,methods:[],items:[]}; smap[r.section]=s; sections.push(s); }
+    else if(r.type==="METHOD"){
+      const m={key:r.method,en:r.en,zh:r.zh,icon:r.icon,color:r.color||'#B9B4A8',url:r.url,soon:isSoon(r.status),aux:[],products:[]};
+      mmap[r.method]=m; if(smap[r.section]) smap[r.section].methods.push(m);
+    }
+    else if(r.type==="AUX"){ const m=mmap[r.method]; if(m) m.aux.push({en:r.en,zh:r.zh,url:r.url}); }
+    else if(r.type==="PRODUCT"){ const m=mmap[r.method]; if(m) m.products.push({en:r.en,zh:r.zh,url:r.url,soon:isSoon(r.status)}); }
+    else if(r.type==="ITEM"){ const s=smap[r.section]; if(s) s.items.push({en:r.en,zh:r.zh,icon:r.icon,url:r.url,soon:isSoon(r.status)}); }
   });
-
-  document.getElementById('guides-sections').innerHTML = order.map(cat => `
-    <div class="section-label">${cat}</div>
-    <div class="list">
-      ${groups[cat].map(r => `
-        <a href="${r.url}" class="list-item">
-          <div class="item-icon">${r.icon}</div>
-          <div class="item-text">
-            <div class="item-name">${r.name}</div>
-            <div class="item-desc">${r.desc}</div>
-          </div>
-          <div class="item-arrow">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 4l4 4-4 4"/></svg>
-          </div>
-        </a>`).join('')}
-    </div>`).join('');
+  return sections;
 }
 
-load();
+const tileHTML = t => {
+  const label = (t.icon?esc(t.icon)+' ':'') + esc(t.en);
+  const inner = `<div><div class="n">${label}</div>${t.zh?`<div class="z">${esc(t.zh)}</div>`:""}</div><span class="ar">›</span>`;
+  return t.url && !t.soon
+    ? `<a class="t" href="${esc(t.url)}">${inner}</a>`
+    : `<div class="t${t.soon?' soon':''}">${inner}</div>`;
+};
+const auxHTML = a => {
+  const inner = `<span class="k">Ref</span><span class="n">${esc(a.en)}</span>${a.zh?`<span class="z">${esc(a.zh)}</span>`:""}<span class="ar">›</span>`;
+  return a.url ? `<a class="aux" href="${esc(a.url)}">${inner}</a>` : `<div class="aux">${inner}</div>`;
+};
+
+function methodHTML(m){
+  const head = `<span class="ic">${esc(m.icon||'📌')}</span><span class="n">${esc(m.en)}</span>`
+    + (m.zh?`<span class="z">${esc(m.zh)}</span>`:"")
+    + (m.soon?`<span class="tag">Coming soon</span>`:(m.url?`<span class="go">›</span>`:""));
+  const heading = (m.url && !m.soon)
+    ? `<a class="mh" style="border-color:${esc(m.color)}" href="${esc(m.url)}">${head}</a>`
+    : `<div class="mh" style="border-color:${esc(m.color)}">${head}</div>`;
+  const aux = m.aux.map(auxHTML).join("");
+  const body = m.products.length
+    ? `<div class="tiles">${m.products.map(tileHTML).join("")}</div>`
+    : (m.aux.length ? "" : `<div class="none">Products to be added 待填产品</div>`);
+  return `<div class="m${m.soon?' soon':''}">${heading}${aux}${body}</div>`;
+}
+
+function render(sections){
+  $("#content").innerHTML = sections.map(s=>{
+    const label = `<div class="lab">${esc(s.en)}${s.zh?` · ${esc(s.zh)}`:""}</div>`;
+    if(s.methods.length) return label + s.methods.map(methodHTML).join("");
+    if(s.items.length)   return label + `<div class="tiles">${s.items.map(tileHTML).join("")}</div>`;
+    return label;
+  }).join("");
+}
+
+async function init(){
+  let rows; try{ rows=await loadLive(); }catch(e){ rows=FALLBACK.slice(); }
+  render(build(rows));
+}
+init();
 </script>
 </body>
 </html>
