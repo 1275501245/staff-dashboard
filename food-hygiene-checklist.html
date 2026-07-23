@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food Hygiene Checklist · 四色卡检查项目</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#F5F0E8;color:#1a1a1a;min-height:100vh}
+.page{max-width:620px;margin:0 auto;padding:22px 16px 56px}
+.topbar{margin-bottom:14px}
+.back{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#8a867d;text-decoration:none}
+.hd{border-bottom:2px solid #2C2C2A;padding-bottom:12px;margin-bottom:20px}
+.hd h1{font-size:22px;font-weight:700;letter-spacing:-.3px}
+.hd .s{font-size:12px;color:#888780;margin-top:3px}
+
+.cat{margin-bottom:26px}
+.cat-h{display:flex;align-items:center;gap:9px;padding-bottom:8px;margin-bottom:12px;border-bottom:3px solid #2C2C2A}
+.cat-h .n{font-size:16px;font-weight:800;letter-spacing:-.2px}
+.cat-h .z{font-size:12px;color:#8a867d;font-weight:600}
+
+.sub{margin:0 0 14px}
+.sub-h{font-size:12.5px;font-weight:800;color:#6d6a61;margin:0 1px 7px;display:flex;align-items:center;gap:6px}
+.sub-h::before{content:"";width:4px;height:13px;border-radius:2px;background:#C4B69A;flex:none}
+
+.it{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:#fff;border:.5px solid #DEDBD2;
+  border-radius:9px;padding:9px 12px;margin-bottom:6px;font-size:13px;line-height:1.35;color:#1a1a1a;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:inherit}
+.it:active{transform:scale(.99)}
+.it .pic{margin-left:auto;flex:none;font-size:13px;color:#b3ad9f}
+.it.off{background:#F0EDE5;border-color:#E4E0D6;color:#b3afa6;cursor:default}
+.it.off:active{transform:none}
+.none{font-size:12px;color:#b3afa6;font-style:italic;padding:2px 2px 6px}
+.loading{padding:40px;text-align:center;color:#b3afa6;font-size:13px}
+
+.lb{position:fixed;inset:0;background:rgba(20,18,14,.86);z-index:50;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;padding:18px 14px 40px;display:none}
+.lb.on{display:block}
+.lb-bar{max-width:620px;margin:0 auto 14px;display:flex;align-items:center;gap:10px}
+.lb-t{color:#F5F0E8;font-size:14px;font-weight:700;line-height:1.4}
+.lb-x{margin-left:auto;flex:none;width:32px;height:32px;border-radius:50%;border:0;cursor:pointer;
+  background:rgba(255,255,255,.16);color:#F5F0E8;font-size:16px;display:flex;align-items:center;justify-content:center}
+.lb-body{max-width:620px;margin:0 auto}
+.lb-body img{display:block;width:100%;border-radius:10px;margin-bottom:10px;background:#E9E4D8;min-height:60px}
+.lb-msg{background:rgba(255,255,255,.1);border:1px dashed rgba(245,240,232,.35);border-radius:10px;
+  padding:16px;color:#F5F0E8;font-size:12.5px;line-height:1.6;margin-bottom:10px}
+.lb-hint{text-align:center;color:rgba(245,240,232,.5);font-size:11px;margin-top:10px}
+@media (min-width:520px){.lb{padding:34px 20px 60px}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar"><a href="/sop" class="back">‹ Back</a></div>
+  <div class="hd"><h1>Food Hygiene Checklist</h1><div class="s">四色卡检查项目</div></div>
+  <main id="content"><div class="loading">Loading…</div></main>
+</div>
+
+<div class="lb" id="lb">
+  <div class="lb-bar">
+    <span class="lb-t" id="lbT"></span>
+    <button class="lb-x" id="lbX" aria-label="Close">✕</button>
+  </div>
+  <div class="lb-body" id="lbBody"></div>
+  <div class="lb-hint">点 ✕ 或空白处关闭 · Tap ✕ or blank area to close</div>
+</div>
+
+<script>
+const SHEET_ID = "189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc";
+const SHEET_NAME = "FoodHygiene";
+
+/* Columns: A category(大类) | B subcategory(小类) | C item(项目) | D images(图片链接) | E status */
+
+const $ = s=>document.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function parseCSV(text){
+  const rows=[]; let row=[],field="",i=0,inQ=false;
+  if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+  while(i<text.length){const ch=text[i];
+    if(inQ){ if(ch==='"'){ if(text[i+1]==='"'){field+='"';i+=2;continue;} inQ=false;i++;continue;} field+=ch;i++;continue; }
+    else { if(ch==='"'){inQ=true;i++;continue;} if(ch===','){row.push(field);field="";i++;continue;}
+      if(ch==='\r'){i++;continue;} if(ch==='\n'){row.push(field);rows.push(row);row=[];field="";i++;continue;} field+=ch;i++;continue; }
+  }
+  row.push(field); rows.push(row);
+  return rows.filter(r=>r.length>1||(r[0]&&r[0].trim()!==""));
+}
+
+async function loadLive(){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}&headers=1&t=${Date.now()}`;
+  const raw=parseCSV(await (await fetch(url,{cache:"no-store"})).text()); const out=[];
+  for(const c of raw){
+    const cat=(c[0]||"").trim();
+    if(!cat || cat==="category" || cat==="大类") continue;
+    out.push({cat, sub:(c[1]||"").trim(), item:(c[2]||"").trim(),
+      images:(c[3]||"").trim(), status:(c[4]||"").trim()});
+  }
+  if(!out.length) throw new Error("no rows");
+  return out;
+}
+
+function driveId(link){
+  let m = link.match(/\/file\/d\/([\w-]{20,})/); if(m) return m[1];
+  m = link.match(/[?&]id=([\w-]{20,})/); if(m) return m[1];
+  return null;
+}
+const isFolderLink = link => /drive\.google\.com\/drive\/(u\/\d+\/)?folders\//.test(link);
+function toImgSrc(link){
+  if(isFolderLink(link)) return {folder:true};
+  const id = driveId(link);
+  if(id) return {src:`https://lh3.googleusercontent.com/d/${id}=w1600`};
+  return {src:link};
+}
+const parseImages = s => String(s||"").split(",").map(x=>x.trim()).filter(Boolean);
+
+/* Group rows: 大类 → 小类 → items (sheet order preserved) */
+function build(rows){
+  const cats=[], cmap={};
+  rows.forEach(r=>{
+    if(r.status.toLowerCase()==="hide") return;
+    let c=cmap[r.cat];
+    if(!c){ c={name:r.cat, subs:[], smap:{}}; cmap[r.cat]=c; cats.push(c); }
+    const subKey=r.sub||"__none__";
+    let s=c.smap[subKey];
+    if(!s){ s={name:r.sub, items:[]}; c.smap[subKey]=s; c.subs.push(s); }
+    s.items.push({item:r.item, images:parseImages(r.images)});
+  });
+  return cats;
+}
+
+const IMG_STORE=[];
+function itemHTML(t){
+  if(!t.images.length)
+    return `<div class="it off">${esc(t.item)}</div>`;
+  IMG_STORE.push(t);
+  return `<button class="it" data-lb="${IMG_STORE.length-1}">${esc(t.item)}<span class="pic">📷 ›</span></button>`;
+}
+
+function render(cats){
+  $("#content").innerHTML = cats.map(c=>{
+    const subs = c.subs.map(s=>{
+      const items = s.items.length ? s.items.map(itemHTML).join("") : `<div class="none">待填项目</div>`;
+      return s.name
+        ? `<div class="sub"><div class="sub-h">${esc(s.name)}</div>${items}</div>`
+        : `<div class="sub">${items}</div>`;
+    }).join("");
+    return `<div class="cat"><div class="cat-h"><span class="n">${esc(c.name)}</span></div>${subs}</div>`;
+  }).join("") || `<div class="none">Sheet 里还没有内容</div>`;
+}
+
+function openLB(idx){
+  const t=IMG_STORE[idx]; if(!t) return;
+  $("#lbT").textContent=t.item;
+  const body=$("#lbBody"); body.innerHTML="";
+  t.images.forEach(link=>{
+    const r=toImgSrc(link);
+    if(r.folder){
+      const d=document.createElement("div"); d.className="lb-msg";
+      d.textContent="⚠️ 这是文件夹链接，请在 Sheet 里贴单张图片的链接（右键图片 → 共享 → 复制链接）";
+      body.appendChild(d); return;
+    }
+    const img=document.createElement("img");
+    img.src=r.src; img.alt=t.item; img.loading="lazy";
+    img.onerror=()=>{ const d=document.createElement("div"); d.className="lb-msg";
+      d.textContent="图片加载失败：请确认该图片已设为「知道链接的任何人可查看」"; img.replaceWith(d); };
+    body.appendChild(img);
+  });
+  $("#lb").classList.add("on");
+  document.body.style.overflow="hidden";
+}
+function closeLB(){ $("#lb").classList.remove("on"); $("#lbBody").innerHTML=""; document.body.style.overflow=""; }
+
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-lb]");
+  if(el){ openLB(+el.dataset.lb); return; }
+  if(e.target===$("#lb")||e.target.closest("#lbX")) closeLB();
+});
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeLB(); });
+
+async function init(){
+  try{
+    IMG_STORE.length=0;
+    render(build(await loadLive()));
+  }catch(e){
+    $("#content").innerHTML=`<div class="none">读取 Sheet 失败：请确认主表里已建好 FoodHygiene tab 并已公开可读</div>`;
+  }
+}
+init();
+</script>
+</body>
+</html>
