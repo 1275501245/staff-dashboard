@@ -3,43 +3,62 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SOP · Mini Hot Pot</title>
+<title>SOP · Standards &amp; Procedures</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#F5F0E8;color:#1a1a1a;min-height:100vh}
 .page{max-width:620px;margin:0 auto;padding:22px 16px 56px}
 .topbar{margin-bottom:14px}
 .back{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#8a867d;text-decoration:none}
-.hd{border-bottom:1.5px solid #2C2C2A;padding-bottom:12px;margin-bottom:20px}
+.hd{border-bottom:2px solid #2C2C2A;padding-bottom:12px;margin-bottom:20px}
 .hd h1{font-size:22px;font-weight:700;letter-spacing:-.3px}
 .hd .s{font-size:12px;color:#888780;margin-top:3px}
 
-.lab{font-size:10px;color:#a09c93;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin:24px 2px 10px}
+.lab{font-size:10px;color:#96917f;text-transform:uppercase;letter-spacing:1.2px;font-weight:800;margin:26px 2px 12px}
 
-.m{margin-bottom:18px}
-.mh{display:flex;align-items:center;gap:9px;padding-bottom:8px;margin-bottom:9px;border-bottom:2px solid #ccc;text-decoration:none;color:inherit}
+.m{margin-bottom:24px}
+.mh{display:flex;align-items:center;gap:9px;padding-bottom:8px;margin-bottom:11px;border-bottom:3px solid #ccc;text-decoration:none;color:inherit}
 .mh .ic{font-size:17px;flex:none}
 .mh .n{font-size:15.5px;font-weight:800;letter-spacing:-.2px}
 .mh .z{font-size:12px;color:#8a867d;font-weight:600;margin-left:2px}
 .mh .tag{margin-left:auto;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:10px;background:#EDEBE7;color:#8A8478}
 .mh .go{margin-left:auto;color:#c4c0b6;font-size:16px}
 
-.aux{display:flex;align-items:center;gap:7px;padding:7px 11px;margin-bottom:8px;border-radius:8px;
+.aux{display:flex;align-items:center;gap:7px;padding:7px 11px;margin-bottom:10px;border-radius:8px;
   border:1px dashed #D8D3C7;background:rgba(255,255,255,.55);font-size:12px;text-decoration:none;color:inherit}
 .aux .k{font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:1px 6px;border-radius:4px;background:#EDE8DC;color:#8a8477}
 .aux .n{font-weight:600}
 .aux .z{color:#a3a099;font-size:11px}
 .aux .ar{margin-left:auto;color:#c4c0b6}
 
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.t{background:#fff;border:.5px solid #DEDBD2;border-radius:11px;padding:11px 13px;display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit}
-.t .n{font-size:13.5px;font-weight:600;line-height:1.25}
-.t .z{font-size:11px;color:#a3a099;margin-top:1px}
-.t .ar{margin-left:auto;color:#ccc;flex:none}
+.pills{display:flex;flex-wrap:wrap;gap:7px}
+.p{display:inline-flex;align-items:center;gap:6px;background:#fff;border:.5px solid #DEDBD2;border-radius:999px;
+  padding:6.5px 13px;font-size:12.5px;line-height:1.2;color:#1a1a1a;text-decoration:none;cursor:pointer;
+  -webkit-tap-highlight-color:transparent}
+.p:active{transform:scale(.97)}
+.p .z{color:#a3a099;font-size:11.5px}
+.p .pic{font-size:13px;flex:none;background:none;border:0;padding:0 0 0 1px;cursor:pointer;line-height:1;color:inherit}
+.p.off{background:#F0EDE5;border-color:#E4E0D6;color:#b3afa6;cursor:default}
+.p.off .z{color:#c3bfb4}
+.p.off:active{transform:none}
 .none{font-size:12px;color:#b3afa6;font-style:italic;padding:2px 2px 0}
 .soon{opacity:.5}
 .loading{padding:40px;text-align:center;color:#b3afa6;font-size:13px}
-@media (max-width:430px){.tiles{grid-template-columns:1fr}}
+
+.lb{position:fixed;inset:0;background:rgba(20,18,14,.86);z-index:50;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;padding:18px 14px 40px;display:none}
+.lb.on{display:block}
+.lb-bar{max-width:620px;margin:0 auto 14px;display:flex;align-items:center;gap:10px}
+.lb-t{color:#F5F0E8;font-size:14px;font-weight:700}
+.lb-tz{color:rgba(245,240,232,.6);font-size:12px}
+.lb-x{margin-left:auto;flex:none;width:32px;height:32px;border-radius:50%;border:0;cursor:pointer;
+  background:rgba(255,255,255,.16);color:#F5F0E8;font-size:16px;display:flex;align-items:center;justify-content:center}
+.lb-body{max-width:620px;margin:0 auto}
+.lb-body img{display:block;width:100%;border-radius:10px;margin-bottom:10px;background:#E9E4D8;min-height:60px}
+.lb-msg{background:rgba(255,255,255,.1);border:1px dashed rgba(245,240,232,.35);border-radius:10px;
+  padding:16px;color:#F5F0E8;font-size:12.5px;line-height:1.6;margin-bottom:10px}
+.lb-hint{text-align:center;color:rgba(245,240,232,.5);font-size:11px;margin-top:10px}
+@media (min-width:520px){.lb{padding:34px 20px 60px}}
 </style>
 </head>
 <body>
@@ -49,35 +68,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
   <main id="content"><div class="loading">Loading…</div></main>
 </div>
 
+<div class="lb" id="lb">
+  <div class="lb-bar">
+    <span class="lb-t" id="lbT"></span><span class="lb-tz" id="lbTz"></span>
+    <button class="lb-x" id="lbX" aria-label="Close">✕</button>
+  </div>
+  <div class="lb-body" id="lbBody"></div>
+  <div class="lb-hint">点 ✕ 或空白处关闭 · Tap ✕ or blank area to close</div>
+</div>
+
 <script>
 const SHEET_ID = "189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc";
 const SHEET_NAME = "SOPNav";
 
-/* Fallback — used only if the live sheet is unreachable. Mirrors the sheet. */
+/* Fallback — used only if the live sheet is unreachable. Mirrors the sheet.
+   Columns: type, section, method, en, zh, icon, color, url, status, sort, images */
 const FALLBACK = [
-  ['SECTION','prep','','Preparation Method','制作类型','','','','',''],
-  ['METHOD','prep','boiled','Boiled','涮煮','🔥','#C4553D','','',''],
-  ['AUX','','boiled','Boiling Time Guide','涮煮时间参考卡','','','/boiling-guide','',''],
-  ['PRODUCT','','boiled','Mini Hot Pot','小火锅','','','/set-meal','',''],
-  ['PRODUCT','','boiled','Snakehead Fish Set Meal','黑鱼套餐','','','/snakehead-set-meal','',''],
-  ['PRODUCT','','boiled','Dumplings','水饺','','','/product-guide','',''],
-  ['METHOD','prep','deepfried','Deep Fried','油炸','🍤','#BA7517','','',''],
-  ['AUX','','deepfried','Deep-Fried Time Guide','油炸类炸制时间参考卡','','','/deep-fried-guide','',''],
-  ['METHOD','prep','microwave','Microwave','微波','♨️','#2C5F8A','','',''],
-  ['PRODUCT','','microwave','Rice Bowls & Noodles','盖饭 / 面','','','/rice-bowl-guide','',''],
-  ['PRODUCT','','microwave','Buns','馒头','','','/product-guide','',''],
-  ['PRODUCT','','microwave','Qingtuan','青团','','','/product-guide','',''],
-  ['METHOD','prep','cold','Cold Dishes','凉菜','🥗','#3B6D11','','',''],
-  ['METHOD','prep','soupbase','Soup Bases','锅底','🥣','#6B4E9B','/soup-base-guide','',''],
-  ['METHOD','prep','sauces','Sauces','蘸料','🧂','#8A6240','','',''],
-  ['METHOD','prep','drinks','Handcrafted Drinks','手作饮品','🧋','#1F7A6B','','',''],
-  ['SECTION','ops','','Operations','运营','','','','',''],
-  ['ITEM','ops','','Stock Receiving','收货','📦','','/receiving-sop','',''],
-  ['ITEM','ops','','Stocktake','盘点','🧮','','/stocktake-guide','',''],
-  ['ITEM','ops','','Stock & Out of Stock','库存与沽清','📋','','/inventory-management','',''],
-  ['ITEM','ops','','Use By Guide','出品时效参考表','⏱️','','/use-by-guide','',''],
-  ['ITEM','ops','','Label Guide','标签管理规范','🏷️','','/label-guide','','']
-].map(r=>({type:r[0],section:r[1],method:r[2],en:r[3],zh:r[4],icon:r[5],color:r[6],url:r[7],status:r[8],sort:r[9]}));
+  ['SECTION','prep','','Preparation Method','制作类型','','','','','',''],
+  ['METHOD','prep','boiled','Boiled','涮煮','🔥','#C4553D','','','',''],
+  ['AUX','','boiled','Boiling Time Guide','涮煮时间参考卡','','','/boiling-guide','','',''],
+  ['PRODUCT','','boiled','Mini Hot Pot','小火锅','','','/set-meal','','',''],
+  ['PRODUCT','','boiled','Snakehead Fish Set Meal','黑鱼套餐','','','/snakehead-set-meal','','',''],
+  ['PRODUCT','','boiled','Dumplings','水饺','','','/product-guide','','',''],
+  ['METHOD','prep','deepfried','Deep Fried','油炸','🍤','#BA7517','','','',''],
+  ['AUX','','deepfried','Deep-Fried Time Guide','油炸类炸制时间参考卡','','','/deep-fried-guide','','',''],
+  ['METHOD','prep','microwave','Microwave','微波','♨️','#2C5F8A','','','',''],
+  ['PRODUCT','','microwave','Rice Bowls & Noodles','盖饭 / 面','','','/rice-bowl-guide','','',''],
+  ['PRODUCT','','microwave','Buns','馒头','','','/product-guide','','',''],
+  ['PRODUCT','','microwave','Qingtuan','青团','','','/product-guide','','',''],
+  ['METHOD','prep','cold','Cold Dishes','凉菜','🥗','#3B6D11','','','',''],
+  ['METHOD','prep','soupbase','Soup Bases','锅底','🥣','#6B4E9B','/soup-base-guide','','',''],
+  ['METHOD','prep','sauces','Sauces','蘸料','🧂','#8A6240','','','',''],
+  ['METHOD','prep','drinks','Handcrafted Drinks','手作饮品','🧋','#1F7A6B','','','',''],
+  ['SECTION','ops','','Operations','运营','','','','','',''],
+  ['ITEM','ops','','Stock Receiving','收货','📦','','/receiving-sop','','',''],
+  ['ITEM','ops','','Stocktake','盘点','🧮','','/stocktake-guide','','',''],
+  ['ITEM','ops','','Stock & Out of Stock','库存与沽清','📋','','/inventory-management','','',''],
+  ['ITEM','ops','','Use By Guide','出品时效参考表','⏱️','','/use-by-guide','','',''],
+  ['ITEM','ops','','Label Guide','标签管理规范','🏷️','','/label-guide','','','']
+].map(r=>({type:r[0],section:r[1],method:r[2],en:r[3],zh:r[4],icon:r[5],color:r[6],url:r[7],status:r[8],sort:r[9],images:r[10]}));
 
 const $ = s=>document.querySelector(s);
 const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -103,13 +132,29 @@ async function loadLive(){
     if(!type || type.toLowerCase()==="type") continue;
     out.push({type, section:(c[1]||"").trim(), method:(c[2]||"").trim(), en:(c[3]||"").trim(),
       zh:(c[4]||"").trim(), icon:(c[5]||"").trim(), color:(c[6]||"").trim(),
-      url:(c[7]||"").trim(), status:(c[8]||"").trim(), sort:(c[9]||"").trim()});
+      url:(c[7]||"").trim(), status:(c[8]||"").trim(), sort:(c[9]||"").trim(),
+      images:(c[10]||"").trim()});
   }
   if(!out.length) throw new Error("no rows");
   return out;
 }
 
-/* Flat rows → sections → methods → aux/products, or plain items. */
+/* ── Drive image link handling ─────────────────────────────── */
+function driveId(link){
+  let m = link.match(/\/file\/d\/([\w-]{20,})/); if(m) return m[1];
+  m = link.match(/[?&]id=([\w-]{20,})/); if(m) return m[1];
+  return null;
+}
+const isFolderLink = link => /drive\.google\.com\/drive\/(u\/\d+\/)?folders\//.test(link);
+function toImgSrc(link){
+  if(isFolderLink(link)) return {folder:true, raw:link};
+  const id = driveId(link);
+  if(id) return {src:`https://lh3.googleusercontent.com/d/${id}=w1600`};
+  return {src:link}; /* direct image URL or relative path */
+}
+const parseImages = s => String(s||"").split(",").map(x=>x.trim()).filter(Boolean);
+
+/* ── Flat rows → sections → methods → aux/products/items ───── */
 function build(rows){
   const sections=[], smap={}, mmap={};
   rows.forEach(r=>{
@@ -119,19 +164,38 @@ function build(rows){
       mmap[r.method]=m; if(smap[r.section]) smap[r.section].methods.push(m);
     }
     else if(r.type==="AUX"){ const m=mmap[r.method]; if(m) m.aux.push({en:r.en,zh:r.zh,url:r.url}); }
-    else if(r.type==="PRODUCT"){ const m=mmap[r.method]; if(m) m.products.push({en:r.en,zh:r.zh,url:r.url,soon:isSoon(r.status)}); }
-    else if(r.type==="ITEM"){ const s=smap[r.section]; if(s) s.items.push({en:r.en,zh:r.zh,icon:r.icon,url:r.url,soon:isSoon(r.status)}); }
+    else if(r.type==="PRODUCT"){ const m=mmap[r.method]; if(m) m.products.push({en:r.en,zh:r.zh,icon:r.icon,url:r.url,soon:isSoon(r.status),images:parseImages(r.images)}); }
+    else if(r.type==="ITEM"){ const s=smap[r.section]; if(s) s.items.push({en:r.en,zh:r.zh,icon:r.icon,url:r.url,soon:isSoon(r.status),images:parseImages(r.images)}); }
   });
   return sections;
 }
 
-const tileHTML = t => {
-  const label = (t.icon?esc(t.icon)+' ':'') + esc(t.en);
-  const inner = `<div><div class="n">${label}</div>${t.zh?`<div class="z">${esc(t.zh)}</div>`:""}</div><span class="ar">›</span>`;
-  return t.url && !t.soon
-    ? `<a class="t" href="${esc(t.url)}">${inner}</a>`
-    : `<div class="t${t.soon?' soon':''}">${inner}</div>`;
-};
+/* ── Pills ──────────────────────────────────────────────────
+   url only        → link to html page
+   images only     → open image viewer
+   url + images    → link to page + 📷 icon opens viewer
+   neither / soon  → grey, not clickable                       */
+const IMG_STORE = [];
+function storeImages(t){ IMG_STORE.push({en:t.en, zh:t.zh, images:t.images}); return IMG_STORE.length-1; }
+
+function pillHTML(t){
+  const hasImg = t.images && t.images.length;
+  const hasUrl = !!t.url;
+  const icon = t.icon ? esc(t.icon)+' ' : '';
+  const nameSpan = `${icon}${esc(t.en)}${t.zh?` <span class="z">${esc(t.zh)}</span>`:""}`;
+  if(t.soon || (!hasImg && !hasUrl))
+    return `<span class="p off">${nameSpan}</span>`;
+  if(hasUrl && hasImg){
+    const idx = storeImages(t);
+    return `<a class="p" href="${esc(t.url)}">${nameSpan}<button class="pic" data-lb="${idx}" aria-label="View photos">📷</button></a>`;
+  }
+  if(hasImg){
+    const idx = storeImages(t);
+    return `<span class="p" data-lb="${idx}" role="button" tabindex="0">${nameSpan}<span class="pic">📷</span></span>`;
+  }
+  return `<a class="p" href="${esc(t.url)}">${nameSpan}</a>`;
+}
+
 const auxHTML = a => {
   const inner = `<span class="k">Ref</span><span class="n">${esc(a.en)}</span>${a.zh?`<span class="z">${esc(a.zh)}</span>`:""}<span class="ar">›</span>`;
   return a.url ? `<a class="aux" href="${esc(a.url)}">${inner}</a>` : `<div class="aux">${inner}</div>`;
@@ -146,7 +210,7 @@ function methodHTML(m){
     : `<div class="mh" style="border-color:${esc(m.color)}">${head}</div>`;
   const aux = m.aux.map(auxHTML).join("");
   const body = m.products.length
-    ? `<div class="tiles">${m.products.map(tileHTML).join("")}</div>`
+    ? `<div class="pills">${m.products.map(pillHTML).join("")}</div>`
     : (m.aux.length ? "" : `<div class="none">Products to be added 待填产品</div>`);
   return `<div class="m${m.soon?' soon':''}">${heading}${aux}${body}</div>`;
 }
@@ -155,13 +219,48 @@ function render(sections){
   $("#content").innerHTML = sections.map(s=>{
     const label = `<div class="lab">${esc(s.en)}${s.zh?` · ${esc(s.zh)}`:""}</div>`;
     if(s.methods.length) return label + s.methods.map(methodHTML).join("");
-    if(s.items.length)   return label + `<div class="tiles">${s.items.map(tileHTML).join("")}</div>`;
+    if(s.items.length)   return label + `<div class="pills">${s.items.map(pillHTML).join("")}</div>`;
     return label;
   }).join("");
 }
 
+/* ── Lightbox ──────────────────────────────────────────────── */
+function openLB(idx){
+  const t = IMG_STORE[idx]; if(!t) return;
+  $("#lbT").textContent = t.en; $("#lbTz").textContent = t.zh||"";
+  const body = $("#lbBody"); body.innerHTML = "";
+  t.images.forEach(link=>{
+    const r = toImgSrc(link);
+    if(r.folder){
+      const d=document.createElement("div"); d.className="lb-msg";
+      d.textContent="⚠️ 这是文件夹链接，请在 Sheet 里贴单张图片的链接（右键图片 → 共享 → 复制链接）";
+      body.appendChild(d); return;
+    }
+    const img=document.createElement("img");
+    img.src=r.src; img.alt=t.en; img.loading="lazy";
+    img.onerror=()=>{ const d=document.createElement("div"); d.className="lb-msg";
+      d.textContent="图片加载失败：请确认该图片已设为「知道链接的任何人可查看」"; img.replaceWith(d); };
+    body.appendChild(img);
+  });
+  $("#lb").classList.add("on");
+  document.body.style.overflow="hidden";
+}
+function closeLB(){ $("#lb").classList.remove("on"); $("#lbBody").innerHTML=""; document.body.style.overflow=""; }
+
+document.addEventListener("click",e=>{
+  const el = e.target.closest("[data-lb]");
+  if(el){ e.preventDefault(); e.stopPropagation(); openLB(+el.dataset.lb); return; }
+  if(e.target===$("#lb")||e.target===$("#lbX")||e.target.closest("#lbX")) closeLB();
+});
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeLB(); });
+document.addEventListener("keypress",e=>{
+  const el=e.target.closest?.("[data-lb][role=button]");
+  if(el&&(e.key==="Enter"||e.key===" ")){ e.preventDefault(); openLB(+el.dataset.lb); }
+});
+
 async function init(){
   let rows; try{ rows=await loadLive(); }catch(e){ rows=FALLBACK.slice(); }
+  IMG_STORE.length=0;
   render(build(rows));
 }
 init();
