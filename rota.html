@@ -336,7 +336,7 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 .card-day-row.is-today {
   background: #e8f4ff;
 }
-.card-day-label { color: #999; min-width: 26px; }
+.card-day-label { color: #999; min-width: 40px; }
 .card-day-val { color: #222; font-weight: 500; text-align: right; }
 .card-day-val.is-off { color: #ccc; font-weight: 400; font-style: italic; }
 .card-day-val.is-today-val { color: #1565C0; }
@@ -500,6 +500,20 @@ function parseSheetDate(s) {
 }
 
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+// ISO 'YYYY-MM-DD' → 'DD/MM';  以及 ISO + n 天
+function ddmmFromISO(iso) {
+  if (!iso) return null;
+  const p = iso.split('-');
+  return p.length === 3 ? `${p[2]}/${p[1]}` : null;
+}
+function isoAddDays(iso, n) {
+  if (!iso) return null;
+  const d = new Date(iso + 'T00:00:00');
+  if (isNaN(d)) return null;
+  d.setDate(d.getDate() + n);
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+}
 
 function getTodayColIdx(dayHeaders) {
   const today = new Date();
@@ -834,6 +848,13 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
   const grid = document.getElementById('cards-grid');
   grid.innerHTML = '';
 
+  // 每个日子列显示日期(DD/MM)而不是星期:优先用日期行,取不到就从本周一推算
+  const dayLabels = dayHeaders.map((h, i) => {
+    const fromSheet = parseSheetDate((rows[1] && rows[1][i + 2]) || '');
+    const iso = fromSheet || isoAddDays(currentWeekStart, i);
+    return ddmmFromISO(iso) || DAY_NAMES[i] || h.slice(0, 3);
+  });
+
   // Group adjustments by staff name
   const adjMap = new Map();
   (adjustments || []).forEach(adj => {
@@ -885,7 +906,7 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
       } else {
         valHTML = `<span class="card-day-val${isToday ? ' is-today-val' : ''}">${val}</span>`;
       }
-      const label = DAY_NAMES[i] || h.slice(0,3);
+      const label = dayLabels[i];
       dayRowsHTML += `<div class="card-day-row${todayRowCls}"><span class="card-day-label">${label}</span>${valHTML}</div>`;
     });
 
@@ -898,7 +919,7 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
         return `<div class="card-adj-row"><span class="card-adj-note">${note}</span><span class="card-adj-val ${cls}">${fmtSigned(a.hours)}</span></div>`;
       }).join('');
       const foldNote = foldable
-        ? `Net ${fmtSigned(adjSum)}h folded into ${DAY_NAMES[lastWorkedIdx]}`
+        ? `Net ${fmtSigned(adjSum)}h folded into ${dayLabels[lastWorkedIdx]}`
         : `Net ${fmtSigned(adjSum)}h applied to weekly total`;
       adjHTML = `<details class="card-adj-details">`
         + `<summary class="card-adj-summary"><span class="adj-caret">▸</span>Adjustments</summary>`
