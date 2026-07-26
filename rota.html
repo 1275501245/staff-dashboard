@@ -377,6 +377,55 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 .card-adj-val { font-weight: 600; white-space: nowrap; }
 .card-adj-val.adj-neg { color: #c62828; }
 .card-adj-val.adj-pos { color: #2e7d32; }
+
+/* ── 调整折进最后一天 + 明细默认收起 ── */
+.card-day-val.is-adjusted { border-bottom: 1px dotted #d4a017; }
+.adj-chip {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: #b26a00;
+  background: #fff4dc;
+  border: 1px solid #f0dca6;
+  border-radius: 4px;
+  padding: 0 3px;
+  vertical-align: 1px;
+  text-transform: uppercase;
+}
+.card-adj-details { border-top: 1px dashed #eee; }
+.card-adj-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 5px 12px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #aaa;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  user-select: none;
+}
+.card-adj-summary::-webkit-details-marker { display: none; }
+.card-adj-summary:hover { color: #888; }
+.adj-caret {
+  display: inline-block;
+  font-size: 8px;
+  color: #bbb;
+  transition: transform 0.15s ease;
+}
+.card-adj-details[open] .adj-caret { transform: rotate(90deg); }
+.card-adj-body { padding: 0 12px 7px; }
+.card-adj-foldnote {
+  margin-top: 4px;
+  font-size: 9px;
+  color: #b26a00;
+  font-style: italic;
+}
+@media (prefers-reduced-motion: reduce){ .adj-caret { transition: none; } }
 </style>
 </head>
 <body>
@@ -803,6 +852,19 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
     const totalStr = (data.totalHours > 0 || myAdjs.length) ? `${finalHours} hrs` : '–';
     const subText = data.totalHours > 0 ? `${finalHours} hrs this week (all sites)` : 'no hours recorded';
 
+    // 每一天括号里的工时数(取不到则为 null),用于决定折算落点与显示
+    const dayHours = data.days.map(v => {
+      const m = (v || '').toString().match(/[\uff08(](\d+(?:\.\d+)?)[)\uff09]/);
+      return m ? parseFloat(m[1]) : null;
+    });
+    // 最后一个"真正上班"的日子(有括号工时且 > 0),调整就折进这一天
+    let lastWorkedIdx = -1;
+    for (let i = dayHeaders.length - 1; i >= 0; i--) {
+      if (dayHours[i] !== null && dayHours[i] > 0) { lastWorkedIdx = i; break; }
+    }
+    const hasAdj   = myAdjs.length > 0 && Math.abs(adjSum) > 0.0001;
+    const foldable = hasAdj && lastWorkedIdx >= 0;
+
     let dayRowsHTML = '';
     dayHeaders.forEach((h, i) => {
       const val = (data.days[i] || '').trim();
@@ -814,6 +876,12 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
         valHTML = `<span class="card-day-val is-off">–</span>`;
       } else if (vl === 'off') {
         valHTML = `<span class="card-day-val is-off">OFF</span>`;
+      } else if (foldable && i === lastWorkedIdx) {
+        // 把本周净调整折进这一天:保留时间段,只改括号里的工时,并标一个 adj 角标
+        const adjusted = Math.round((dayHours[i] + adjSum) * 100) / 100;
+        const prefix = val.replace(/[\uff08(]\d+(?:\.\d+)?[)\uff09].*$/, '').trim();
+        const disp = prefix ? `${prefix}(${adjusted})` : `${adjusted}`;
+        valHTML = `<span class="card-day-val is-adjusted${isToday ? ' is-today-val' : ''}" title="Includes adjustments ${fmtSigned(adjSum)}h">${disp}<span class="adj-chip">adj</span></span>`;
       } else {
         valHTML = `<span class="card-day-val${isToday ? ' is-today-val' : ''}">${val}</span>`;
       }
@@ -821,14 +889,21 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
       dayRowsHTML += `<div class="card-day-row${todayRowCls}"><span class="card-day-label">${label}</span>${valHTML}</div>`;
     });
 
+    // 调整明细:默认收起,点开才展开;金额不在收起态显示
     let adjHTML = '';
-    if (myAdjs.length) {
+    if (hasAdj) {
       const lines = myAdjs.map(a => {
         const cls = a.hours < 0 ? 'adj-neg' : 'adj-pos';
         const note = a.note ? a.note : (a.hours < 0 ? 'Deduction' : 'Bonus');
         return `<div class="card-adj-row"><span class="card-adj-note">${note}</span><span class="card-adj-val ${cls}">${fmtSigned(a.hours)}</span></div>`;
       }).join('');
-      adjHTML = `<div class="card-adj-rows"><div class="card-adj-title">Adjustments</div>${lines}</div>`;
+      const foldNote = foldable
+        ? `Net ${fmtSigned(adjSum)}h folded into ${DAY_NAMES[lastWorkedIdx]}`
+        : `Net ${fmtSigned(adjSum)}h applied to weekly total`;
+      adjHTML = `<details class="card-adj-details">`
+        + `<summary class="card-adj-summary"><span class="adj-caret">▸</span>Adjustments</summary>`
+        + `<div class="card-adj-body">${lines}<div class="card-adj-foldnote">${foldNote}</div></div>`
+        + `</details>`;
     }
 
     card.innerHTML = `
