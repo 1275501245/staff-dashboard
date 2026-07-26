@@ -145,20 +145,106 @@ async function loadLive(){
   return out;
 }
 
-/* Build hierarchy from the flat rows. */
+/* ---------------------------------------------------------------------------
+   Build hierarchy from the flat rows — tolerant version.
+
+   Matching strategy (in order):
+   1) KEY MATCH   — group / category keys are normalised (trim + lowercase),
+                    so "Attendance", " attendance " and "attendance" all match.
+   2) POSITIONAL  — if a key doesn't match anything, the row attaches to the
+                    most recent GROUP / CATEGORY above it. Since the sheet is
+                    written top-down, renaming a GROUP key (e.g. attendance →
+                    Operation) no longer orphans the rows below it.
+   3) AUTO-CREATE — if an EVENT/REF/SECTION appears before any CATEGORY, or a
+                    CATEGORY before any GROUP, containers are created on the
+                    fly so no data is ever silently dropped.
+--------------------------------------------------------------------------- */
 function build(rows){
   let page={en:"Standards & Rules",cn:""};
-  const groups=[], gmap={}, cmap={}; let ci=0;
-  const ck=(g,c)=>g+"||"+c;
+  const groups=[];
+  const gByKey={};        // normalised group key -> group object
+  const cByKey={};        // "gkey||ckey" -> category object
+  let curG=null, curC=null, ci=0;
+
+  const norm=s=>String(s||"").trim().toLowerCase();
+  const ck=(g,c)=>norm(g)+"||"+norm(c);
+
+  function makeGroup(key,en,cn,meta){
+    const g={key:norm(key),en:en||key||"General",cn:cn||"",meta:meta||"",cats:[]};
+    if(g.key) gByKey[g.key]=g;
+    groups.push(g);
+    return g;
+  }
+
+  function makeCategory(g,r){
+    const cat={key:norm(r.category),en:r.en||r.category||"",cn:r.cn||"",icon:r.icon,idx:ci++,
+      events:[],refs:[],sections:{}};
+    g.cats.push(cat);
+    // Register under both the group key written on this row AND the actual
+    // parent group's key, so later EVENT/REF rows match either spelling.
+    if(cat.key){
+      if(norm(r.group)) cByKey[ck(r.group,r.category)]=cat;
+      if(g.key)         cByKey[ck(g.key,r.category)]=cat;
+      cByKey["*||"+cat.key]=cByKey["*||"+cat.key]||cat;   // category-only fallback
+    }
+    return cat;
+  }
+
+  function findCategory(r){
+    // 1) exact group+category key match
+    let cat = cByKey[ck(r.group,r.category)];
+    if(cat) return cat;
+    // 2) category key match regardless of group (handles renamed group keys)
+    if(norm(r.category)){ cat = cByKey["*||"+norm(r.category)]; if(cat) return cat; }
+    // 3) positional: most recent category
+    if(curC) return curC;
+    // 4) auto-create a container so the row still renders
+    const g = gByKey[norm(r.group)] || curG || makeGroup(r.group||"general","","","");
+    curG = g;
+    curC = makeCategory(g,{group:r.group,category:r.category||"misc",en:r.category||"Other",cn:"",icon:"📌"});
+    return curC;
+  }
+
   rows.forEach(r=>{
-    if(r.type==="PAGE"){ page={en:r.en,cn:r.cn}; }
-    else if(r.type==="GROUP"){ const g={key:r.group,en:r.en,cn:r.cn,meta:r.meta,cats:[]}; gmap[r.group]=g; groups.push(g); }
-    else if(r.type==="CATEGORY"){ const cat={key:r.category,en:r.en,cn:r.cn,icon:r.icon,idx:ci++,
-        events:[],refs:[],sections:{}}; cmap[ck(r.group,r.category)]=cat; if(gmap[r.group]) gmap[r.group].cats.push(cat); }
-    else if(r.type==="SECTION"){ const cat=cmap[ck(r.group,r.category)]; if(cat) cat.sections[r.section]={en:r.en,cn:r.cn}; }
-    else if(r.type==="EVENT"){ const cat=cmap[ck(r.group,r.category)]; if(cat) cat.events.push({section:r.section,en:r.en,cn:r.cn,hours:r.hours}); }
-    else if(r.type==="REF"){ const cat=cmap[ck(r.group,r.category)]; if(cat) cat.refs.push({en:r.en,reftype:r.reftype,url:r.url}); }
+    const type=String(r.type||"").trim().toUpperCase();
+    if(type==="PAGE"){ page={en:r.en,cn:r.cn}; return; }
+
+    if(type==="GROUP"){
+      curG = makeGroup(r.group,r.en,r.cn,r.meta);
+      curC = null;                       // new group starts fresh
+      return;
+    }
+
+    if(type==="CATEGORY"){
+      // key match first, then fall back to the group we're currently inside
+      let g = gByKey[norm(r.group)] || curG;
+      if(!g) g = makeGroup(r.group||"general","","","");
+      curG = g;
+      curC = makeCategory(g,r);
+      return;
+    }
+
+    if(type==="SECTION"){
+      const cat=findCategory(r);
+      const skey=norm(r.section)||("s"+Object.keys(cat.sections).length);
+      cat.sections[skey]={en:r.en,cn:r.cn};
+      return;
+    }
+
+    if(type==="EVENT"){
+      const cat=findCategory(r);
+      cat.events.push({section:norm(r.section),en:r.en,cn:r.cn,hours:r.hours});
+      return;
+    }
+
+    if(type==="REF"){
+      const cat=findCategory(r);
+      cat.refs.push({en:r.en,reftype:r.reftype,url:r.url});
+      return;
+    }
+    // Unknown row types are ignored silently — safe to add new types later.
   });
+
   return {page,groups};
 }
 
@@ -199,8 +285,9 @@ function cardHTML(cat){
 function render(model){
   $("#top").innerHTML = `<h1>${esc(model.page.en)}${model.page.cn?`<span class="cn">${esc(model.page.cn)}</span>`:""}</h1>`;
   const main=$("#content");
-  if(!model.groups.length){ main.innerHTML=`<div class="empty">No content yet.</div>`; return; }
-  main.innerHTML = model.groups.map(g=>`
+  const visible = model.groups.filter(g=>g.cats.length);   // skip empty groups
+  if(!visible.length){ main.innerHTML=`<div class="empty">No content yet.</div>`; return; }
+  main.innerHTML = visible.map(g=>`
     <div class="group">
       <div class="ghead"><div class="gt">${esc(g.en)}${g.cn?`<span class="c">${esc(g.cn)}</span>`:""}</div>
         ${g.meta?`<div class="gmeta">${esc(g.meta)}</div>`:""}</div>
