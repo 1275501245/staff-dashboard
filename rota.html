@@ -302,7 +302,7 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 }
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(212px, 1fr));
   gap: 10px;
 }
 .staff-card {
@@ -336,10 +336,32 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 .card-day-row.is-today {
   background: #e8f4ff;
 }
-.card-day-label { color: #999; min-width: 40px; }
+.card-day-label { color: #999; min-width: 38px; flex: none; }
+.card-day-right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  min-width: 0;
+}
+.card-day-right .badge { font-size: 9px; padding: 1px 6px; flex: none; }
 .card-day-val { color: #222; font-weight: 500; text-align: right; }
 .card-day-val.is-off { color: #ccc; font-weight: 400; font-style: italic; }
 .card-day-val.is-today-val { color: #1565C0; }
+/* head-count chip: on-site staff that day at that site (salaried counted, online excluded) */
+.hc {
+  display: inline-block;
+  min-width: 15px;
+  text-align: center;
+  padding: 1px 5px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  flex: none;
+}
+.hc-solo  { background: #FAEEDA; color: #854F0B; }
+.hc-multi { background: #EAF3DE; color: #27500A; }
+.hc-online { background: #F1EFE8; color: #5F5E5A; }
 .staff-card-foot {
   display: flex;
   justify-content: space-between;
@@ -647,6 +669,18 @@ function badgeClass(val) {
   return '';
 }
 
+// Canonical English display name for a site (used on the per-day card badges)
+function siteLabel(site) {
+  switch (siteClass(site)) {
+    case 'site-shoreditch':  return 'Shoreditch';
+    case 'site-battersea':   return 'Battersea';
+    case 'site-towerbridge': return 'Tower Bridge';
+    case 'site-brentcross':  return 'BrentCross';
+    case 'site-piccadilly':  return 'Piccadilly';
+    default: return (site || '').split(/[\s,\(（]/)[0] || site;
+  }
+}
+
 function renderCell(val, isToday) {
   const v = (val || '').trim();
   const vl = v.toLowerCase();
@@ -805,41 +839,78 @@ function buildTable(rows, agency, todayIdx, adjustments) {
 }
 
 function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) {
-  // Collect all agency staff, summing hours across all sites
-  const staffMap = new Map(); // name -> { days: [], totalHours }
-
   const allHeaders = rows[0];
   const totalHoursIdx = allHeaders.findIndex(h => h.toLowerCase().includes('total hours'));
-
   const dataRows = rows.slice(2).filter(r => r.some(c => c.trim()));
+  const nDays = dayHeaders.length;
 
-  for (const row of dataRows) {
-    const name = (row[1] || '').trim();
-    if (!name || !agency.has(name)) continue;
+  const TIME_RE     = /[\uff08(]\s*\d+(?:\.\d+)?\s*[)\uff09]/;      // 含括号工时 → 真正上班的格子
+  const TIME_RE_CAP = /[\uff08(](\d+(?:\.\d+)?)[)\uff09]/;          // 取括号里的数字
+  const isOnline = v => /线上/.test(v || '');
+  const isTime   = v => TIME_RE.test(v || '');
+  const stripOnline = v => (v || '').replace(/线上/g, '').trim();
 
-    const rowHours = rowHoursOf(row, totalHoursIdx, dayEndIdx);
-    const rowDays = row.slice(2, dayEndIdx);
-
-    if (staffMap.has(name)) {
-      const existing = staffMap.get(name);
-      existing.totalHours = Math.round((existing.totalHours + rowHours) * 100) / 100;
-      // Merge days: if this row has a time value for a day, use it (override site-name badge)
-      rowDays.forEach((val, i) => {
-        const v = (val || '').trim();
-        const vl = v.toLowerCase();
-        const isSiteName = vl.includes('shoreditch') || vl.includes('battersea') ||
-                           vl.includes('tower') || vl.includes('piccadilly') || vl.includes('brent');
-        const existing_v = (existing.days[i] || '').trim();
-        const existing_vl = existing_v.toLowerCase();
-        const existingIsSiteName = existing_vl.includes('shoreditch') || existing_vl.includes('battersea') ||
-                                   existing_vl.includes('tower') || existing_vl.includes('piccadilly') || existing_vl.includes('brent');
-        // Prefer time values over site names or empty
-        if (v && !isSiteName && (existingIsSiteName || !existing_v || existing_v === '-')) {
-          existing.days[i] = v;
+  // ── 1) 每天每站的“在店人数”:含正职,排除线上;交叉借调的 badge 不计(人算在他真正上班的站) ──
+  // staffing[dayIdx] = { siteKey: Set(names) }
+  const staffing = Array.from({ length: nDays }, () => ({}));
+  {
+    let curSite = '';
+    for (const row of dataRows) {
+      const s = (row[0] || '').trim(); if (s) curSite = s;
+      const name = (row[1] || '').trim();
+      if (!name) continue;
+      const key = siteClass(curSite) || curSite;
+      row.slice(2, dayEndIdx).forEach((v, i) => {
+        const val = (v || '').trim();
+        if (isTime(val) && !isOnline(val)) {
+          (staffing[i][key] || (staffing[i][key] = new Set())).add(name);
         }
       });
-    } else {
-      staffMap.set(name, { days: rowDays.slice(), totalHours: rowHours });
+    }
+  }
+  const headCount = (dayIdx, site) => {
+    const key = siteClass(site) || site;
+    const set = staffing[dayIdx] && staffing[dayIdx][key];
+    return set ? set.size : 0;
+  };
+
+  // ── 2) 每位 agency 员工逐日的实际站点 / 时段 / 线上标记 ──
+  const staffMap = new Map(); // name -> { days, daySite, dayOnline, rawOff, totalHours }
+  {
+    let curSite = '';
+    for (const row of dataRows) {
+      const s = (row[0] || '').trim(); if (s) curSite = s;
+      const name = (row[1] || '').trim();
+      if (!name || !agency.has(name)) continue;
+
+      let rec = staffMap.get(name);
+      if (!rec) {
+        rec = {
+          days:     new Array(nDays).fill(''),
+          daySite:  new Array(nDays).fill(''),
+          dayOnline:new Array(nDays).fill(false),
+          rawOff:   new Array(nDays).fill(''),
+          totalHours: 0
+        };
+        staffMap.set(name, rec);
+      }
+      rec.totalHours = Math.round((rec.totalHours + rowHoursOf(row, totalHoursIdx, dayEndIdx)) * 100) / 100;
+
+      row.slice(2, dayEndIdx).forEach((v, i) => {
+        const val = (v || '').trim();
+        if (isTime(val)) {
+          // 带工时的格子才决定站点(正常一天只有一处);记录站点与线上标记
+          rec.days[i]      = val;
+          rec.daySite[i]   = curSite;
+          rec.dayOnline[i] = isOnline(val);
+        } else if (val && !rec.days[i]) {
+          // 非时段兜底:OFF / AL / – 之类;跨站 badge 跳过(不在卡片上显示指向)
+          const vl = val.toLowerCase();
+          const isBadge = vl.includes('shoreditch') || vl.includes('battersea') ||
+                          vl.includes('tower') || vl.includes('piccadilly') || vl.includes('brent');
+          if (!isBadge && !rec.rawOff[i]) rec.rawOff[i] = val;
+        }
+      });
     }
   }
 
@@ -871,11 +942,16 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
     const finalHours = Math.round((data.totalHours + adjSum) * 100) / 100;
 
     const totalStr = (data.totalHours > 0 || myAdjs.length) ? `${finalHours} hrs` : '–';
-    const subText = data.totalHours > 0 ? `${finalHours} hrs this week (all sites)` : 'no hours recorded';
+    // 副标题:本周实际去过的站点(1 个显示站名,多个显示 "N sites")
+    const sites = [...new Set(data.daySite.filter(Boolean).map(siteLabel))];
+    const siteSummary = sites.length === 1 ? sites[0] : (sites.length > 1 ? `${sites.length} sites` : '');
+    const subText = data.totalHours > 0
+      ? `${finalHours} hrs this week${siteSummary ? ' · ' + siteSummary : ''}`
+      : 'no hours recorded';
 
     // 每一天括号里的工时数(取不到则为 null),用于决定折算落点与显示
     const dayHours = data.days.map(v => {
-      const m = (v || '').toString().match(/[\uff08(](\d+(?:\.\d+)?)[)\uff09]/);
+      const m = (v || '').toString().match(TIME_RE_CAP);
       return m ? parseFloat(m[1]) : null;
     });
     // 最后一个"真正上班"的日子(有括号工时且 > 0),调整就折进这一天
@@ -888,26 +964,46 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
 
     let dayRowsHTML = '';
     dayHeaders.forEach((h, i) => {
-      const val = (data.days[i] || '').trim();
-      const vl = val.toLowerCase();
+      const time  = (data.days[i] || '').trim();
       const isToday = (i === todayIdx);
       const todayRowCls = isToday ? ' is-today' : '';
-      let valHTML = '';
-      if (!val || val === '-') {
-        valHTML = `<span class="card-day-val is-off">–</span>`;
-      } else if (vl === 'off') {
-        valHTML = `<span class="card-day-val is-off">OFF</span>`;
-      } else if (foldable && i === lastWorkedIdx) {
-        // 把本周净调整折进这一天:保留时间段,只改括号里的工时,并标一个 adj 角标
-        const adjusted = Math.round((dayHours[i] + adjSum) * 100) / 100;
-        const prefix = val.replace(/[\uff08(]\d+(?:\.\d+)?[)\uff09].*$/, '').trim();
-        const disp = prefix ? `${prefix}(${adjusted})` : `${adjusted}`;
-        valHTML = `<span class="card-day-val is-adjusted${isToday ? ' is-today-val' : ''}" title="Includes adjustments ${fmtSigned(adjSum)}h">${disp}<span class="adj-chip">adj</span></span>`;
+      let rightHTML = '';
+
+      if (!time) {
+        // 不上班:OFF / AL / –
+        const off = (data.rawOff[i] || '').trim();
+        const label = (!off || off === '-') ? '–' : (off.toLowerCase() === 'off' ? 'OFF' : off);
+        rightHTML = `<span class="card-day-val is-off">${label}</span>`;
       } else {
-        valHTML = `<span class="card-day-val${isToday ? ' is-today-val' : ''}">${val}</span>`;
+        const site   = data.daySite[i];
+        const online = data.dayOnline[i];
+        const badge  = `<span class="badge ${badgeClass(site)}">${siteLabel(site)}</span>`;
+
+        // 时段显示(把净调整折进最后一个上班日;线上文字剥掉,改英文标记)
+        let disp, adjMark = '';
+        if (foldable && i === lastWorkedIdx) {
+          const adjusted = Math.round((dayHours[i] + adjSum) * 100) / 100;
+          const prefix = stripOnline(time).replace(/[\uff08(]\d+(?:\.\d+)?[)\uff09].*$/, '').trim();
+          disp = prefix ? `${prefix}(${adjusted})` : `${adjusted}`;
+          adjMark = `<span class="adj-chip">adj</span>`;
+        } else {
+          disp = stripOnline(time);
+        }
+        const valCls = `card-day-val${isToday ? ' is-today-val' : ''}${(foldable && i === lastWorkedIdx) ? ' is-adjusted' : ''}`;
+        const valHTML = `<span class="${valCls}"${(foldable && i === lastWorkedIdx) ? ` title="Includes adjustments ${fmtSigned(adjSum)}h"` : ''}>${disp}${adjMark}</span>`;
+
+        // 人数胶囊:线上 → online(不计人头);否则显示当天该站在店人数
+        let chip;
+        if (online) {
+          chip = `<span class="hc hc-online">online</span>`;
+        } else {
+          const c = headCount(i, site);
+          chip = `<span class="hc ${c >= 2 ? 'hc-multi' : 'hc-solo'}">${c}</span>`;
+        }
+        rightHTML = `${badge}${valHTML}${chip}`;
       }
-      const label = dayLabels[i];
-      dayRowsHTML += `<div class="card-day-row${todayRowCls}"><span class="card-day-label">${label}</span>${valHTML}</div>`;
+
+      dayRowsHTML += `<div class="card-day-row${todayRowCls}"><span class="card-day-label">${dayLabels[i]}</span><span class="card-day-right">${rightHTML}</span></div>`;
     });
 
     // 调整明细:默认收起,点开才展开;金额不在收起态显示
