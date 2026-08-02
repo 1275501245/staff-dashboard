@@ -302,7 +302,7 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 }
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(212px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
   gap: 10px;
 }
 .staff-card {
@@ -325,39 +325,35 @@ tr.site-separator td { border-top: 3px solid #ddd; }
   color: #999;
   margin-top: 1px;
 }
-.card-day-rows { padding: 4px 0; }
+.card-day-rows { padding: 6px 0; }
+/* 每日行:四列网格,跨卡片纵向对齐(日期 | 站点 | 时间 | 人数),时间不换行 */
 .card-day-row {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 38px auto 1fr auto;
   align-items: center;
-  padding: 3px 12px;
+  column-gap: 7px;
+  padding: 4px 12px;
   font-size: 11px;
 }
-.card-day-row.is-today {
-  background: #e8f4ff;
+.card-day-row.is-today { background: #e8f4ff; }
+.card-day-label { color: #999; }
+.card-day-site { justify-self: start; min-width: 0; }
+.card-day-site .badge { font-size: 9px; padding: 1px 6px; white-space: nowrap; }
+.card-day-val {
+  color: #222; font-weight: 500; text-align: right;
+  white-space: nowrap; font-variant-numeric: tabular-nums;
 }
-.card-day-label { color: #999; min-width: 38px; flex: none; }
-.card-day-right {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-left: auto;
-  min-width: 0;
-}
-.card-day-right .badge { font-size: 9px; padding: 1px 6px; flex: none; }
-.card-day-val { color: #222; font-weight: 500; text-align: right; }
 .card-day-val.is-off { color: #ccc; font-weight: 400; font-style: italic; }
 .card-day-val.is-today-val { color: #1565C0; }
 /* head-count chip: on-site staff that day at that site (salaried counted, online excluded) */
 .hc {
-  display: inline-block;
+  justify-self: end;
   min-width: 15px;
   text-align: center;
   padding: 1px 5px;
   border-radius: 8px;
   font-size: 10px;
   font-weight: 600;
-  flex: none;
 }
 .hc-solo  { background: #FAEEDA; color: #854F0B; }
 .hc-multi { background: #EAF3DE; color: #27500A; }
@@ -945,6 +941,8 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
     // 副标题:本周实际去过的站点(1 个显示站名,多个显示 "N sites")
     const sites = [...new Set(data.daySite.filter(Boolean).map(siteLabel))];
     const siteSummary = sites.length === 1 ? sites[0] : (sites.length > 1 ? `${sites.length} sites` : '');
+    // 单站员工:站点已在副标题,每日行不再重复;只有跨站员工才逐日显示站点
+    const showBadges = sites.length > 1;
     const subText = data.totalHours > 0
       ? `${finalHours} hrs this week${siteSummary ? ' · ' + siteSummary : ''}`
       : 'no hours recorded';
@@ -967,43 +965,47 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
       const time  = (data.days[i] || '').trim();
       const isToday = (i === todayIdx);
       const todayRowCls = isToday ? ' is-today' : '';
-      let rightHTML = '';
+
+      // 四个网格单元:日期 | 站点 | 时间 | 人数(不上班时站点/人数留空占位,保持列对齐)
+      const dateCell = `<span class="card-day-label">${dayLabels[i]}</span>`;
+      let siteCell, valCell, chipCell;
 
       if (!time) {
         // 不上班:OFF / AL / –
         const off = (data.rawOff[i] || '').trim();
         const label = (!off || off === '-') ? '–' : (off.toLowerCase() === 'off' ? 'OFF' : off);
-        rightHTML = `<span class="card-day-val is-off">${label}</span>`;
+        siteCell = '<span class="card-day-site"></span>';
+        valCell  = `<span class="card-day-val is-off">${label}</span>`;
+        chipCell = '<span></span>';
       } else {
         const site   = data.daySite[i];
         const online = data.dayOnline[i];
-        const badge  = `<span class="badge ${badgeClass(site)}">${siteLabel(site)}</span>`;
+        siteCell = `<span class="card-day-site">${showBadges ? `<span class="badge ${badgeClass(site)}">${siteLabel(site)}</span>` : ''}</span>`;
 
-        // 时段显示(把净调整折进最后一个上班日;线上文字剥掉,改英文标记)
-        let disp, adjMark = '';
-        if (foldable && i === lastWorkedIdx) {
+        // 时段显示(把净调整折进最后一个上班日;线上文字剥掉;调整日用虚线下划线提示,不再显示 ADJ 角标)
+        const adjustedDay = foldable && i === lastWorkedIdx;
+        let disp;
+        if (adjustedDay) {
           const adjusted = Math.round((dayHours[i] + adjSum) * 100) / 100;
           const prefix = stripOnline(time).replace(/[\uff08(]\d+(?:\.\d+)?[)\uff09].*$/, '').trim();
           disp = prefix ? `${prefix}(${adjusted})` : `${adjusted}`;
-          adjMark = `<span class="adj-chip">adj</span>`;
         } else {
           disp = stripOnline(time);
         }
-        const valCls = `card-day-val${isToday ? ' is-today-val' : ''}${(foldable && i === lastWorkedIdx) ? ' is-adjusted' : ''}`;
-        const valHTML = `<span class="${valCls}"${(foldable && i === lastWorkedIdx) ? ` title="Includes adjustments ${fmtSigned(adjSum)}h"` : ''}>${disp}${adjMark}</span>`;
+        const valCls = `card-day-val${isToday ? ' is-today-val' : ''}${adjustedDay ? ' is-adjusted' : ''}`;
+        const titleAttr = adjustedDay ? ` title="Includes adjustments ${fmtSigned(adjSum)}h"` : '';
+        valCell = `<span class="${valCls}"${titleAttr}>${disp}</span>`;
 
         // 人数胶囊:线上 → online(不计人头);否则显示当天该站在店人数
-        let chip;
         if (online) {
-          chip = `<span class="hc hc-online">online</span>`;
+          chipCell = `<span class="hc hc-online">online</span>`;
         } else {
           const c = headCount(i, site);
-          chip = `<span class="hc ${c >= 2 ? 'hc-multi' : 'hc-solo'}">${c}</span>`;
+          chipCell = `<span class="hc ${c >= 2 ? 'hc-multi' : 'hc-solo'}">${c}</span>`;
         }
-        rightHTML = `${badge}${valHTML}${chip}`;
       }
 
-      dayRowsHTML += `<div class="card-day-row${todayRowCls}"><span class="card-day-label">${dayLabels[i]}</span><span class="card-day-right">${rightHTML}</span></div>`;
+      dayRowsHTML += `<div class="card-day-row${todayRowCls}">${dateCell}${siteCell}${valCell}${chipCell}</div>`;
     });
 
     // 调整明细:默认收起,点开才展开;金额不在收起态显示
