@@ -941,8 +941,8 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
     // 副标题:本周实际去过的站点(1 个显示站名,多个显示 "N sites")
     const sites = [...new Set(data.daySite.filter(Boolean).map(siteLabel))];
     const siteSummary = sites.length === 1 ? sites[0] : (sites.length > 1 ? `${sites.length} sites` : '');
-    // 单站员工:站点已在副标题,每日行不再重复;只有跨站员工才逐日显示站点
-    const showBadges = sites.length > 1;
+    // 每个上班的日子都显示所在站点 badge(单站/跨站一致)
+    const showBadges = true;
     const subText = data.totalHours > 0
       ? `${finalHours} hrs this week${siteSummary ? ' · ' + siteSummary : ''}`
       : 'no hours recorded';
