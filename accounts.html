@@ -83,7 +83,7 @@ function render(accounts) {
   });
 }
 
-fetch(`${SCRIPT_URL}?action=getAccounts`)
+fetch(`${SCRIPT_URL}?action=getAccounts&t=${Date.now()}`, { cache: 'no-store' })
   .then(r => r.json())
   .then(data => {
     render(data.accounts || []);
