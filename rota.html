@@ -469,15 +469,13 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 
 <script>
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
-// 历史班表定位:优先用 gid(tab 的永久数字ID,改名/空格都不影响)。
-// gid 获取方式:在表格里点开历史班表 tab,浏览器地址栏 #gid= 后面的数字。
-const HIST_GID = '1671572312';
+// 班表数据:单一 Rota tab,里面按「表头行(B列=Name) → 日期行 → 排班行」纵向堆叠多个周块。
+// 优先用 gid(tab 的永久数字ID,改名/空格都不影响);gid = 点开 tab 后地址栏 #gid= 的数字。
+const ROTA_GID = '1671572312';
 // gid 失效时的兜底:按名字尝试
-const HIST_SHEET_CANDIDATES = ['Rota_History', ' Rota_History'];
-let currentSheet = 'Rota';
+const ROTA_SHEET_CANDIDATES = ['Rota'];
 let agencySet = new Set();
 let allAdjustments = null;    // cached rows from 'Rota Adjustments' (whole ledger)
-let archiveRows = null;       // cached rows from 'RotaArchive'
 let currentWeekStart = null;  // ISO 'YYYY-MM-DD' Monday of the week being displayed
 
 function pad2(n) { return n < 10 ? '0' + n : '' + n; }
@@ -1045,49 +1043,11 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
   document.getElementById('cards-section').style.display = 'block';
 }
 
-async function loadRota(sheetName) {
-  const el = document.getElementById('content');
-  try {
-    const [rows, agency] = await Promise.all([
-      fetchSheet(sheetName),
-      agencySet.size > 0 ? Promise.resolve(agencySet) : fetchAgencyStaff()
-    ]);
-    await fetchAdjustments();
-    if (agency.size > 0) agencySet = agency;
-    if (!rows || rows.length < 3) {
-      el.innerHTML = '<div class="error">No data found in sheet: ' + sheetName + '</div>';
-      return;
-    }
-
-    // Week attribution: parse Monday date from the sheet's date row,
-    // fall back to the real-world Monday (This Week) / Monday+7 (Next Week)
-    const parsedWeek = rows.length > 1 ? parseSheetDate(rows[1][2]) : null;
-    currentWeekStart = parsedWeek || mondayOfToday(sheetName === 'Rota_next' ? 1 : 0);
-    const adjustments = adjustmentsForWeek(currentWeekStart, sheetName === 'Rota');
-
-    const allHeaders = rows[0];
-    const totalHoursIdx = allHeaders.findIndex(h => h.toLowerCase().includes('total hours'));
-    const legacyIdx = allHeaders.findIndex(h => /refund|deduction/i.test(h));
-    let dayEndIdx = totalHoursIdx > 0 ? totalHoursIdx : allHeaders.length;
-    if (legacyIdx > 0 && legacyIdx < dayEndIdx) dayEndIdx = legacyIdx;
-    if (dayEndIdx > 9) dayEndIdx = 9;
-    const dayHeaders = allHeaders.slice(2, dayEndIdx);
-    // 今日高亮:只在"当前显示的周真的包含今天"时才出现,旧周/下周一律不高亮
-    const todayIdx = (currentWeekStart === mondayOfToday(0)) ? getTodayColIdx(dayHeaders) : -1;
-
-    el.innerHTML = buildTable(rows, agencySet, todayIdx, adjustments);
-    buildCards(rows, agencySet, dayHeaders, dayEndIdx, todayIdx, adjustments);
-    updatePager();
-  } catch(e) {
-    el.innerHTML = '<div class="error">Error loading rota: ' + e.message + '</div>';
-  }
-}
-
-// ---------- 周翻页器:历史周(直接读历史班表原格式)→ 本周 → 下周 ----------
-// 历史班表块结构:表头行(B列='Name') → 日期行 → 排班行…,与 Rota tab 一致,
-// 每个周块原样交给 buildTable / buildCards,界面零差异。
-let histBlocks = null; // weekISO -> { rows }
-let weekList = [];     // [{kind:'hist',iso} ..., {kind:'live',sheet:'Rota',tag:'This Week',iso}, {kind:'live',sheet:'Rota_next',tag:'Next Week',iso}]
+// ---------- 周翻页器:单一 Rota tab,里面纵向堆叠多个周块 ----------
+// 块结构:表头行(B列='Name') → 日期行 → 排班行…。每个周块原样交给 buildTable / buildCards。
+// 当某周的周一 = 今天所在周一时,自动加「今日高亮」并把未标注周次的调整计入当周。
+let weekBlocks = null; // weekISO -> { rows }
+let weekList = [];     // [{ iso } ...] 按日期升序
 let weekIdx = -1;
 
 async function fetchSheetByGid(gid) {
@@ -1102,21 +1062,22 @@ function looksLikeRotaBlocks(rows) {
   return !!(rows && rows.length >= 3 && rows.some(r => ((r[1] || '').trim()) === 'Name'));
 }
 
-async function loadHistBlocks() {
+// 读取 Rota tab,把纵向堆叠的所有周块解析进 weekBlocks(weekISO -> { rows })
+async function loadRotaBlocks() {
   let raw = null;
   try {
-    const r = await fetchSheetByGid(HIST_GID);
+    const r = await fetchSheetByGid(ROTA_GID);
     if (looksLikeRotaBlocks(r)) raw = r;
   } catch(e) { /* gid 失败则按名字兜底 */ }
   if (!raw) {
-    for (const name of HIST_SHEET_CANDIDATES) {
+    for (const name of ROTA_SHEET_CANDIDATES) {
       try {
         const r = await fetchSheet(name);
         if (looksLikeRotaBlocks(r)) { raw = r; break; }
       } catch(e) { /* 试下一个候选名 */ }
     }
   }
-  histBlocks = new Map();
+  weekBlocks = new Map();
   if (!raw) return;
   let r = 0;
   while (r < raw.length) {
@@ -1131,35 +1092,16 @@ async function loadHistBlocks() {
       if ((raw[i][1] || '').trim()) dataRows.push(raw[i]);
     }
     if (weekISO && dataRows.length) {
-      histBlocks.set(weekISO, { rows: [headerRow, dateRow].concat(dataRows) });
+      weekBlocks.set(weekISO, { rows: [headerRow, dateRow].concat(dataRows) });
     }
     r = i;
   }
 }
 
-// 从 live tab 的日期行解析实际周一;解析不到时退回按 tab 名假设的日期。
-// 顺手写入 liveRowsCache,Σ 合计可直接复用,少一次请求。
-async function liveWeekISO(sheet, fallbackISO) {
-  try {
-    const rows = liveRowsCache[sheet] || await fetchSheet(sheet);
-    liveRowsCache[sheet] = rows;
-    const iso = rows && rows.length > 1 ? parseSheetDate(rows[1][2]) : null;
-    return iso || fallbackISO;
-  } catch(e) { return fallbackISO; }
-}
-
 async function initWeeks() {
-  const [, thisISO, nextISO] = await Promise.all([
-    loadHistBlocks(),
-    liveWeekISO('Rota',      mondayOfToday(0)),
-    liveWeekISO('Rota_next', mondayOfToday(1))
-  ]);
-  const live = [{ kind: 'live', sheet: 'Rota', iso: thisISO }];
-  if (nextISO !== thisISO) live.push({ kind: 'live', sheet: 'Rota_next', iso: nextISO });
-  // 历史周里与 live tab 实际周重复的排除(以 Rota / Rota_next 为准),整表按真实日期排序
-  const liveISOs = new Set(live.map(w => w.iso));
-  const hist = Array.from(histBlocks.keys()).filter(w => !liveISOs.has(w));
-  weekList = hist.map(w => ({ kind: 'hist', iso: w })).concat(live)
+  await loadRotaBlocks();
+  weekList = Array.from(weekBlocks.keys())
+    .map(iso => ({ iso }))
     .sort((a, b) => a.iso < b.iso ? -1 : a.iso > b.iso ? 1 : 0);
   // 默认落点:包含今天的那一周;若今天这周还没有班表,则落在最新的一周
   const realMon = mondayOfToday(0);
@@ -1183,34 +1125,33 @@ function showWeek() {
   sumMode = false;
   const b = document.getElementById('btn-sum');
   if (b) b.classList.remove('active');
-  const w = weekList[weekIdx];
   updatePager();
-  if (w.kind === 'live') loadRota(w.sheet);
-  else renderArchiveWeek(w.iso);
+  renderWeek(weekList[weekIdx].iso);
 }
 
 function updatePager() {
   if (weekIdx < 0) return;
-  const w = weekList[weekIdx];
-  const iso = (w.kind === 'live' && currentWeekStart) ? currentWeekStart : w.iso;
+  const iso = weekList[weekIdx].iso;
   document.getElementById('pg-label').textContent =
     fmtDDMM(iso, 0) + ' \u2013 ' + fmtDDMM(iso, 6);
   document.getElementById('pg-prev').disabled = (weekIdx <= 0);
   document.getElementById('pg-next').disabled = (weekIdx >= weekList.length - 1);
 }
 
-async function renderArchiveWeek(weekStart) {
+// 渲染某一周块。含今天的那周才高亮今日 + 未标注调整计入当周;其余周只显示已归属的调整。
+async function renderWeek(weekISO) {
   const el = document.getElementById('content');
   if (agencySet.size === 0) agencySet = await fetchAgencyStaff();
   await fetchAdjustments();
-  const block = histBlocks && histBlocks.get(weekStart);
+  const block = weekBlocks && weekBlocks.get(weekISO);
   if (!block) {
     el.innerHTML = '<div class="error">No data for selected week</div>';
     return;
   }
   const rows = block.rows;
-  currentWeekStart = weekStart;
-  const adjustments = adjustmentsForWeek(weekStart, false);
+  currentWeekStart = weekISO;
+  const isCurrentWeek = (weekISO === mondayOfToday(0));
+  const adjustments = adjustmentsForWeek(weekISO, isCurrentWeek);
 
   const allHeaders = rows[0];
   const totalHoursIdx = allHeaders.findIndex(h => (h || '').toLowerCase().includes('total hours'));
@@ -1219,15 +1160,15 @@ async function renderArchiveWeek(weekStart) {
   if (legacyIdx > 0 && legacyIdx < dayEndIdx) dayEndIdx = legacyIdx;
   if (dayEndIdx > 9) dayEndIdx = 9;
   const dayHeaders = allHeaders.slice(2, dayEndIdx);
+  const todayIdx = isCurrentWeek ? getTodayColIdx(dayHeaders) : -1;
 
-  el.innerHTML = buildTable(rows, agencySet, -1, adjustments);
-  buildCards(rows, agencySet, dayHeaders, dayEndIdx, -1, adjustments);
+  el.innerHTML = buildTable(rows, agencySet, todayIdx, adjustments);
+  buildCards(rows, agencySet, dayHeaders, dayEndIdx, todayIdx, adjustments);
   updatePager();
 }
 
 // ---------- 多周合计(Σ) ----------
 let sumMode = false;
-const liveRowsCache = {};
 
 function toggleSummary() {
   if (sumMode) { showWeek(); return; }
@@ -1262,17 +1203,9 @@ function onSumRangeChange() {
   renderSummary(f, t);
 }
 
-async function weekRowsFor(entry) {
-  if (entry.kind === 'hist') {
-    const b = histBlocks.get(entry.iso);
-    return b ? b.rows : null;
-  }
-  if (liveRowsCache[entry.sheet]) return liveRowsCache[entry.sheet];
-  try {
-    const rows = await fetchSheet(entry.sheet);
-    liveRowsCache[entry.sheet] = rows;
-    return rows;
-  } catch(e) { return null; }
+function weekRowsFor(entry) {
+  const b = weekBlocks && weekBlocks.get(entry.iso);
+  return b ? b.rows : null;
 }
 
 // 从一周的 rows 算出每人/每站工时(仅 Agency 员工)
