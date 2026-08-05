@@ -42,8 +42,21 @@
 </div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz1XhM7Cn5qSJdvgVh0wolvMpJ8Ea5Elp57VRk2AjTOB2bbWlI3h8wQr9EzBP0wLrc0zQ/exec';
+// ============================================================
+// 数据直接来自 Google 表格的 Accounts 分页（列: A=Platform, B=URL, C=Details）
+// 不经过 Apps Script 后端，所以不存在后端缓存 —— 改表即时生效。
+//
+// 【默认】用 gviz 读实时数据。前提：表格需设为「知道链接的任何人 → 检视者」。
+//
+// 【可选·更安全】若不想公开整张表，只想公开 Accounts 这一页，可用
+// 「文件 → 共享 → 发布到网络 → 选 Accounts → CSV → 发布」得到一个 CSV 链接，
+// 把下面 DATA_URL 整行替换成那个链接即可（CSV / gviz 两种格式本页都能自动识别）。
+// ============================================================
+const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
+const SHEET_NAME = 'Accounts';
+const DATA_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&headers=1`;
 
+// 把 Details 单元格 "Login: xxx | Password: yyy" 拆成 [{label, value}, ...]
 function parseDetails(str) {
   if (!str) return [];
   return str.split('|').map(pair => {
@@ -51,6 +64,46 @@ function parseDetails(str) {
     if (idx === -1) return { label: '', value: pair.trim() };
     return { label: pair.slice(0, idx).trim(), value: pair.slice(idx + 1).trim() };
   }).filter(d => d.value);
+}
+
+// 解析 gviz JSON 返回（/*O_o*/ google.visualization.Query.setResponse({...});）
+function parseGviz(text) {
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  const json = JSON.parse(text.slice(start, end + 1));
+  const rows = (json.table && json.table.rows) || [];
+  return rows.map(r => {
+    const c = r.c || [];
+    const cell = i => (c[i] && c[i].v != null) ? String(c[i].v) : '';
+    return { platform: cell(0), url: cell(1), details: cell(2) };
+  });
+}
+
+// 解析「发布到网络」的 CSV（带引号、逗号、换行都能处理）
+function parseCSV(text) {
+  const rows = [];
+  let field = '', row = [], inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += ch;
+    } else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ',') { row.push(field); field = ''; }
+      else if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+      else if (ch === '\r') { /* ignore */ }
+      else field += ch;
+    }
+  }
+  if (field !== '' || row.length) { row.push(field); rows.push(row); }
+  return rows.slice(1).map(r => ({
+    platform: (r[0] || '').trim(),
+    url: (r[1] || '').trim(),
+    details: (r[2] || '').trim()
+  }));
 }
 
 function render(accounts) {
@@ -86,15 +139,18 @@ function render(accounts) {
   });
 }
 
-fetch(`${SCRIPT_URL}?action=getAccounts&t=${Date.now()}`, { cache: 'no-store' })
-  .then(r => r.json())
-  .then(data => {
-    render(data.accounts || []);
+fetch(`${DATA_URL}&t=${Date.now()}`, { cache: 'no-store' })
+  .then(r => r.text())
+  .then(text => {
+    const looksGviz = text.indexOf('google.visualization') !== -1 || text.trim().startsWith('/*O_o*/');
+    const accounts = (looksGviz ? parseGviz(text) : parseCSV(text)).filter(a => a.platform);
+    render(accounts);
     document.getElementById('last-updated').textContent =
       `账号信息 · Last updated: ${new Date().toLocaleString('en-GB')}`;
   })
   .catch(() => {
-    document.getElementById('accounts-root').innerHTML = '<div class="empty-state">Failed to load</div>';
+    document.getElementById('accounts-root').innerHTML =
+      '<div class="empty-state">Failed to load — 请确认表格已设为「知道链接的任何人可检视」，或已发布到网络</div>';
   });
 </script>
 </body>
