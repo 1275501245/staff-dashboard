@@ -147,6 +147,18 @@
     </div>
   </div>
 
+  <!-- Overall delivery (always required) -->
+  <div class="card">
+    <label class="q">Overall delivery <span class="req">*</span></label>
+    <div class="hint">Wide shot of all products together after they arrive</div>
+    <div class="upload">
+      <span class="tag">Required · multiple allowed</span>
+      <div class="drop" data-for="overall">📷 Take photo / choose image<small>Whole delivery in one shot — add more if needed</small></div>
+      <input type="file" id="f-overall" accept="image/*" multiple>
+      <div class="thumbs" id="t-overall"></div>
+    </div>
+  </div>
+
   <!-- Frozen -->
   <div class="card">
     <label class="q">Frozen goods? <span class="req">*</span></label>
@@ -222,7 +234,7 @@
 
   var RAW_MAX = 15 * 1024 * 1024;
   var state = {frozen:null, pakchoi:null, quality:null};
-  var files = {receiving:[], frozen:[], pakchoi:[], quality:[]};
+  var files = {receiving:[], overall:[], frozen:[], pakchoi:[], quality:[]};
 
   // default date = today
   (function(){
@@ -273,7 +285,7 @@
   document.querySelectorAll('.drop').forEach(function(d){
     d.addEventListener('click', function(){ document.getElementById('f-'+d.dataset.for).click(); });
   });
-  ['receiving','frozen','pakchoi','quality'].forEach(function(cat){
+  ['receiving','overall','frozen','pakchoi','quality'].forEach(function(cat){
     document.getElementById('f-'+cat).addEventListener('change', function(e){
       for(var i=0;i<e.target.files.length;i++){ files[cat].push(e.target.files[i]); }
       e.target.value=''; renderThumbs(cat); validate();
@@ -298,6 +310,7 @@
     if(!document.getElementById('receiver').value.trim()) m.push('Received by');
     if(!document.getElementById('supplier').value) m.push('Supplier');
     if(files.receiving.length===0) m.push('Receiving note photo');
+    if(files.overall.length===0) m.push('Overall delivery photo');
     if(state.frozen===null) m.push('Frozen goods?');
     else if(state.frozen==='yes' && files.frozen.length===0) m.push('Frozen temp photo');
     if(state.pakchoi===null) m.push('Pak choi?');
@@ -365,13 +378,13 @@
     var supplier=document.getElementById('supplier').value;
 
     var jobs=[];
-    [['Receiving','receiving'],['Frozen','frozen'],['PakChoi','pakchoi'],['Quality','quality']]
+    [['Receiving','receiving'],['Overall','overall'],['Frozen','frozen'],['PakChoi','pakchoi'],['Quality','quality']]
       .forEach(function(pair){
         files[pair[1]].forEach(function(f){ jobs.push({cat:pair[0], key:pair[1], file:f}); });
       });
 
-    var out={receiving:[],frozen:[],pakchoi:[],quality:[]};
-    var thumb={receiving:[],frozen:[],pakchoi:[],quality:[]};
+    var out={receiving:[],overall:[],frozen:[],pakchoi:[],quality:[]};
+    var thumb={receiving:[],overall:[],frozen:[],pakchoi:[],quality:[]};
     var total=jobs.length, done=0;
     showOverlay('Uploading…','',false);
 
@@ -393,6 +406,7 @@
       setOverlay('Saving record…','');
       api({action:'submit', site:site, dateStr:dateStr, receivedBy:receiver, supplier:supplier,
         receivingUrls:out.receiving, receivingThumbs:thumb.receiving,
+        overallUrls:out.overall, overallThumbs:thumb.overall,
         hasFrozen: state.frozen==='yes', frozenUrls:out.frozen, frozenThumbs:thumb.frozen,
         hasPakchoi: state.pakchoi==='yes', pakchoiUrls:out.pakchoi, pakchoiThumbs:thumb.pakchoi,
         hasQuality: state.quality==='yes', qualityUrls:out.quality, qualityThumbs:thumb.quality
