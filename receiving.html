@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Receiving Upload · HDL Delivery Kitchen Sites</title>
+<style>
+  :root{
+    --ink:#161a1d; --ink2:#3b444b; --muted:#7b8794;
+    --line:#e4e7eb; --bg:#f5f6f8; --card:#ffffff;
+    --brand:#a5162b;
+    --go:#0f8a5f; --go-d:#0b6f4c;
+    --warn:#b7791f; --warn-bg:#fff8ec; --warn-line:#f0c674;
+    --miss:#c0392b;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.5; padding-bottom:118px;
+  }
+  header{
+    background:var(--ink); color:#fff; padding:16px 18px 15px;
+    position:sticky; top:0; z-index:5; border-bottom:3px solid var(--brand);
+  }
+  .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#aeb6bd; font-weight:600}
+  header h1{margin:2px 0 0; font-size:19px; font-weight:700; letter-spacing:.01em}
+  header .sub{font-size:12.5px; color:#c3c9cf; margin-top:2px}
+
+  main{max-width:560px; margin:0 auto; padding:16px 14px 8px}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px 15px; margin-bottom:13px}
+
+  label.q{display:block; font-weight:650; font-size:14.5px; margin-bottom:9px}
+  .req{color:var(--miss); font-weight:700}
+  .hint{font-size:12px; color:var(--muted); margin-top:-3px; margin-bottom:9px}
+
+  select,input[type=text],input[type=date]{
+    width:100%; padding:13px 12px; font-size:16px; color:var(--ink);
+    border:1.5px solid var(--line); border-radius:10px; background:#fff; appearance:none;
+  }
+  select:disabled{color:var(--muted); background:#f6f7f8}
+  select:focus,input:focus{outline:none; border-color:var(--ink2)}
+
+  .seg{display:grid; grid-template-columns:1fr 1fr; gap:9px}
+  .seg button{
+    padding:13px 8px; font-size:15px; font-weight:650; border-radius:10px; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink2);
+  }
+  .seg button.yes.on{background:var(--brand); border-color:var(--brand); color:#fff}
+  .seg button.no.on{background:var(--ink2); border-color:var(--ink2); color:#fff}
+
+  .upload{border-left:4px solid var(--warn-line); background:var(--warn-bg);
+          border-radius:0 10px 10px 0; padding:12px 12px 13px; margin-top:11px}
+  .upload.optional{border-left-color:#cfd6dd; background:#f8fafb}
+  .upload .tag{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.04em;
+               color:var(--warn); background:#fce7c2; border-radius:5px; padding:2px 7px; margin-bottom:9px}
+  .upload.optional .tag{color:var(--muted); background:#eef1f4}
+
+  .reveal{display:none}
+  .reveal.show{display:block; animation:slide .18s ease}
+  @keyframes slide{from{opacity:0; transform:translateY(-4px)}to{opacity:1; transform:none}}
+
+  .drop{border:1.5px dashed #c6ccd3; border-radius:10px; background:#fff; padding:16px 12px;
+        text-align:center; color:var(--ink2); font-size:14px; font-weight:600; cursor:pointer}
+  .drop small{display:block; color:var(--muted); font-weight:500; font-size:12px; margin-top:3px}
+  .drop:active{background:#f2f4f6}
+  input[type=file]{display:none}
+
+  .thumbs{display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:10px}
+  .thumb{position:relative; aspect-ratio:1; border-radius:9px; overflow:hidden; background:#eee; border:1px solid var(--line)}
+  .thumb img{width:100%; height:100%; object-fit:cover; display:block}
+  .thumb .x{position:absolute; top:3px; right:3px; width:22px; height:22px; border-radius:50%;
+            background:rgba(0,0,0,.62); color:#fff; border:0; font-size:14px; line-height:22px; cursor:pointer}
+
+  .bar{position:fixed; left:0; right:0; bottom:0; z-index:6; background:#fff;
+       border-top:1px solid var(--line); padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+       box-shadow:0 -6px 18px rgba(20,26,29,.06)}
+  .bar .inner{max-width:560px; margin:0 auto}
+  .status{font-size:12.5px; margin-bottom:8px; min-height:17px}
+  .status.ok{color:var(--go-d); font-weight:600}
+  .status.miss{color:var(--miss)}
+  .submit{width:100%; padding:15px; font-size:16px; font-weight:700; border:0; border-radius:12px;
+          background:#c3c9cf; color:#fff; cursor:not-allowed; letter-spacing:.02em}
+  .submit.ready{background:var(--go); cursor:pointer}
+  .submit.ready:active{background:var(--go-d)}
+
+  .done{display:none; text-align:center; padding:54px 24px}
+  .done.show{display:block}
+  .done .tick{width:66px; height:66px; border-radius:50%; background:var(--go); margin:0 auto 16px;
+              color:#fff; font-size:34px; line-height:66px}
+  .done h2{margin:0 0 6px; font-size:20px}
+  .done p{color:var(--muted); margin:0 0 22px}
+  .again{padding:13px 26px; font-size:15px; font-weight:650; border:1.5px solid var(--ink2);
+         background:#fff; color:var(--ink); border-radius:11px; cursor:pointer}
+
+  .overlay{position:fixed; inset:0; background:rgba(255,255,255,.9); z-index:20; display:none;
+           flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px}
+  .overlay.show{display:flex}
+  .spin{width:38px; height:38px; border:4px solid var(--line); border-top-color:var(--go);
+        border-radius:50%; animation:sp .8s linear infinite; margin-bottom:14px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .overlay .t{font-size:15px; font-weight:600}
+  .overlay .p{font-size:13px; color:var(--muted); margin-top:5px}
+  .retry{margin-top:16px; padding:11px 22px; border:1.5px solid var(--ink2); background:#fff;
+         border-radius:10px; font-weight:650; cursor:pointer}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">DH UK GROUP LTD · HDL Delivery Kitchen Sites</div>
+  <h1>Receiving Upload</h1>
+  <div class="sub">Complete every required field to submit</div>
+</header>
+
+<main id="form">
+  <div class="card">
+    <label class="q">Site <span class="req">*</span></label>
+    <select id="site"><option value="" disabled selected>Loading…</option></select>
+  </div>
+
+  <div class="card">
+    <label class="q">Date <span class="req">*</span></label>
+    <input type="date" id="date">
+  </div>
+
+  <div class="card">
+    <label class="q">Received by <span class="req">*</span></label>
+    <input type="text" id="receiver" placeholder="Name" autocomplete="name">
+  </div>
+
+  <div class="card">
+    <label class="q">Supplier <span class="req">*</span></label>
+    <select id="supplier"><option value="" disabled selected>Loading…</option></select>
+  </div>
+
+  <!-- Receiving note (always required) -->
+  <div class="card">
+    <label class="q">Receiving note <span class="req">*</span></label>
+    <div class="hint">Photo of the delivery note / invoice</div>
+    <div class="upload">
+      <span class="tag">Required · multiple allowed</span>
+      <div class="drop" data-for="receiving">📷 Take photo / choose image<small>Opens camera or photo library</small></div>
+      <input type="file" id="f-receiving" accept="image/*" multiple>
+      <div class="thumbs" id="t-receiving"></div>
+    </div>
+  </div>
+
+  <!-- Frozen -->
+  <div class="card">
+    <label class="q">Frozen goods? <span class="req">*</span></label>
+    <div class="seg" data-group="frozen">
+      <button type="button" class="yes" data-v="yes">Yes</button>
+      <button type="button" class="no"  data-v="no">No</button>
+    </div>
+    <div class="upload reveal" id="rev-frozen">
+      <span class="tag">Required · multiple allowed</span>
+      <div class="drop" data-for="frozen">📷 Temperature check photos<small>Take a photo of each probe reading</small></div>
+      <input type="file" id="f-frozen" accept="image/*" multiple>
+      <div class="thumbs" id="t-frozen"></div>
+    </div>
+  </div>
+
+  <!-- Pak choi -->
+  <div class="card">
+    <label class="q">Pak choi? <span class="req">*</span></label>
+    <div class="seg" data-group="pakchoi">
+      <button type="button" class="yes" data-v="yes">Yes</button>
+      <button type="button" class="no"  data-v="no">No</button>
+    </div>
+    <div class="upload reveal" id="rev-pakchoi">
+      <span class="tag">Required · multiple allowed</span>
+      <div class="drop" data-for="pakchoi">📷 Re-weigh photos<small>Photo of the scale reading</small></div>
+      <input type="file" id="f-pakchoi" accept="image/*" multiple>
+      <div class="thumbs" id="t-pakchoi"></div>
+    </div>
+  </div>
+
+  <!-- Quality -->
+  <div class="card">
+    <label class="q">Quality issue? <span class="req">*</span></label>
+    <div class="seg" data-group="quality">
+      <button type="button" class="yes" data-v="yes">Yes</button>
+      <button type="button" class="no"  data-v="no">No</button>
+    </div>
+    <div class="upload optional reveal" id="rev-quality">
+      <span class="tag">Optional · multiple allowed</span>
+      <div class="drop" data-for="quality">📷 Photos of the issue<small>Optional — attach if any</small></div>
+      <input type="file" id="f-quality" accept="image/*" multiple>
+      <div class="thumbs" id="t-quality"></div>
+    </div>
+  </div>
+</main>
+
+<div class="done" id="done">
+  <div class="tick">✓</div>
+  <h2>Submitted</h2>
+  <p>Record and photos saved</p>
+  <button class="again" id="again">New entry</button>
+</div>
+
+<div class="bar" id="bar">
+  <div class="inner">
+    <div class="status miss" id="status">Fill in all required fields</div>
+    <button class="submit" id="submit" disabled>Submit</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="spin"></div>
+  <div class="t" id="ov-t">Loading…</div>
+  <div class="p" id="ov-p"></div>
+  <button class="retry" id="ov-retry" style="display:none">Retry</button>
+</div>
+
+<script>
+  /* ================= 只需改这一行 ================= */
+  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbw-xRN19608HUbUL3dO-KAIoOUJK095EIyqlkPYAGl45aUsLEyLL3VF0JoXhhxV3_su/exec";
+  /* 例如: https://script.google.com/macros/s/AKfy..../exec  */
+  /* =============================================== */
+
+  var RAW_MAX = 15 * 1024 * 1024;
+  var state = {frozen:null, pakchoi:null, quality:null};
+  var files = {receiving:[], frozen:[], pakchoi:[], quality:[]};
+
+  // default date = today
+  (function(){
+    var d=new Date(), z=function(n){return (n<10?'0':'')+n;};
+    document.getElementById('date').value=d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());
+  })();
+
+  /* ---------- load dropdown config ---------- */
+  function fillSelect(id, arr, placeholder){
+    var sel=document.getElementById(id);
+    sel.innerHTML='<option value="" disabled selected>'+placeholder+'</option>';
+    arr.forEach(function(v){
+      var o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o);
+    });
+    sel.disabled=false;
+  }
+  function loadConfig(){
+    showOverlay('Loading options…','',false);
+    fetch(BACKEND_URL, {method:'GET'})
+      .then(function(r){return r.json();})
+      .then(function(c){
+        if(!c || !c.ok) throw new Error('Config failed');
+        fillSelect('site', c.sites||[], 'Choose a site');
+        fillSelect('supplier', c.suppliers||[], 'Choose a supplier');
+        hideOverlay();
+      })
+      .catch(function(){
+        showOverlay('Could not load options','Check the connection and try again',true);
+      });
+  }
+
+  /* ---------- yes / no segments ---------- */
+  document.querySelectorAll('.seg').forEach(function(seg){
+    var group=seg.dataset.group;
+    seg.querySelectorAll('button').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        seg.querySelectorAll('button').forEach(function(b){b.classList.remove('on');});
+        btn.classList.add('on'); state[group]=btn.dataset.v;
+        var rev=document.getElementById('rev-'+group);
+        if(btn.dataset.v==='yes'){ rev.classList.add('show'); }
+        else { rev.classList.remove('show'); files[group]=[]; renderThumbs(group); }
+        validate();
+      });
+    });
+  });
+
+  /* ---------- file pickers ---------- */
+  document.querySelectorAll('.drop').forEach(function(d){
+    d.addEventListener('click', function(){ document.getElementById('f-'+d.dataset.for).click(); });
+  });
+  ['receiving','frozen','pakchoi','quality'].forEach(function(cat){
+    document.getElementById('f-'+cat).addEventListener('change', function(e){
+      for(var i=0;i<e.target.files.length;i++){ files[cat].push(e.target.files[i]); }
+      e.target.value=''; renderThumbs(cat); validate();
+    });
+  });
+  function renderThumbs(cat){
+    var wrap=document.getElementById('t-'+cat); wrap.innerHTML='';
+    files[cat].forEach(function(file, idx){
+      var div=document.createElement('div'); div.className='thumb';
+      var img=document.createElement('img'); img.src=URL.createObjectURL(file);
+      var x=document.createElement('button'); x.className='x'; x.textContent='×';
+      x.addEventListener('click', function(){ files[cat].splice(idx,1); renderThumbs(cat); validate(); });
+      div.appendChild(img); div.appendChild(x); wrap.appendChild(div);
+    });
+  }
+
+  /* ---------- validation ---------- */
+  function missingList(){
+    var m=[];
+    if(!document.getElementById('site').value) m.push('Site');
+    if(!document.getElementById('date').value) m.push('Date');
+    if(!document.getElementById('receiver').value.trim()) m.push('Received by');
+    if(!document.getElementById('supplier').value) m.push('Supplier');
+    if(files.receiving.length===0) m.push('Receiving note photo');
+    if(state.frozen===null) m.push('Frozen goods?');
+    else if(state.frozen==='yes' && files.frozen.length===0) m.push('Frozen temp photo');
+    if(state.pakchoi===null) m.push('Pak choi?');
+    else if(state.pakchoi==='yes' && files.pakchoi.length===0) m.push('Pak choi reweigh photo');
+    if(state.quality===null) m.push('Quality issue?');
+    return m;
+  }
+  function validate(){
+    var m=missingList(), btn=document.getElementById('submit'), st=document.getElementById('status');
+    if(m.length===0){
+      btn.classList.add('ready'); btn.disabled=false;
+      st.className='status ok'; st.textContent='✓ Ready to submit';
+    } else {
+      btn.classList.remove('ready'); btn.disabled=true;
+      st.className='status miss'; st.textContent='Still needed: '+m.join(', ');
+    }
+  }
+  ['site','date','receiver','supplier'].forEach(function(id){
+    document.getElementById(id).addEventListener('input', validate);
+    document.getElementById(id).addEventListener('change', validate);
+  });
+
+  /* ---------- api helpers ---------- */
+  function api(payload){
+    return fetch(BACKEND_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'}, // text/plain avoids CORS preflight
+      body: JSON.stringify(payload)
+    }).then(function(r){return r.json();});
+  }
+  function toB64(file){
+    return new Promise(function(res,rej){
+      var r=new FileReader();
+      r.onload=function(){res(r.result.split(',')[1]);};
+      r.onerror=function(){rej(new Error('read fail'));};
+      r.readAsDataURL(file);
+    });
+  }
+  function prep(file){
+    if(file.size<=RAW_MAX){
+      return toB64(file).then(function(b64){return {base64:b64, mimeType:file.type||'image/jpeg'};});
+    }
+    return new Promise(function(res,rej){
+      var img=new Image(); img.onload=function(){
+        var max=2600,w=img.width,h=img.height;
+        if(w>max||h>max){var s=Math.min(max/w,max/h); w=Math.round(w*s); h=Math.round(h*s);}
+        var c=document.createElement('canvas'); c.width=w; c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        var u=c.toDataURL('image/jpeg',0.92);
+        res({base64:u.split(',')[1], mimeType:'image/jpeg'});
+      }; img.onerror=rej; img.src=URL.createObjectURL(file);
+    });
+  }
+
+  /* ---------- submit ---------- */
+  document.getElementById('submit').addEventListener('click', function(){
+    if(missingList().length) return;
+    submitAll();
+  });
+
+  function submitAll(){
+    var site=document.getElementById('site').value;
+    var dateStr=document.getElementById('date').value;
+    var receiver=document.getElementById('receiver').value.trim();
+    var supplier=document.getElementById('supplier').value;
+
+    var jobs=[];
+    [['Receiving','receiving'],['Frozen','frozen'],['PakChoi','pakchoi'],['Quality','quality']]
+      .forEach(function(pair){
+        files[pair[1]].forEach(function(f){ jobs.push({cat:pair[0], key:pair[1], file:f}); });
+      });
+
+    var out={receiving:[],frozen:[],pakchoi:[],quality:[]};
+    var thumb={receiving:[],frozen:[],pakchoi:[],quality:[]};
+    var total=jobs.length, done=0;
+    showOverlay('Uploading…','',false);
+
+    function step(i){
+      if(i>=jobs.length) return finish();
+      var j=jobs[i];
+      setOverlay('Uploading photos… '+(done+1)+'/'+total, j.cat);
+      prep(j.file).then(function(p){
+        return api({action:'upload', site:site, dateStr:dateStr, receivedBy:receiver,
+                    category:j.cat, index:(out[j.key].length+1),
+                    mimeType:p.mimeType, base64:p.base64});
+      }).then(function(r){
+        if(!r||!r.ok) throw new Error(r&&r.error?r.error:'Upload failed');
+        out[j.key].push(r.url); thumb[j.key].push(r.thumb);
+        done++; step(i+1);
+      }).catch(fail);
+    }
+    function finish(){
+      setOverlay('Saving record…','');
+      api({action:'submit', site:site, dateStr:dateStr, receivedBy:receiver, supplier:supplier,
+        receivingUrls:out.receiving, receivingThumbs:thumb.receiving,
+        hasFrozen: state.frozen==='yes', frozenUrls:out.frozen, frozenThumbs:thumb.frozen,
+        hasPakchoi: state.pakchoi==='yes', pakchoiUrls:out.pakchoi, pakchoiThumbs:thumb.pakchoi,
+        hasQuality: state.quality==='yes', qualityUrls:out.quality, qualityThumbs:thumb.quality
+      }).then(function(r){
+        if(!r||!r.ok) throw new Error(r&&r.error?r.error:'Save failed');
+        hideOverlay(); showDone();
+      }).catch(fail);
+    }
+    function fail(err){
+      hideOverlay();
+      alert('Submission error. Please try again.\n'+(err&&err.message?err.message:err));
+    }
+    if(total===0) finish(); else step(0);
+  }
+
+  /* ---------- overlay + done ---------- */
+  function showOverlay(t,p,retry){
+    document.getElementById('ov-t').textContent=t;
+    document.getElementById('ov-p').textContent=p||'';
+    document.getElementById('ov-retry').style.display=retry?'inline-block':'none';
+    document.querySelector('.overlay .spin').style.display=retry?'none':'block';
+    document.getElementById('overlay').classList.add('show');
+  }
+  function setOverlay(t,p){
+    document.getElementById('ov-t').textContent=t;
+    document.getElementById('ov-p').textContent=p||'';
+  }
+  function hideOverlay(){ document.getElementById('overlay').classList.remove('show'); }
+  document.getElementById('ov-retry').addEventListener('click', loadConfig);
+
+  function showDone(){
+    document.getElementById('form').style.display='none';
+    document.getElementById('bar').style.display='none';
+    document.getElementById('done').classList.add('show');
+    window.scrollTo(0,0);
+  }
+  document.getElementById('again').addEventListener('click', function(){ location.reload(); });
+
+  /* ---------- init ---------- */
+  validate();
+  loadConfig();
+</script>
+</body>
+</html>
