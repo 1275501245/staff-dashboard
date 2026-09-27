@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF0F2; --paper:#FFFFFF; --ink:#1A1D21; --ink2:#5B626B; --ink3:#8E959E; --line:#E4E7EA; --mute:#CDD2D8;
+  --brand:#B8121B; --dr:#00A99D; --hp:#E0A000;
+  --up:#1F8A5B; --down:#C23B2E; --warn:#E08A00;
+  --num:"Barlow","Noto Sans SC",system-ui,sans-serif;
+  --txt:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--txt);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:820px;margin:0 auto;padding:16px 14px 40px}
+svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{font-family:var(--num)}
+
+.card{background:var(--paper);border-radius:14px;padding:16px 20px 18px;margin-top:12px}
+h2{font-size:15px;font-weight:700;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+h2 .note{font-size:12px;font-weight:400;color:var(--ink3)}
+
+/* header */
+.head{background:var(--paper);border-radius:14px;padding:16px 20px;border-top:6px solid var(--brand);display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.kicker{font-size:13px;color:var(--ink2);margin:0}
+.date{font-family:var(--num);font-weight:700;font-size:40px;line-height:1.05;margin:2px 0 0}
+.date small{font-family:var(--txt);font-weight:500;font-size:17px;color:var(--ink2);margin-left:8px}
+select{font:inherit;font-size:14px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+select:focus-visible,button:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* KPI tiles */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+.kpi{background:var(--paper);border-radius:14px;padding:14px 16px 10px;display:flex;flex-direction:column}
+.kpi .l{font-size:13px;color:var(--ink2)}
+.kpi .v{font-family:var(--num);font-weight:700;font-size:30px;line-height:1.1;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi .v.neg{color:var(--down)}
+.kpi .spark{margin-top:auto;padding-top:10px}
+.kpi .cmpnote{font-size:12px;color:var(--ink3);margin-left:6px}
+.sp-axis{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--ink3);font-family:var(--num);margin-top:3px;gap:6px}
+.sp-axis .lg{display:flex;gap:8px;align-items:center;font-family:var(--txt)}
+.sp-axis i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;vertical-align:0}
+.sp-axis i.o{border:1.5px solid currentColor;background:var(--paper)}
+.sp-axis i.f{background:currentColor}
+.chip{display:inline-block;font-family:var(--num);font-size:12.5px;font-weight:600;padding:1px 7px;border-radius:10px;margin-top:4px;white-space:nowrap}
+.chip.up{color:var(--up);background:#E6F4EC}.chip.down{color:var(--down);background:#FBE9E7}.chip.flat{color:var(--ink3);background:#F1F2F4}
+
+/* month */
+.month{display:grid;grid-template-columns:150px 1fr;gap:20px;align-items:center}
+.ringbox{text-align:center}
+.ringbox .cap{font-size:12px;color:var(--ink2);margin-top:4px;line-height:1.4}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.legend i.line{height:0;border-top:2px dashed var(--brand);border-radius:0;vertical-align:3px}
+
+/* station bars */
+.srow{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:8px 0}
+.srow + .srow{border-top:1px solid var(--line)}
+.srow .name{font-weight:700;font-size:16px}
+.srow .tot{text-align:right;font-family:var(--num);font-weight:700;font-size:18px;min-width:84px}
+.srow .tot .chip{display:block;width:max-content;margin-left:auto}
+.seg{display:flex;height:26px;border-radius:6px;overflow:hidden;background:#F1F2F4}
+.seg div{height:100%}
+.seg .dr{background:var(--dr)}.seg .hp{background:var(--hp)}
+.sub{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin-top:5px;font-family:var(--num)}
+.sub b{color:var(--ink);font-weight:600}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.dot.dr{background:var(--dr)}.dot.hp{background:var(--hp)}
+
+/* toggle */
+.tog{display:inline-flex;background:#F1F2F4;border-radius:8px;padding:2px}
+.tog button{font:inherit;font-size:12.5px;border:0;background:transparent;padding:3px 12px;border-radius:6px;color:var(--ink2);cursor:pointer}
+.tog button[aria-pressed="true"]{background:var(--paper);color:var(--ink);font-weight:700;box-shadow:0 1px 2px rgba(26,29,33,.12)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.two .card{margin-top:0}
+.grid-gap{margin-top:12px}
+.stat{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.stat .big{font-family:var(--num);font-weight:700;font-size:28px}
+.stat .u{font-size:12px;color:var(--ink3)}
+.minor{font-size:12.5px;color:var(--ink2);font-family:var(--num)}
+.lab-st{padding:4px 0 10px}
+.lab-st + .lab-st{border-top:1px solid var(--line);padding-top:12px}
+.lab-st h3{margin:0;font-size:13px;color:var(--ink2);font-weight:500}
+
+.cmp{display:flex;gap:18px;margin-top:10px;font-size:13px;color:var(--ink2);align-items:center;flex-wrap:wrap}
+.cmp b{font-family:var(--num);font-size:20px;color:var(--ink);margin-left:6px}
+
+.hb{display:grid;grid-template-columns:118px 1fr 50px;gap:10px;align-items:center;padding:5px 0;font-size:13px}
+.hb-l{color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb-t{position:relative;height:14px;background:#F1F2F4;border-radius:4px;display:block}
+.hb-f{position:absolute;inset:0 auto 0 0;background:var(--up);border-radius:4px;opacity:.85}
+.hb-f.over{background:var(--warn)}
+.hb-m{position:absolute;top:-4px;bottom:-4px;border-left:2px dashed var(--brand)}
+.hb-v{text-align:right;font-family:var(--num);font-weight:700;font-size:15px}
+.hb-v.over{color:var(--warn)}
+.hb-axis{padding:0}
+.hb-axis .hb-t{height:14px}
+.hb-cap{position:absolute;transform:translateX(-50%);font-size:11px;color:var(--brand);white-space:nowrap;top:0}
+.wf{display:grid;grid-template-columns:64px 1fr 66px;gap:10px;align-items:center;height:26px;font-size:13px}
+.wf-l{color:var(--ink2)}
+.wf-v{text-align:right;font-family:var(--num);font-weight:600;color:var(--ink2)}
+.wf.b .wf-l,.wf.b .wf-v{color:var(--ink);font-weight:700}
+.wf-t{position:relative;height:100%;display:block}
+.wf-z{position:absolute;top:0;bottom:0;border-left:1px solid var(--ink3)}
+.wf-f{position:absolute;top:5px;bottom:5px;border-radius:3px}
+.wf-f.s{background:var(--ink)}.wf-f.c{background:#E3B5B8}.wf-f.pos{background:var(--up)}.wf-f.neg{background:var(--down)}
+.free{white-space:pre-wrap;font-size:15px;line-height:1.7;margin:0}
+.free.empty{color:var(--ink3)}
+.focus{border-left:4px solid var(--brand)}
+.foot{text-align:center;font-size:12px;color:var(--ink3);margin-top:18px}
+.err{background:#FDECEA;color:var(--down);padding:10px 14px;border-radius:10px;margin-top:14px;font-size:14px}
+
+@media (max-width:680px){
+  .kpis{grid-template-columns:1fr 1fr}
+  .two{grid-template-columns:1fr}
+  .two .card + .card{margin-top:0}
+  .month{grid-template-columns:1fr}
+  .ringbox{display:flex;align-items:center;gap:14px;text-align:left}
+  .ringbox svg{width:96px}
+  .date{font-size:34px}
+  .card{padding:14px 16px 16px}
+  .kpi .v{font-size:26px}
+  .hb{grid-template-columns:116px 1fr 46px;font-size:12.5px;gap:8px}
+}
+@media print{body{background:#fff}select,.tog{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app" aria-live="polite" aria-busy="true"></div>
+
+<script>
+/* ============================================================
+   连接配置（页面上的文字全部来自表里的「文案」「维度」两个 tab）
+   ============================================================ */
+const CONFIG = {
+  USE_MOCK: false,                // 改成 true 可用示例数据预览
+  SHEET_ID: '19e5j5_yFwPkvmnYr_cUCH8EE0Q8k6RfTKboc3CwH2sQ',
+  TABS: { daily:'每日录入', profit:'利润计算', target:'月目标', text:'文案', dims:'维度' }
+};
+
+/* ---------- 预览用示例（由数据表的文案/维度生成，接表后不再使用） ---------- */
+const MOCK_CFG = {"text": {"标题": "英国外卖部 经营日报", "日期标签": "日期", "日期格式": "{月}月{日}日", "星期": "周日,周一,周二,周三,周四,周五,周六", "货币": "£", "KPI_销售额": "销售额", "KPI_单量": "单量", "KPI_客单价": "客单价", "KPI_利润": "利润", "对比说明": "比上{星期}", "无对比": "上周同日无数据", "趋势起点": "{月}/{日}", "趋势图例_对比": "上{星期}", "趋势图例_当天": "当天", "趋势天数": "14", "本月_标题": "本月", "本月_摘要": "累计 {销售额}，{单量} 单，利润 {利润}", "本月_目标完成": "目标完成", "本月_目标说明": "目标 {目标}", "本月_时间进度": "红标为时间进度 {进度}%", "本月_无目标": "未设月目标", "图例_当天": "当天", "图例_达标": "达到日均目标", "图例_目标线": "日均目标线", "站点_标题": "站点 × 平台", "站点_备注": "销售额（扣促销）", "单位_单": "单", "利润_标题": "利润构成", "利润_合计": "合计", "利润_销售额": "销售额", "利润_利润": "利润", "利润_无数据": "利润计算表还没有这一天的成本数据", "人效_标题": "人效", "人效_备注": "近 {天数} 天", "人效_单位": "单/工时", "人效_明细": "{工时} 工时，单均 {单均} h", "出餐_标题": "出餐时间", "出餐_备注": "近 7 天，分钟", "出餐_目标": "10", "准确_标题": "准确率", "准确_备注": "Deliveroo 近 7 天不准确率", "准确_警戒线": "3", "目标标签": "目标 {值}", "客诉_标签": "{站点} 客诉", "问题_标题": "问题与异常", "问题_空": "昨日无记录", "重点_标题": "今日重点", "重点_空": "未填写", "页脚": "涨跌对比上周同日（{日期}）"}, "dims": [{"类型": "站点", "代码": "BC", "显示名": "Brent Cross", "简称": "BC", "颜色": ""}, {"类型": "站点", "代码": "SD", "显示名": "Shoreditch", "简称": "SD", "颜色": ""}, {"类型": "平台", "代码": "DR", "显示名": "Deliveroo", "简称": "Deliveroo", "颜色": "#00A99D"}, {"类型": "平台", "代码": "HP", "显示名": "HungryPanda", "简称": "Panda", "颜色": "#E0A000"}, {"类型": "成本项", "代码": "平台费", "显示名": "平台费", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "税", "显示名": "税", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "产品成本", "显示名": "食材包材", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "外包人工", "显示名": "外包人工", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "租金", "显示名": "租金", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "水电", "显示名": "水电", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "其他固定", "显示名": "其他固定", "简称": "", "颜色": ""}]};
+function mockRows(){
+  const rows=[]; let seed=7;
+  const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
+  const gm={BC:0.6996,SD:0.5920};
+  for(let day=1;day<=26;day++){
+    const dt=new Date(Date.UTC(2026,8,day)), wd=dt.getUTCDay();
+    const wk=[1.15,0.85,0.85,0.9,1.0,1.25,1.3][wd], ramp=0.7+0.3*Math.min(day,20)/20;
+    const r={date:dt.toISOString().slice(0,10)};
+    const base={BC_DR:78,BC_HP:46,SD_DR:92,SD_HP:58};
+    for(const k in base){const o=Math.round(base[k]*wk*ramp*(0.9+rnd()*0.2)); r[k+'_单量']=o; r[k+'_销售额']=+(o*(21+rnd()*5)).toFixed(2);}
+    r.BC_工时=+(38+rnd()*8).toFixed(1); r.SD_工时=+(44+rnd()*10).toFixed(1);
+    r.BC_DR_出餐7天=+(9+rnd()*3).toFixed(1); r.BC_HP_出餐7天=+(10+rnd()*4).toFixed(1);
+    r.SD_DR_出餐7天=+(8.5+rnd()*3).toFixed(1); r.SD_HP_出餐7天=+(9.5+rnd()*4).toFixed(1);
+    r.BC_DR_不准确率7天=+(1.5+rnd()*2.5).toFixed(1); r.SD_DR_不准确率7天=+(1.2+rnd()*2.5).toFixed(1);
+    r.BC_客诉单数=Math.floor(rnd()*4); r.SD_客诉单数=Math.floor(rnd()*4);
+    let tot=0;
+    for(const st of ['BC','SD']){
+      const S=r[st+'_DR_销售额']+r[st+'_HP_销售额'], O=r[st+'_DR_单量']+r[st+'_HP_单量'], tax=S/6;
+      const c={平台费:S*0.2,税:tax,产品成本:(S-tax)*(1-gm[st]),外包人工:r[st+'_工时']*12.5,租金:st==='BC'?100:116.7,水电:11.5,其他固定:st==='BC'?153:62};
+      for(const k in c) r[`${st}_${k}`]=+c[k].toFixed(2);
+      r[st+'_利润']=+(S-Object.values(c).reduce((a,b)=>a+b,0)).toFixed(2); tot+=r[st+'_利润'];
+    }
+    r.利润=+tot.toFixed(2);
+    r.问题= day===26 ? 'SD 晚高峰 HungryPanda 漏发饮品 2 单，已补偿\nBC 18:40–19:10 Deliveroo 平板掉线约 30 分钟' : '';
+    r.今日重点= day===26 ? '1. SD 打包台加饮品核对步骤（负责人：店长）\n2. BC 检查平板网络，备用机开机待命\n3. 周日晚高峰加 1 名打包' : '';
+    rows.push(r);
+  }
+  return {rows, targets:{'2026-09':190000}, cfg:MOCK_CFG};
+}
+
+/* ---------- 读 Google Sheet（gviz CSV） ---------- */
+function parseCSV(text){
+  const out=[];let row=[],cur='',q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){row.push(cur);cur='';}
+    else if(c==='\n'){row.push(cur);out.push(row);row=[];cur='';}
+    else if(c!=='\r') cur+=c;
+  }
+  if(cur!==''||row.length){row.push(cur);out.push(row);}
+  return out;
+}
+async function fetchTab(tab){
+  const url=`https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(tab)}`;
+  const res=await fetch(url); if(!res.ok) throw new Error(`${tab}: HTTP ${res.status}`);
+  const [head,...body]=parseCSV(await res.text());
+  return body.filter(r=>r.some(v=>v!=='')).map(r=>Object.fromEntries(head.map((h,i)=>[h.trim(),r[i]??''])));
+}
+function toNum(v){
+  if(typeof v==='number') return v;
+  const s=String(v??'').trim(); if(s==='') return '';
+  const neg=/^\(.*\)$/.test(s)||/^-/.test(s);
+  const n=+s.replace(/[£$€,%()\s-]/g,'');
+  return isNaN(n)?v:(neg?-n:n);
+}
+const TEXT_FIELDS=new Set(['date','日期','问题','今日重点','月份']);
+function normRow(r){const o={};for(const k in r) o[k]=TEXT_FIELDS.has(k)?r[k]:toNum(r[k]);o.date=normDate(r.date||r['日期']);return o;}
+function normDate(s){
+  if(!s) return ''; s=String(s).trim();
+  let m=s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/); if(m) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  return '';
+}
+async function loadData(){
+  if(CONFIG.USE_MOCK) return mockRows();
+  const t=CONFIG.TABS;
+  const [daily,profit,tg,txt,dims]=await Promise.all([fetchTab(t.daily),fetchTab(t.profit).catch(()=>[]),fetchTab(t.target).catch(()=>[]),fetchTab(t.text),fetchTab(t.dims)]);
+  const cfg={text:Object.fromEntries(txt.filter(r=>r['键']).map(r=>[r['键'].trim(),r['内容']])),dims};
+  const pBy=Object.fromEntries(profit.map(normRow).filter(r=>r.date).map(r=>[r.date,r]));
+  const rows=daily.map(normRow).filter(r=>r.date).map(r=>({...pBy[r.date],...r}));
+  const targets={}; tg.forEach(x=>{const m=String(x['月份']||'').slice(0,7); if(m) targets[m]=toNum(x['销售目标']);});
+  return {rows,targets,cfg};
+}
+
+/* ---------- 文案 / 维度 ---------- */
+let TX={}, ST=[], PF=[], COSTS=[];
+function T(key,vars={}){
+  let s=TX[key]; if(s==null||s==='') return `[${key}]`;   // 表里缺这个键时直接显示键名，方便发现
+  return String(s).replace(/\{(.+?)\}/g,(m,k)=>vars[k]!=null?vars[k]:m);
+}
+const TN=key=>{const n=+String(TX[key]??'').replace(/[^\d.]/g,'');return isNaN(n)?null:n};
+function applyCfg(cfg){
+  TX=cfg.text||{};
+  const d=(cfg.dims||[]).map(r=>({type:String(r['类型']||'').trim(),key:String(r['代码']||'').trim(),name:r['显示名']||r['代码'],short:r['简称']||r['显示名']||r['代码'],color:r['颜色']||''})).filter(x=>x.key);
+  ST=d.filter(x=>x.type==='站点'); PF=d.filter(x=>x.type==='平台'); COSTS=d.filter(x=>x.type==='成本项');
+  const pal=['#00A99D','#E0A000','#5B7BD5','#9B59B6'];
+  PF.forEach((p,i)=>{if(!p.color) p.color=pal[i%pal.length];});
+  document.title=T('标题');
+}
+const WDAY=i=>(TX['星期']||'').split(/[,，]/)[i]?.trim()??'';
+const CUR_=()=>TX['货币']??'';
+
+/* ---------- 计算 ---------- */
+const num=v=>(typeof v==='number'&&!isNaN(v))?v:null;
+const sum=a=>a.reduce((s,v)=>s+(num(v)??0),0);
+const orders=(r,st,pf)=>num(r?.[`${st}_${pf}_单量`]);
+const sales=(r,st,pf)=>num(r?.[`${st}_${pf}_销售额`]);
+function agg(r,fn,sts=ST.map(s=>s.key),pfs=PF.map(p=>p.key)){
+  if(!r) return null; let t=0,any=false;
+  sts.forEach(s=>pfs.forEach(p=>{const v=fn(r,s,p); if(v!=null){t+=v;any=true}}));
+  return any?t:null;
+}
+const shift=(d,n)=>{const x=new Date(d+'T00:00:00Z');x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10)};
+const stSum=(r,field,view)=>{ if(!r) return null; const sts=view==='ALL'?ST.map(s=>s.key):[view]; const v=sts.map(s=>num(r[`${s}_${field}`])); return v.every(x=>x==null)?null:sum(v); };
+const md=ds=>({月:+ds.slice(5,7),日:+ds.slice(8,10)});
+
+/* ---------- 格式 ---------- */
+const money=v=>v==null?'—':(v<0?'-':'')+CUR_()+Math.abs(v).toLocaleString('en-GB',{maximumFractionDigits:0});
+const money2=v=>v==null?'—':CUR_()+v.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
+const int=v=>v==null?'—':Math.round(v).toLocaleString('en-GB');
+const fx=(v,n=1)=>v==null?'—':v.toFixed(n);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function chip(cur,prev,{lowerBetter=false}={}){
+  if(cur==null||prev==null||prev===0) return `<span class="chip flat" title="${esc(T('无对比'))}">—</span>`;
+  const d=(cur-prev)/Math.abs(prev)*100, good=lowerBetter?d<0:d>0;
+  const cls=Math.abs(d)<0.05?'flat':(good?'up':'down');
+  return `<span class="chip ${cls}">${d>0?'▲':d<0?'▼':''}${Math.abs(d).toFixed(1)}%</span>`;
+}
+
+/* ---------- 图表 ---------- */
+// KPI 趋势：实心点 = 当天，空心圆 = 上周同日（涨跌对比的基准）
+function kpiSpark(vals,color,cmpIdx){
+  const W=200,H=44,p=5, pts=vals.map((v,i)=>[i,v]).filter(x=>x[1]!=null);
+  if(pts.length<2) return '';
+  const lo=Math.min(...pts.map(x=>x[1])), hi=Math.max(...pts.map(x=>x[1])), rg=(hi-lo)||1;
+  const X=i=>p+i*(W-2*p)/(vals.length-1), Y=v=>H-p-(v-lo)/rg*(H-2*p);
+  const d=pts.map((x,k)=>(k?'L':'M')+X(x[0]).toFixed(1)+' '+Y(x[1]).toFixed(1)).join('');
+  const last=vals.length-1, lv=vals[last], cv=vals[cmpIdx];
+  let g=`<path d="${d}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" opacity=".8"/>`;
+  if(cv!=null) g+=`<circle cx="${X(cmpIdx)}" cy="${Y(cv)}" r="3.6" fill="var(--paper)" stroke="${color}" stroke-width="1.6"/>`;
+  if(lv!=null) g+=`<circle cx="${X(last)}" cy="${Y(lv)}" r="3.8" fill="${color}"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="height:44px" aria-hidden="true">${g}</svg>`;
+}
+function ring(pct,timePct){
+  const R=52,C=2*Math.PI*R, p=Math.max(0,Math.min(pct,100)), a=timePct/100*2*Math.PI-Math.PI/2;
+  const col=pct>=timePct?'var(--up)':'var(--ink)';
+  return `<svg viewBox="0 0 140 140" role="img" aria-label="${esc(T('本月_目标完成'))} ${pct.toFixed(0)}%">
+    <circle cx="70" cy="70" r="${R}" fill="none" stroke="#F1F2F4" stroke-width="14"/>
+    <circle cx="70" cy="70" r="${R}" fill="none" stroke="${col}" stroke-width="14" stroke-linecap="round" stroke-dasharray="${C*p/100} ${C}" transform="rotate(-90 70 70)"/>
+    <line x1="${70+(R-10)*Math.cos(a)}" y1="${70+(R-10)*Math.sin(a)}" x2="${70+(R+10)*Math.cos(a)}" y2="${70+(R+10)*Math.sin(a)}" stroke="var(--brand)" stroke-width="3" stroke-linecap="round"/>
+    <text x="70" y="72" text-anchor="middle" font-size="28" font-weight="700" fill="var(--ink)">${pct.toFixed(0)}%</text>
+    <text x="70" y="92" text-anchor="middle" font-size="12" fill="var(--ink3)" style="font-family:var(--txt)">${esc(T('本月_目标完成'))}</text></svg>`;
+}
+function monthBars(dateStr,target,W=600){
+  const month=dateStr.slice(0,7), y=+month.slice(0,4), m=+month.slice(5,7);
+  const dim=new Date(Date.UTC(y,m,0)).getUTCDate();
+  const vals=[...Array(dim)].map((_,i)=>agg(BYDATE[`${month}-${String(i+1).padStart(2,'0')}`],sales));
+  const pace=target?target/dim:null;
+  const hi=Math.max(...vals.filter(v=>v!=null),pace||0)*1.08||1;
+  const H=150,b=18,l=30, bw=(W-l)/dim, Y=v=>H-b-v/hi*(H-b-6), sel=+dateStr.slice(8,10);
+  let g='';
+  [0,0.5,1].forEach(f=>{const v=hi*f/1.08; g+=`<line x1="${l}" x2="${W}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${l-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--ink3)">${v>=1000?(v/1000).toFixed(0)+'k':Math.round(v)}</text>`});
+  vals.forEach((v,i)=>{
+    const x=l+i*bw+bw*0.15, w=bw*0.7, d=i+1;
+    if(v!=null){ const fill=d===sel?'var(--ink)':(pace&&v>=pace?'#9AA3AD':'var(--mute)');
+      g+=`<rect x="${x}" y="${Y(v)}" width="${w}" height="${H-b-Y(v)}" rx="2" fill="${fill}"><title>${m}/${d}  ${money(v)}</title></rect>`; }
+    if(d===1||(d%5===0&&Math.abs(d-sel)>1&&(bw>12||d%10===0))||d===sel) g+=`<text x="${x+w/2}" y="${H-3}" text-anchor="middle" font-size="11" fill="${d===sel?'var(--ink)':'var(--ink3)'}" font-weight="${d===sel?700:500}">${d}</text>`;
+  });
+  if(pace) g+=`<line x1="${l}" x2="${W}" y1="${Y(pace)}" y2="${Y(pace)}" stroke="var(--brand)" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img">${g}</svg>`;
+}
+function waterfall(r,view){
+  const S=view==='ALL'?agg(r,sales):agg(r,sales,[view]);
+  const items=COSTS.map(c=>({lab:c.name,v:stSum(r,c.key,view)})).filter(x=>x.v!=null);
+  const P=stSum(r,'利润',view);
+  if(S==null||!items.length) return `<p class="free empty">${esc(T('利润_无数据'))}</p>`;
+  const lo=Math.min(0,P??0), hi=S, X=v=>(v-lo)/(hi-lo)*100, z=X(0);
+  const row=(lab,a,b,cls,val,bold)=>`<div class="wf ${bold?'b':''}"><span class="wf-l">${esc(lab)}</span>
+    <span class="wf-t"><span class="wf-z" style="left:${z}%"></span><span class="wf-f ${cls}" style="left:${Math.min(X(a),X(b))}%;width:max(${Math.abs(X(b)-X(a))}%,2px)"></span></span>
+    <span class="wf-v">${val}</span></div>`;
+  let run=S, h=row(T('利润_销售额'),0,S,'s',money(S),true);
+  items.forEach(it=>{h+=row(it.lab,run-it.v,run,'c','-'+money(it.v)); run-=it.v;});
+  h+=row(T('利润_利润'),0,P,P>=0?'pos':'neg',money(P),true);
+  return `<div role="img">${h}</div>`;
+}
+function hbars(items,target,unit,maxV){
+  if(target==null) target=0;
+  const hi=Math.max(maxV,target,...items.map(i=>i.v??0))*1.05, pc=v=>Math.min(v/hi*100,100);
+  const rows=items.map(it=>{
+    const over=it.v!=null&&it.v>target;
+    return `<div class="hb"><span class="hb-l"><i class="dot" style="background:${it.color}"></i>${esc(it.lab)}</span>
+      <span class="hb-t">${it.v!=null?`<span class="hb-f ${over?'over':''}" style="width:${pc(it.v)}%"></span>`:''}<span class="hb-m" style="left:${pc(target)}%"></span></span>
+      <span class="hb-v ${over?'over':''}">${it.v==null?'—':fx(it.v)+unit}</span></div>`;
+  }).join('');
+  return `<div class="hbars">${rows}<div class="hb hb-axis"><span></span><span class="hb-t" style="background:none"><span class="hb-cap" style="left:${pc(target)}%">${esc(T('目标标签',{值:target+unit}))}</span></span><span></span></div></div>`;
+}
+
+/* ---------- 渲染 ---------- */
+let DATA, BYDATE, VIEW='ALL', CUR;
+const DAYS=()=>TN('趋势天数')||14;
+function series(dateStr,fn){const n=DAYS();return [...Array(n)].map((_,i)=>fn(BYDATE[shift(dateStr,i-n+1)]))}
+function drawMonth(dateStr,target){const el=document.getElementById('mb'); if(el) el.innerHTML=monthBars(dateStr,target,Math.max(260,el.clientWidth));}
+let _rt; addEventListener('resize',()=>{clearTimeout(_rt);_rt=setTimeout(()=>CUR&&drawMonth(CUR,DATA.targets[CUR.slice(0,7)]??null),150)});
+
+function kpiCard(label,value,cur,prev,vals,{color='var(--ink)',neg=false}={},dateStr){
+  const n=DAYS(), cmpDay=WDAY(new Date(shift(dateStr,-7)+'T00:00:00Z').getUTCDay());
+  return `<div class="kpi"><div class="l">${esc(label)}</div><div class="v ${neg?'neg':''}">${value}</div>
+    <div>${chip(cur,prev)}<span class="cmpnote">${esc(T('对比说明',{星期:cmpDay}))}</span></div>
+    <div class="spark">${kpiSpark(vals,color,n-8)}
+      <div class="sp-axis"><span>${esc(T('趋势起点',md(shift(dateStr,1-n))))}</span>
+      <span class="lg" style="color:${color}"><span><i class="o"></i>${esc(T('趋势图例_对比',{星期:cmpDay}))}</span><span><i class="f"></i>${esc(T('趋势图例_当天'))}</span></span></div></div></div>`;
+}
+
+function render(dateStr){
+  CUR=dateStr;
+  const r=BYDATE[dateStr], p=BYDATE[shift(dateStr,-7)], dObj=new Date(dateStr+'T00:00:00Z');
+  const tO=agg(r,orders), tS=agg(r,sales), pO=agg(p,orders), pS=agg(p,sales);
+  const aovF=x=>{const o=agg(x,orders);return o?agg(x,sales)/o:null};
+  const profit=num(r?.利润), pprofit=num(p?.利润);
+
+  const month=dateStr.slice(0,7);
+  const mtd=DATA.rows.filter(x=>x.date.startsWith(month)&&x.date<=dateStr);
+  const mS=sum(mtd.map(x=>agg(x,sales))), mO=sum(mtd.map(x=>agg(x,orders)));
+  const mPv=mtd.map(x=>num(x.利润)).filter(v=>v!=null);
+  const target=num(DATA.targets[month])??null;
+  const dim=new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).getUTCDate();
+  const timePct=dObj.getUTCDate()/dim*100, donePct=target?mS/target*100:null;
+  const opts=DATA.rows.map(x=>x.date).sort().reverse().map(x=>`<option value="${x}" ${x===dateStr?'selected':''}>${x}</option>`).join('');
+
+  const maxSt=Math.max(...ST.map(st=>agg(r,sales,[st.key])??0))||1;
+  const stationRows=ST.map(st=>{
+    const tot=agg(r,sales,[st.key]);
+    const segs=PF.map(pf=>{const v=sales(r,st.key,pf.key)??0;return `<div style="width:${v/maxSt*100}%;background:${pf.color}" title="${esc(pf.name)} ${money(v)}"></div>`}).join('');
+    const sub=PF.map(pf=>`<span><i class="dot" style="background:${pf.color}"></i><b>${int(orders(r,st.key,pf.key))}</b>${esc(T('单位_单'))} ${money(sales(r,st.key,pf.key))} ${chip(sales(r,st.key,pf.key),sales(p,st.key,pf.key))}</span>`).join('');
+    return `<div class="srow"><div class="name" title="${esc(st.name)}">${esc(st.short)}</div><div><div class="seg">${segs}</div><div class="sub">${sub}</div></div><div class="tot">${money(tot)}${chip(tot,agg(p,sales,[st.key]))}</div></div>`;
+  }).join('');
+  const pfShare=PF.map(pf=>{const v=agg(r,sales,undefined,[pf.key]);return `<span><i class="dot" style="background:${pf.color}"></i>${esc(pf.name)} <b>${tS?Math.round(v/tS*100):0}%</b> ${chip(v,agg(p,sales,undefined,[pf.key]))}</span>`}).join('');
+
+  const oph=(x,st)=>{const h=num(x?.[`${st}_工时`]),o=agg(x,orders,[st]);return h&&o!=null?o/h:null};
+  const labour=ST.map(st=>{
+    const h=num(r?.[`${st.key}_工时`]), o=agg(r,orders,[st.key]), v=oph(r,st.key);
+    return `<div class="lab-st"><h3>${esc(st.short)}</h3>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:end">
+        <div><div class="stat"><span class="big">${fx(v)}</span><span class="u">${esc(T('人效_单位'))}</span>${chip(v,oph(p,st.key))}</div>
+        <div class="minor">${esc(T('人效_明细',{工时:fx(h),单均:h&&o?(h/o).toFixed(2):'—'}))}</div></div>
+        <div>${kpiSpark(series(dateStr,x=>oph(x,st.key)),'var(--ink2)',DAYS()-8)}</div>
+      </div></div>`;
+  }).join('');
+
+  const prepItems=[];ST.forEach(st=>PF.forEach(pf=>prepItems.push({lab:`${st.short} ${pf.short}`,color:pf.color,v:num(r?.[`${st.key}_${pf.key}_出餐7天`])})));
+  const drP=PF.find(x=>x.key==='DR')||PF[0];
+  const inaccItems=ST.map(st=>({lab:`${st.short} ${drP?.short??''}`,color:drP?.color,v:num(r?.[`${st.key}_DR_不准确率7天`])}));
+  const cmp=ST.map(st=>`<span>${esc(T('客诉_标签',{站点:st.short}))}<b>${int(num(r?.[`${st.key}_客诉单数`]))}</b></span>`).join('');
+  const free=(v,key)=>v&&String(v).trim()?`<p class="free">${esc(v)}</p>`:`<p class="free empty">${esc(T(key))}</p>`;
+  const tog=[['ALL',T('利润_合计')],...ST.map(s=>[s.key,s.short])].map(([k,l])=>`<button type="button" data-v="${k}" aria-pressed="${VIEW===k}">${esc(l)}</button>`).join('');
+
+  const app=document.getElementById('app'); app.removeAttribute('aria-busy');
+  app.innerHTML=`
+  <div class="head">
+    <div><p class="kicker">${esc(T('标题'))}</p><p class="date">${esc(T('日期格式',md(dateStr)))}<small>${esc(WDAY(dObj.getUTCDay()))}</small></p></div>
+    <label>${esc(T('日期标签'))} <select id="pick">${opts}</select></label>
+  </div>
+
+  <div class="kpis">
+    ${kpiCard(T('KPI_销售额'),money(tS),tS,pS,series(dateStr,x=>agg(x,sales)),{},dateStr)}
+    ${kpiCard(T('KPI_单量'),int(tO),tO,pO,series(dateStr,x=>agg(x,orders)),{},dateStr)}
+    ${kpiCard(T('KPI_客单价'),money2(aovF(r)),aovF(r),aovF(p),series(dateStr,aovF),{},dateStr)}
+    ${kpiCard(T('KPI_利润'),money(profit),profit,pprofit,series(dateStr,x=>num(x?.利润)),{color:profit<0?'var(--down)':'var(--up)',neg:profit<0},dateStr)}
+  </div>
+
+  <div class="card">
+    <h2>${esc(T('本月_标题'))}<span class="note">${esc(T('本月_摘要',{销售额:money(mS),单量:int(mO),利润:mPv.length?money(sum(mPv)):'—'}))}</span></h2>
+    <div class="month">
+      <div class="ringbox">${target?ring(donePct,timePct):`<p class="free empty">${esc(T('本月_无目标'))}</p>`}
+        ${target?`<div class="cap">${esc(T('本月_目标说明',{目标:money(target)}))}<br>${esc(T('本月_时间进度',{进度:timePct.toFixed(0)}))}</div>`:''}</div>
+      <div><div id="mb"></div>
+        <div class="legend"><span><i style="background:var(--ink)"></i>${esc(T('图例_当天'))}</span>${target?`<span><i style="background:#9AA3AD"></i>${esc(T('图例_达标'))}</span><span><i class="line"></i>${esc(T('图例_目标线'))}</span>`:''}</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>${esc(T('站点_标题'))}<span class="note">${esc(T('站点_备注'))}</span></h2>
+    ${stationRows}
+    <div class="sub" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line)">${pfShare}</div>
+  </div>
+
+  <div class="card">
+    <h2>${esc(T('利润_标题'))}<span class="tog" role="group">${tog}</span></h2>
+    <div id="wf">${waterfall(r,VIEW)}</div>
+  </div>
+
+  <div class="two grid-gap">
+    <div class="card"><h2>${esc(T('人效_标题'))}<span class="note">${esc(T('人效_备注',{天数:DAYS()}))}</span></h2>${labour}</div>
+    <div class="card"><h2>${esc(T('出餐_标题'))}<span class="note">${esc(T('出餐_备注'))}</span></h2>${hbars(prepItems,TN('出餐_目标'),'',15)}</div>
+  </div>
+
+  <div class="two grid-gap">
+    <div class="card"><h2>${esc(T('准确_标题'))}<span class="note">${esc(T('准确_备注'))}</span></h2>${hbars(inaccItems,TN('准确_警戒线'),'%',5)}<div class="cmp">${cmp}</div></div>
+    <div class="card"><h2>${esc(T('问题_标题'))}</h2>${free(r?.问题,'问题_空')}</div>
+  </div>
+
+  <div class="card focus"><h2>${esc(T('重点_标题'))}</h2>${free(r?.今日重点,'重点_空')}</div>
+
+  <p class="foot">${esc(T('页脚',{日期:shift(dateStr,-7)}))}</p>`;
+
+  drawMonth(dateStr,target);
+  document.getElementById('pick').addEventListener('change',e=>{render(e.target.value);history.replaceState(null,'','#'+e.target.value)});
+  document.querySelectorAll('.tog button').forEach(b=>b.addEventListener('click',()=>{
+    VIEW=b.dataset.v; document.querySelectorAll('.tog button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    document.getElementById('wf').innerHTML=waterfall(BYDATE[CUR],VIEW);
+  }));
+}
+
+(async()=>{
+  try{
+    DATA=await loadData();
+    applyCfg(DATA.cfg);
+    DATA.rows=DATA.rows.filter(r=>agg(r,orders)!=null).sort((a,b)=>a.date.localeCompare(b.date));
+    BYDATE=Object.fromEntries(DATA.rows.map(r=>[r.date,r]));
+    if(!DATA.rows.length) throw new Error(CONFIG.TABS.daily+': 0');
+    const h=location.hash.slice(1);
+    render(BYDATE[h]?h:DATA.rows[DATA.rows.length-1].date);
+  }catch(e){
+    // 表读不到时文案也读不到，只显示技术信息
+    document.getElementById('app').innerHTML=`<div class="err">${esc(e.message)}</div>`;
+  }
+})();
+</script>
+</body>
+</html>
