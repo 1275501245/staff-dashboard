@@ -118,18 +118,19 @@ select:focus-visible,button:focus-visible{outline:2px solid var(--brand);outline
 .ly-box{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
 .ly-box h3{font-size:14px;margin:0 0 6px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .ly-box h3 .note{font-size:12px;font-weight:400;color:var(--ink3)}
-.ly{display:grid;grid-template-columns:118px 1fr 170px 64px;gap:10px;align-items:center;padding:7px 0;font-size:13px}
-.ly + .ly{border-top:1px dashed var(--line)}
-.ly.tot{border-top:1px solid var(--ink3);font-weight:700}
-.ly-l{color:var(--ink2);white-space:nowrap}
-.ly.tot .ly-l{color:var(--ink)}
-.ly-t{position:relative;height:12px;background:#F1F2F4;border-radius:4px;display:block}
-.ly-f{position:absolute;inset:0 auto 0 0;background:var(--ink);border-radius:4px;opacity:.85}
-.ly-m{position:absolute;top:-4px;bottom:-4px;border-left:2px solid var(--brand)}
-.ly-v{text-align:right;font-family:var(--num);font-weight:700;font-size:15px;line-height:1.25}
-.ly-v small{display:block;white-space:nowrap;font-weight:500;font-size:11.5px;color:var(--ink3)}
-.ly-c{text-align:right}
-@media (max-width:680px){.ly{grid-template-columns:96px 1fr 132px;row-gap:2px}.ly-c{grid-column:3;margin-top:-4px}.ly-l{font-size:12.5px}}
+.lyr{display:grid;grid-template-columns:118px repeat(3,1fr);gap:10px;align-items:start;padding:8px 0;font-size:13px}
+.lyr + .lyr{border-top:1px dashed var(--line)}
+.lyr.lyh{padding:2px 0 6px;font-size:12px;color:var(--ink3);border-bottom:1px solid var(--line)}
+.lyr.lyh span{text-align:right}
+.lyr.lyh + .lyr{border-top:0}
+.lyr.tot{border-top:1px solid var(--ink3)}
+.lyr.tot .ly-l,.lyr.tot .lyv b{font-weight:700;color:var(--ink)}
+.ly-l{color:var(--ink2);white-space:nowrap;padding-top:2px}
+.lyv{text-align:right;font-family:var(--num);line-height:1.3}
+.lyv b{font-weight:600;font-size:15px;margin-right:4px}
+.lyv .chip{margin-top:0;font-size:11.5px;padding:0 6px}
+.lyv small{display:block;font-size:11.5px;color:var(--ink3);white-space:nowrap}
+@media (max-width:680px){.lyr{grid-template-columns:repeat(3,1fr);row-gap:4px}.ly-l{grid-column:1/-1}.lyr.lyh span:first-child{display:none}.lyv b{display:block;margin:0}}
 .free{white-space:pre-wrap;font-size:15px;line-height:1.7;margin:0}
 .free.empty{color:var(--ink3)}
 .focus{border-left:4px solid var(--brand)}
@@ -164,11 +165,11 @@ select:focus-visible,button:focus-visible{outline:2px solid var(--brand);outline
 const CONFIG = {
   USE_MOCK: false,                // 改成 true 可用示例数据预览
   SHEET_ID: '19e5j5_yFwPkvmnYr_cUCH8EE0Q8k6RfTKboc3CwH2sQ',
-  TABS: { daily:'每日录入', profit:'利润计算', target:'月目标', text:'文案', dims:'维度' }
+  TABS: { daily:'每日录入', profit:'利润计算', target:'月目标', base:'月度基准', text:'文案', dims:'维度' }
 };
 
 /* ---------- 预览用示例（由数据表的文案/维度生成，接表后不再使用） ---------- */
-const MOCK_CFG = {"text": {"标题": "英国外卖部 经营日报", "日期标签": "日期", "日期格式": "{月}月{日}日", "星期": "周日,周一,周二,周三,周四,周五,周六", "货币": "£", "KPI_销售额": "销售额", "KPI_单量": "单量", "KPI_客单价": "客单价", "KPI_利润": "利润", "对比说明": "比上{星期}", "无对比": "上周同日无数据", "趋势起点": "{月}/{日}", "趋势图例_对比": "上{星期}", "趋势图例_当天": "当天", "趋势天数": "14", "本月_标题": "本月", "本月_摘要": "累计 {销售额}，{单量} 单，利润 {利润}", "本月_目标完成": "目标完成", "本月_目标说明": "目标 {目标}", "本月_时间进度": "红标为时间进度 {进度}%", "本月_无目标": "未设月目标", "图例_当天": "当天", "图例_达标": "达到日均目标", "图例_目标线": "日均目标线", "站点_标题": "站点 × 平台", "站点_备注": "销售额（扣促销）", "单位_单": "单", "利润_标题": "利润构成", "利润_合计": "合计", "利润_销售额": "销售额", "利润_利润": "利润", "利润_无数据": "利润计算表还没有这一天的成本数据", "人效_标题": "人效", "人效_备注": "近 {天数} 天", "人效_单位": "单/工时", "人效_明细": "{工时} 工时，单均 {单均} h", "出餐_标题": "出餐时间", "出餐_备注": "近 7 天，分钟", "出餐_目标": "10", "准确_标题": "准确率", "准确_备注": "Deliveroo 近 7 天不准确率", "准确_警戒线": "3", "目标标签": "目标 {值}", "客诉_标签": "{站点} 客诉", "问题_标题": "问题与异常", "问题_空": "昨日无记录", "重点_标题": "今日重点", "重点_空": "未填写", "页脚": "涨跌对比上周同日（{日期}）", "本月_去年同期": "去年同期 {去年}，目标比去年 {增幅}", "本月_去年无数据": "未填去年同期", "图例_去年线": "去年日均", "去年_标题": "对比去年同期", "去年_备注": "竖线 = 时间进度 {进度}%，涨跌对比去年按进度折算", "去年_去年": "去年全月 {值}", "去年_单量": "单量 {本月} / 去年 {去年}", "去年_合计": "两店合计"}, "dims": [{"类型": "站点", "代码": "BC", "显示名": "Brent Cross", "简称": "BC", "颜色": ""}, {"类型": "站点", "代码": "SD", "显示名": "Shoreditch", "简称": "SD", "颜色": ""}, {"类型": "平台", "代码": "DR", "显示名": "Deliveroo", "简称": "Deliveroo", "颜色": "#00A99D"}, {"类型": "平台", "代码": "HP", "显示名": "HungryPanda", "简称": "Panda", "颜色": "#E0A000"}, {"类型": "成本项", "代码": "平台费", "显示名": "平台费", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "税", "显示名": "税", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "产品成本", "显示名": "食材包材", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "外包人工", "显示名": "外包人工", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "租金", "显示名": "租金", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "水电", "显示名": "水电", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "其他固定", "显示名": "其他固定", "简称": "", "颜色": ""}]};
+const MOCK_CFG = {"text": {"标题": "英国外卖部 经营日报", "日期标签": "日期", "日期格式": "{月}月{日}日", "星期": "周日,周一,周二,周三,周四,周五,周六", "货币": "£", "KPI_销售额": "销售额", "KPI_单量": "单量", "KPI_客单价": "客单价", "KPI_利润": "利润", "对比说明": "比上{星期}", "无对比": "上周同日无数据", "趋势起点": "{月}/{日}", "趋势图例_对比": "上{星期}", "趋势图例_当天": "当天", "趋势天数": "14", "本月_标题": "本月", "本月_摘要": "累计 {销售额}，{单量} 单，利润 {利润}", "本月_目标完成": "目标完成", "本月_目标说明": "目标 {目标}", "本月_时间进度": "红标为时间进度 {进度}%", "本月_无目标": "未设月目标", "图例_当天": "当天", "图例_达标": "达到日均目标", "图例_目标线": "日均目标线", "站点_标题": "站点 × 平台", "站点_备注": "销售额（扣促销）", "单位_单": "单", "利润_标题": "利润构成", "利润_合计": "合计", "利润_销售额": "销售额", "利润_利润": "利润", "利润_无数据": "利润计算表还没有这一天的成本数据", "人效_标题": "人效", "人效_备注": "近 {天数} 天", "人效_单位": "单/工时", "人效_明细": "{工时} 工时，单均 {单均} h", "出餐_标题": "出餐时间", "出餐_备注": "近 7 天，分钟", "出餐_目标": "10", "准确_标题": "准确率", "准确_备注": "Deliveroo 近 7 天不准确率", "准确_警戒线": "3", "目标标签": "目标 {值}", "客诉_标签": "{站点} 客诉", "问题_标题": "问题与异常", "问题_空": "昨日无记录", "重点_标题": "今日重点", "重点_空": "未填写", "页脚": "涨跌对比上周同日（{日期}）", "本月_去年同期": "去年同期 {去年}，目标比去年 {增幅}", "本月_去年无数据": "未填去年同期", "图例_去年线": "去年日均", "去年_标题": "对比去年同期", "去年_备注": "销售额、单量对比去年全月 × 时间进度 {进度}%；客单价直接对比", "去年_去年": "去年全月 {值}", "去年_单量": "单量 {本月} / 去年 {去年}", "去年_合计": "两店合计", "去年_列_销售额": "销售额", "去年_列_单量": "单量", "去年_列_客单价": "客单价", "去年_同进度": "去年同期 {值}", "去年_客单价": "去年 {值}", "本月_上月": "上月实际 {上月}，目标比上月 {增幅}"}, "dims": [{"类型": "站点", "代码": "BC", "显示名": "Brent Cross", "简称": "BC", "颜色": ""}, {"类型": "站点", "代码": "SD", "显示名": "Shoreditch", "简称": "SD", "颜色": ""}, {"类型": "平台", "代码": "DR", "显示名": "Deliveroo", "简称": "Deliveroo", "颜色": "#00A99D"}, {"类型": "平台", "代码": "HP", "显示名": "HungryPanda", "简称": "Panda", "颜色": "#E0A000"}, {"类型": "成本项", "代码": "平台费", "显示名": "平台费", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "税", "显示名": "税", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "产品成本", "显示名": "食材包材", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "外包人工", "显示名": "外包人工", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "租金", "显示名": "租金", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "水电", "显示名": "水电", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "其他固定", "显示名": "其他固定", "简称": "", "颜色": ""}]};
 function mockRows(){
   const rows=[]; let seed=7;
   const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
@@ -197,7 +198,7 @@ function mockRows(){
     r.今日重点= day===26 ? '1. SD 打包台加饮品核对步骤（负责人：店长）\n2. BC 检查平板网络，备用机开机待命\n3. 周日晚高峰加 1 名打包' : '';
     rows.push(r);
   }
-  return {rows, targets:{'2026-09':{销售目标:190000,去年_BC_DR_销售额:52000,去年_BC_DR_单量:2150,去年_BC_HP_销售额:30500,去年_BC_HP_单量:1290,去年_SD_DR_销售额:61000,去年_SD_DR_单量:2480,去年_SD_HP_销售额:38800,去年_SD_HP_单量:1590}}, cfg:MOCK_CFG};
+  return {rows, targets:{'2026-09':{销售目标:190000}}, base:{'2025-09':{BC_DR_销售额:52000,BC_DR_单量:2150,BC_HP_销售额:30500,BC_HP_单量:1290,SD_DR_销售额:61000,SD_DR_单量:2480,SD_HP_销售额:38800,SD_HP_单量:1590},'2026-08':{BC_DR_销售额:16022.40,BC_DR_单量:592,BC_HP_销售额:3098.29,BC_HP_单量:177,SD_DR_销售额:13305.80,SD_DR_单量:641,SD_HP_销售额:9605.95,SD_HP_单量:663}}, cfg:MOCK_CFG};
 }
 
 /* ---------- 读 Google Sheet（gviz CSV） ---------- */
@@ -238,12 +239,13 @@ function normDate(s){
 async function loadData(){
   if(CONFIG.USE_MOCK) return mockRows();
   const t=CONFIG.TABS;
-  const [daily,profit,tg,txt,dims]=await Promise.all([fetchTab(t.daily),fetchTab(t.profit).catch(()=>[]),fetchTab(t.target).catch(()=>[]),fetchTab(t.text),fetchTab(t.dims)]);
+  const [daily,profit,tg,txt,dims,bs]=await Promise.all([fetchTab(t.daily),fetchTab(t.profit).catch(()=>[]),fetchTab(t.target).catch(()=>[]),fetchTab(t.text),fetchTab(t.dims),fetchTab(t.base).catch(()=>[])]);
   const cfg={text:Object.fromEntries(txt.filter(r=>r['键']).map(r=>[r['键'].trim(),r['内容']])),dims};
   const pBy=Object.fromEntries(profit.map(normRow).filter(r=>r.date).map(r=>[r.date,r]));
   const rows=daily.map(normRow).filter(r=>r.date).map(r=>({...pBy[r.date],...r}));
   const targets={}; tg.forEach(x=>{const m=String(x['月份']||'').slice(0,7); if(!m) return; const o={}; for(const k in x) o[k]=k==='月份'?x[k]:toNum(x[k]); targets[m]=o;});
-  return {rows,targets,cfg};
+  const base={}; bs.forEach(x=>{const m=String(x['月份']||'').slice(0,7); if(!m) return; const o={}; for(const k in x) o[k]=k==='月份'?x[k]:toNum(x[k]); base[m]=o;});
+  return {rows,targets,base,cfg};
 }
 
 /* ---------- 文案 / 维度 ---------- */
@@ -362,7 +364,10 @@ function hbars(items,unit,maxV){
 
 /* ---------- 月目标 / 去年同期 / 标准 ---------- */
 const tgtOf=m=>num(DATA.targets[m]?.销售目标)??null;
-const lyOf=(m,st,pf,kind)=>num(DATA.targets[m]?.[`去年_${st}_${pf}_${kind}`]);
+const monthShift=(m,n)=>{const d=new Date(Date.UTC(+m.slice(0,4),+m.slice(5,7)-1+n,1));return d.toISOString().slice(0,7)};
+const baseOf=(m,st,pf,kind)=>num(DATA.base?.[m]?.[`${st}_${pf}_${kind}`]);
+const lyOf=(m,st,pf,kind)=>baseOf(monthShift(m,-12),st,pf,kind)??num(DATA.targets[m]?.[`去年_${st}_${pf}_${kind}`]);
+function baseTotal(m,kind){const v=[];ST.forEach(s=>PF.forEach(p=>v.push(baseOf(m,s.key,p.key,kind))));return v.every(x=>x==null)?null:sum(v);}
 function lyTotal(m,kind){const v=[];ST.forEach(s=>PF.forEach(p=>v.push(lyOf(m,s.key,p.key,kind))));return v.every(x=>x==null)?null:sum(v);}
 // 标准：当天没填就往前找最近一次填的；都没有就用「文案」里的默认值
 function stdFor(dateStr,field,defKey){
@@ -403,20 +408,26 @@ function render(dateStr){
   const timePct=dObj.getUTCDate()/dim*100, donePct=target?mS/target*100:null;
   const lyS=lyTotal(month,'销售额'), lyO=lyTotal(month,'单量');
   const lyLine=lyS!=null?T('本月_去年同期',{去年:money(lyS),增幅:target?signPct((target/lyS-1)*100):'—'}):T('本月_去年无数据');
-  // 两店 × 双平台：本月累计 vs 去年按时间进度折算
+  const pmS=baseTotal(monthShift(month,-1),'销售额');
+  const pmLine=pmS!=null?T('本月_上月',{上月:money(pmS),增幅:target?signPct((target/pmS-1)*100):'—'}):'';
+  // 两店 × 双平台：销售额 / 单量 / 客单价 同期对比
+  const tf=timePct/100;
   const lyCell=(st,pf)=>{
     const sts=st?[st.key]:ST.map(s=>s.key), pfs=pf?[pf.key]:PF.map(p=>p.key);
-    const cur=sum(mtd.map(x=>agg(x,sales,sts,pfs))), curO=sum(mtd.map(x=>agg(x,orders,sts,pfs)));
+    const cS=sum(mtd.map(x=>agg(x,sales,sts,pfs))), cO=sum(mtd.map(x=>agg(x,orders,sts,pfs)));
     const lv=[],lo=[]; sts.forEach(s=>pfs.forEach(p=>{lv.push(lyOf(month,s,p,'销售额'));lo.push(lyOf(month,s,p,'单量'));}));
-    const ly=lv.every(v=>v==null)?null:sum(lv), lyo=lo.every(v=>v==null)?null:sum(lo);
-    const paceV=ly!=null?ly*timePct/100:null, w=ly?Math.min(cur/ly*100,100):0;
+    const lS=lv.every(v=>v==null)?null:sum(lv), lO=lo.every(v=>v==null)?null:sum(lo);
+    const pS=lS!=null?lS*tf:null, pO=lO!=null?lO*tf:null;
+    const cA=cO?cS/cO:null, lA=lO?lS/lO:null;
     const lab=st?`${st.short} ${pf.short}`:T('去年_合计');
-    return `<div class="ly ${st?'':'tot'}"><span class="ly-l">${pf?`<i class="dot" style="background:${pf.color}"></i>`:''}${esc(lab)}</span>
-      <span class="ly-t"><span class="ly-f" style="width:${w}%;${pf?`background:${pf.color}`:''}"></span><span class="ly-m" style="left:${timePct}%"></span></span>
-      <span class="ly-v">${money(cur)}<small>${esc(T('去年_去年',{值:money(ly)}))}</small><small>${esc(T('去年_单量',{本月:int(curO),去年:int(lyo)}))}</small></span>
-      <span class="ly-c">${chip(cur,paceV)}</span></div>`;
+    const m3=(v,sub,c)=>`<span class="lyv"><b>${v}</b>${c}<small>${esc(sub)}</small></span>`;
+    return `<div class="lyr ${st?'':'tot'}"><span class="ly-l">${pf?`<i class="dot" style="background:${pf.color}"></i>`:''}${esc(lab)}</span>
+      ${m3(money(cS),T('去年_同进度',{值:money(pS)}),chip(cS,pS))}
+      ${m3(int(cO),T('去年_同进度',{值:int(pO)}),chip(cO,pO))}
+      ${m3(money2(cA),T('去年_客单价',{值:money2(lA)}),chip(cA,lA))}</div>`;
   };
-  const lyRows=lyS==null?'':ST.map(st=>PF.map(pf=>lyCell(st,pf)).join('')).join('')+lyCell(null,null);
+  const lyHead=`<div class="lyr lyh"><span></span><span>${esc(T('去年_列_销售额'))}</span><span>${esc(T('去年_列_单量'))}</span><span>${esc(T('去年_列_客单价'))}</span></div>`;
+  const lyRows=lyS==null?'':lyHead+ST.map(st=>PF.map(pf=>lyCell(st,pf)).join('')).join('')+lyCell(null,null);
   const opts=DATA.rows.map(x=>x.date).sort().reverse().map(x=>`<option value="${x}" ${x===dateStr?'selected':''}>${x}</option>`).join('');
 
   const maxSt=Math.max(...ST.map(st=>agg(r,sales,[st.key])??0))||1;
@@ -464,7 +475,7 @@ function render(dateStr){
     <h2>${esc(T('本月_标题'))}<span class="note">${esc(T('本月_摘要',{销售额:money(mS),单量:int(mO),利润:mPv.length?money(sum(mPv)):'—'}))}</span></h2>
     <div class="month">
       <div class="ringbox">${target?ring(donePct,timePct):`<p class="free empty">${esc(T('本月_无目标'))}</p>`}
-        ${target?`<div class="cap">${esc(T('本月_目标说明',{目标:money(target)}))}<br>${esc(T('本月_时间进度',{进度:timePct.toFixed(0)}))}</div>`:''}<div class="cap ly-cap">${esc(lyLine)}</div></div>
+        ${target?`<div class="cap">${esc(T('本月_目标说明',{目标:money(target)}))}<br>${esc(T('本月_时间进度',{进度:timePct.toFixed(0)}))}</div>`:''}<div class="cap ly-cap">${pmLine?esc(pmLine)+'<br>':''}${esc(lyLine)}</div></div>
       <div><div id="mb"></div>
         <div class="legend"><span><i style="background:var(--ink)"></i>${esc(T('图例_当天'))}</span>${target?`<span><i style="background:#9AA3AD"></i>${esc(T('图例_达标'))}</span><span><i class="line"></i>${esc(T('图例_目标线'))}</span>`:''}${lyS!=null?`<span><i class="line ly-line"></i>${esc(T('图例_去年线'))}</span>`:''}</div></div>
     </div>
