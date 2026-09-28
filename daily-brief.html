@@ -131,6 +131,27 @@ select:focus-visible,button:focus-visible{outline:2px solid var(--brand);outline
 .lyv .chip{margin-top:0;font-size:11.5px;padding:0 6px}
 .lyv small{display:block;font-size:11.5px;color:var(--ink3);white-space:nowrap}
 @media (max-width:680px){.lyr{grid-template-columns:repeat(3,1fr);row-gap:4px}.ly-l{grid-column:1/-1}.lyr.lyh span:first-child{display:none}.lyv b{display:block;margin:0}}
+.sec{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin:26px 2px 0}
+.sec h2{font-size:18px;margin:0;display:flex;align-items:center;gap:8px}
+.sec .tag{font-family:var(--num);font-size:13px;font-weight:600;color:var(--paper);background:var(--ink);border-radius:6px;padding:1px 8px}
+.sec .note{font-size:12.5px;color:var(--ink2)}
+.sec + .kpis,.sec + .card,.sec + .two{margin-top:10px}
+.labgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.labgrid .lab-st{padding:0;border:0}
+.labgrid .lab-st + .lab-st{border-left:1px solid var(--line);padding-left:14px;padding-top:0}
+.cnum{font-family:var(--num);font-size:15px;color:var(--ink)}
+.cnum.bad{color:var(--down)}
+.cmp-note{font-size:12px;color:var(--ink3);margin:-4px 0 8px}
+.cmpt{width:100%;min-width:480px;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.cmpt th,.cmpt td{padding:9px 8px;text-align:right;border-bottom:1px dashed var(--line);font-size:13.5px;white-space:nowrap}
+.cmpt thead th{font-size:12.5px;font-weight:500;color:var(--ink2);border-bottom:1px solid var(--ink3);vertical-align:bottom}
+.cmpt thead th small{display:block;color:var(--warn);font-size:11px;font-weight:500}
+.cmpt tbody th{text-align:left;font-weight:500;color:var(--ink2)}
+.cmpt td{font-family:var(--num);color:var(--ink2)}
+.cmpt td b{color:var(--ink);font-size:15px}
+.cmpt .chip{margin:0 0 0 4px;font-size:11.5px;padding:0 6px}
+.cmpt tr.tot th,.cmpt tr.tot td{border-top:1px solid var(--ink3);border-bottom:0;font-weight:700;color:var(--ink)}
+@media (max-width:680px){.labgrid{grid-template-columns:1fr}.labgrid .lab-st + .lab-st{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:10px}.sec{margin-top:22px}}
 .free{white-space:pre-wrap;font-size:15px;line-height:1.7;margin:0}
 .free.empty{color:var(--ink3)}
 .focus{border-left:4px solid var(--brand)}
@@ -165,11 +186,11 @@ select:focus-visible,button:focus-visible{outline:2px solid var(--brand);outline
 const CONFIG = {
   USE_MOCK: false,                // 改成 true 可用示例数据预览
   SHEET_ID: '19e5j5_yFwPkvmnYr_cUCH8EE0Q8k6RfTKboc3CwH2sQ',
-  TABS: { daily:'每日录入', profit:'利润计算', target:'月目标', base:'月度基准', text:'文案', dims:'维度' }
+  TABS: { daily:'每日录入', profit:'利润计算', target:'月目标', base:'月度基准', adj:'月度补录', text:'文案', dims:'维度' }
 };
 
 /* ---------- 预览用示例（由数据表的文案/维度生成，接表后不再使用） ---------- */
-const MOCK_CFG = {"text": {"标题": "英国外卖部 经营日报", "日期标签": "日期", "日期格式": "{月}月{日}日", "星期": "周日,周一,周二,周三,周四,周五,周六", "货币": "£", "KPI_销售额": "销售额", "KPI_单量": "单量", "KPI_客单价": "客单价", "KPI_利润": "利润", "对比说明": "比上{星期}", "无对比": "上周同日无数据", "趋势起点": "{月}/{日}", "趋势图例_对比": "上{星期}", "趋势图例_当天": "当天", "趋势天数": "14", "本月_标题": "本月", "本月_摘要": "累计 {销售额}，{单量} 单，利润 {利润}", "本月_目标完成": "目标完成", "本月_目标说明": "目标 {目标}", "本月_时间进度": "红标为时间进度 {进度}%", "本月_无目标": "未设月目标", "图例_当天": "当天", "图例_达标": "达到日均目标", "图例_目标线": "日均目标线", "站点_标题": "站点 × 平台", "站点_备注": "销售额（扣促销）", "单位_单": "单", "利润_标题": "利润构成", "利润_合计": "合计", "利润_销售额": "销售额", "利润_利润": "利润", "利润_无数据": "利润计算表还没有这一天的成本数据", "人效_标题": "人效", "人效_备注": "近 {天数} 天", "人效_单位": "单/工时", "人效_明细": "{工时} 工时，单均 {单均} h", "出餐_标题": "出餐时间", "出餐_备注": "近 7 天，分钟", "出餐_目标": "10", "准确_标题": "准确率", "准确_备注": "Deliveroo 近 7 天不准确率", "准确_警戒线": "3", "目标标签": "目标 {值}", "客诉_标签": "{站点} 客诉", "问题_标题": "问题与异常", "问题_空": "昨日无记录", "重点_标题": "今日重点", "重点_空": "未填写", "页脚": "涨跌对比上周同日（{日期}）", "本月_去年同期": "去年同期 {去年}，目标比去年 {增幅}", "本月_去年无数据": "未填去年同期", "图例_去年线": "去年日均", "去年_标题": "对比去年同期", "去年_备注": "销售额、单量对比去年全月 × 时间进度 {进度}%；客单价直接对比", "去年_去年": "去年全月 {值}", "去年_单量": "单量 {本月} / 去年 {去年}", "去年_合计": "两店合计", "去年_列_销售额": "销售额", "去年_列_单量": "单量", "去年_列_客单价": "客单价", "去年_同进度": "去年同期 {值}", "去年_客单价": "去年 {值}", "本月_上月": "上月实际 {上月}，目标比上月 {增幅}"}, "dims": [{"类型": "站点", "代码": "BC", "显示名": "Brent Cross", "简称": "BC", "颜色": ""}, {"类型": "站点", "代码": "SD", "显示名": "Shoreditch", "简称": "SD", "颜色": ""}, {"类型": "平台", "代码": "DR", "显示名": "Deliveroo", "简称": "Deliveroo", "颜色": "#00A99D"}, {"类型": "平台", "代码": "HP", "显示名": "HungryPanda", "简称": "Panda", "颜色": "#E0A000"}, {"类型": "成本项", "代码": "平台费", "显示名": "平台费", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "税", "显示名": "税", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "产品成本", "显示名": "食材包材", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "外包人工", "显示名": "外包人工", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "租金", "显示名": "租金", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "水电", "显示名": "水电", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "其他固定", "显示名": "其他固定", "简称": "", "颜色": ""}]};
+const MOCK_CFG = {"text": {"标题": "英国外卖部 经营日报", "日期标签": "日期", "日期格式": "{月}月{日}日", "星期": "周日,周一,周二,周三,周四,周五,周六", "货币": "£", "KPI_销售额": "销售额", "KPI_单量": "单量", "KPI_客单价": "客单价", "KPI_利润": "利润", "对比说明": "比上{星期}", "无对比": "上周同日无数据", "趋势起点": "{月}/{日}", "趋势图例_对比": "上{星期}", "趋势图例_当天": "当天", "趋势天数": "14", "本月_标题": "本月", "本月_摘要": "累计 {销售额}，{单量} 单，利润 {利润}", "本月_目标完成": "目标完成", "本月_目标说明": "目标 {目标}", "本月_时间进度": "红标为时间进度 {进度}%", "本月_无目标": "未设月目标", "图例_当天": "当天", "图例_达标": "达到日均目标", "图例_目标线": "日均目标线", "站点_标题": "站点 × 平台", "站点_备注": "销售额（扣促销）", "单位_单": "单", "利润_标题": "利润构成", "利润_合计": "合计", "利润_销售额": "销售额", "利润_利润": "利润", "利润_无数据": "利润计算表还没有这一天的成本数据", "人效_标题": "人效与客诉", "人效_备注": "近 {天数} 天", "人效_单位": "单/工时", "人效_明细": "{工时} 工时，单均 {单均} h", "出餐_标题": "出餐时间", "出餐_备注": "近 7 天，分钟", "出餐_目标": "10", "准确_标题": "准确率", "准确_备注": "Deliveroo 近 7 天不准确率", "准确_警戒线": "3", "目标标签": "目标 {值}", "客诉_标签": "{站点} 客诉", "问题_标题": "问题与异常", "问题_空": "昨日无记录", "重点_标题": "今日重点", "重点_空": "未填写", "页脚": "涨跌对比上周同日（{日期}）", "本月_去年同期": "去年同期 {去年}，目标比去年 {增幅}", "本月_去年无数据": "未填去年同期", "图例_去年线": "去年日均", "去年_标题": "对比去年同期", "去年_备注": "销售额、单量对比去年全月 × 时间进度 {进度}%；客单价直接对比", "去年_去年": "去年全月 {值}", "去年_单量": "单量 {本月} / 去年 {去年}", "去年_合计": "两店合计", "去年_列_销售额": "销售额", "去年_列_单量": "单量", "去年_列_客单价": "客单价", "去年_同进度": "去年同期 {值}", "去年_客单价": "去年 {值}", "本月_上月": "上月实际 {上月}，目标比上月 {增幅}", "图例_补录": "{起}–{止}日补录 {值}，未分日显示", "区块_当日": "当日", "区块_近7天": "近 7 天", "区块_本月": "本月累计", "区块_日期": "{月}/{日} {星期}", "区块_范围": "{起}–{止}", "区块_当日_备注": "涨跌对比上周同日 {日期}", "区块_近7天_备注": "平台 7 天滚动值，对比标准", "区块_本月_备注": "对比目标、上月同期、去年同期", "本月_进度标题": "目标进度", "对比_标题": "同期对比", "对比_本月": "本月累计", "对比_上月": "上月同期", "对比_去年": "去年同期", "对比_备注": "上月、去年 = 全月 × 时间进度 {进度}%；客单价对比全月", "对比_缺数据": "{月} 未录入", "对比_合计": "两店合计", "对比_销售额": "销售额", "对比_单量": "单量", "对比_客单价": "客单价"}, "dims": [{"类型": "站点", "代码": "BC", "显示名": "Brent Cross", "简称": "BC", "颜色": ""}, {"类型": "站点", "代码": "SD", "显示名": "Shoreditch", "简称": "SD", "颜色": ""}, {"类型": "平台", "代码": "DR", "显示名": "Deliveroo", "简称": "Deliveroo", "颜色": "#00A99D"}, {"类型": "平台", "代码": "HP", "显示名": "HungryPanda", "简称": "Panda", "颜色": "#E0A000"}, {"类型": "成本项", "代码": "平台费", "显示名": "平台费", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "税", "显示名": "税", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "产品成本", "显示名": "食材包材", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "外包人工", "显示名": "外包人工", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "租金", "显示名": "租金", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "水电", "显示名": "水电", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "其他固定", "显示名": "其他固定", "简称": "", "颜色": ""}]};
 function mockRows(){
   const rows=[]; let seed=7;
   const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
@@ -198,7 +219,7 @@ function mockRows(){
     r.今日重点= day===26 ? '1. SD 打包台加饮品核对步骤（负责人：店长）\n2. BC 检查平板网络，备用机开机待命\n3. 周日晚高峰加 1 名打包' : '';
     rows.push(r);
   }
-  return {rows, targets:{'2026-09':{销售目标:190000}}, base:{'2025-09':{BC_DR_销售额:52000,BC_DR_单量:2150,BC_HP_销售额:30500,BC_HP_单量:1290,SD_DR_销售额:61000,SD_DR_单量:2480,SD_HP_销售额:38800,SD_HP_单量:1590},'2026-08':{BC_DR_销售额:16022.40,BC_DR_单量:592,BC_HP_销售额:3098.29,BC_HP_单量:177,SD_DR_销售额:13305.80,SD_DR_单量:641,SD_HP_销售额:9605.95,SD_HP_单量:663}}, cfg:MOCK_CFG};
+  return {rows, targets:{'2026-09':{销售目标:190000}}, base:{'2025-09':{BC_DR_销售额:52000,BC_DR_单量:2150,BC_HP_销售额:30500,BC_HP_单量:1290,SD_DR_销售额:61000,SD_DR_单量:2480,SD_HP_销售额:38800,SD_HP_单量:1590},'2026-08':{BC_DR_销售额:16022.40,BC_DR_单量:592,BC_HP_销售额:3098.29,BC_HP_单量:177,SD_DR_销售额:13305.80,SD_DR_单量:641,SD_HP_销售额:9605.95,SD_HP_单量:663}}, adj:{'2026-09':{截至:'2026-09-10',BC_DR_销售额:9800,BC_DR_单量:420,BC_HP_销售额:5600,BC_HP_单量:250,SD_DR_销售额:11900,SD_DR_单量:510,SD_HP_销售额:7300,SD_HP_单量:320}}, cfg:MOCK_CFG};
 }
 
 /* ---------- 读 Google Sheet（gviz CSV） ---------- */
@@ -239,13 +260,14 @@ function normDate(s){
 async function loadData(){
   if(CONFIG.USE_MOCK) return mockRows();
   const t=CONFIG.TABS;
-  const [daily,profit,tg,txt,dims,bs]=await Promise.all([fetchTab(t.daily),fetchTab(t.profit).catch(()=>[]),fetchTab(t.target).catch(()=>[]),fetchTab(t.text),fetchTab(t.dims),fetchTab(t.base).catch(()=>[])]);
+  const [daily,profit,tg,txt,dims,bs,ad]=await Promise.all([fetchTab(t.daily),fetchTab(t.profit).catch(()=>[]),fetchTab(t.target).catch(()=>[]),fetchTab(t.text),fetchTab(t.dims),fetchTab(t.base).catch(()=>[]),fetchTab(t.adj).catch(()=>[])]);
   const cfg={text:Object.fromEntries(txt.filter(r=>r['键']).map(r=>[r['键'].trim(),r['内容']])),dims};
   const pBy=Object.fromEntries(profit.map(normRow).filter(r=>r.date).map(r=>[r.date,r]));
   const rows=daily.map(normRow).filter(r=>r.date).map(r=>({...pBy[r.date],...r}));
   const targets={}; tg.forEach(x=>{const m=String(x['月份']||'').slice(0,7); if(!m) return; const o={}; for(const k in x) o[k]=k==='月份'?x[k]:toNum(x[k]); targets[m]=o;});
   const base={}; bs.forEach(x=>{const m=String(x['月份']||'').slice(0,7); if(!m) return; const o={}; for(const k in x) o[k]=k==='月份'?x[k]:toNum(x[k]); base[m]=o;});
-  return {rows,targets,base,cfg};
+  const adj={}; ad.forEach(x=>{const m=String(x['月份']||'').slice(0,7); if(!m) return; const o={}; for(const k in x) o[k]=(k==='月份'||k==='备注')?x[k]:toNum(x[k]); o.截至=normDate(x['截至日期']); if(o.截至) adj[m]=o;});
+  return {rows,targets,base,adj,cfg};
 }
 
 /* ---------- 文案 / 维度 ---------- */
@@ -286,6 +308,12 @@ const money2=v=>v==null?'—':CUR_()+v.toLocaleString('en-GB',{minimumFractionDi
 const int=v=>v==null?'—':Math.round(v).toLocaleString('en-GB');
 const fx=(v,n=1)=>v==null?'—':v.toFixed(n);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// 个位数指标（客诉）用差值，不用百分比
+function chipAbs(cur,prev,lowerBetter=true){
+  if(cur==null||prev==null) return `<span class="chip flat" title="${esc(T('无对比'))}">—</span>`;
+  const d=cur-prev, cls=d===0?'flat':((lowerBetter?d<0:d>0)?'up':'down');
+  return `<span class="chip ${cls}">${d>0?'▲':d<0?'▼':''}${Math.abs(d)}</span>`;
+}
 function chip(cur,prev,{lowerBetter=false}={}){
   if(cur==null||prev==null||prev===0) return `<span class="chip flat" title="${esc(T('无对比'))}">—</span>`;
   const d=(cur-prev)/Math.abs(prev)*100, good=lowerBetter?d<0:d>0;
@@ -323,7 +351,7 @@ function monthBars(dateStr,target,W=600){
   const vals=[...Array(dim)].map((_,i)=>agg(BYDATE[`${month}-${String(i+1).padStart(2,'0')}`],sales));
   const pace=target?target/dim:null;
   const lyT=lyTotal(month,'销售额'), lyPace=lyT!=null?lyT/dim:null;
-  const hi=Math.max(...vals.filter(v=>v!=null),pace||0,lyPace||0)*1.08||1;
+  const hi=Math.max(...vals.filter(v=>v!=null),pace||0)*1.08||1;
   const H=150,b=18,l=30, bw=(W-l)/dim, Y=v=>H-b-v/hi*(H-b-6), sel=+dateStr.slice(8,10);
   let g='';
   [0,0.5,1].forEach(f=>{const v=hi*f/1.08; g+=`<line x1="${l}" x2="${W}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${l-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--ink3)">${v>=1000?(v/1000).toFixed(0)+'k':Math.round(v)}</text>`});
@@ -333,7 +361,6 @@ function monthBars(dateStr,target,W=600){
       g+=`<rect x="${x}" y="${Y(v)}" width="${w}" height="${H-b-Y(v)}" rx="2" fill="${fill}"><title>${m}/${d}  ${money(v)}</title></rect>`; }
     if(d===1||(d%5===0&&Math.abs(d-sel)>1&&(bw>12||d%10===0))||d===sel) g+=`<text x="${x+w/2}" y="${H-3}" text-anchor="middle" font-size="11" fill="${d===sel?'var(--ink)':'var(--ink3)'}" font-weight="${d===sel?700:500}">${d}</text>`;
   });
-  if(lyPace) g+=`<line x1="${l}" x2="${W}" y1="${Y(lyPace)}" y2="${Y(lyPace)}" stroke="var(--ink2)" stroke-width="1.5" stroke-dasharray="2 3"/>`;
   if(pace) g+=`<line x1="${l}" x2="${W}" y1="${Y(pace)}" y2="${Y(pace)}" stroke="var(--brand)" stroke-width="1.5" stroke-dasharray="5 4"/>`;
   return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img">${g}</svg>`;
 }
@@ -367,6 +394,9 @@ const tgtOf=m=>num(DATA.targets[m]?.销售目标)??null;
 const monthShift=(m,n)=>{const d=new Date(Date.UTC(+m.slice(0,4),+m.slice(5,7)-1+n,1));return d.toISOString().slice(0,7)};
 const baseOf=(m,st,pf,kind)=>num(DATA.base?.[m]?.[`${st}_${pf}_${kind}`]);
 const lyOf=(m,st,pf,kind)=>baseOf(monthShift(m,-12),st,pf,kind)??num(DATA.targets[m]?.[`去年_${st}_${pf}_${kind}`]);
+// 月度补录：截至日期（含）之前的合计，只在查看截至日期之后的日子时生效
+function lumpFor(dateStr){const a=DATA.adj?.[dateStr.slice(0,7)]; return a&&a.截至<dateStr?a:null;}
+function lumpAgg(L,kind,sts=ST.map(s=>s.key),pfs=PF.map(p=>p.key)){if(!L) return 0; let t=0; sts.forEach(s=>pfs.forEach(p=>{t+=num(L[`${s}_${p}_${kind}`])??0})); return t;}
 function baseTotal(m,kind){const v=[];ST.forEach(s=>PF.forEach(p=>v.push(baseOf(m,s.key,p.key,kind))));return v.every(x=>x==null)?null:sum(v);}
 function lyTotal(m,kind){const v=[];ST.forEach(s=>PF.forEach(p=>v.push(lyOf(m,s.key,p.key,kind))));return v.every(x=>x==null)?null:sum(v);}
 // 标准：当天没填就往前找最近一次填的；都没有就用「文案」里的默认值
@@ -392,44 +422,63 @@ function kpiCard(label,value,cur,prev,vals,{color='var(--ink)',neg=false}={},dat
       <span class="lg" style="color:${color}"><span><i class="o"></i>${esc(T('趋势图例_对比',{星期:cmpDay}))}</span><span><i class="f"></i>${esc(T('趋势图例_当天'))}</span></span></div></div></div>`;
 }
 
+// 同期参考值：优先「月度基准」全月 × 时间进度；没有就用那个月已录入的每日数据（1 号到同一天）
+function periodRef(mk,sts,pfs,dayNum,tf,legacy){
+  const v=[],o=[]; sts.forEach(s=>pfs.forEach(p=>{v.push(baseOf(mk,s,p,'销售额')??(legacy?num(legacy[`去年_${s}_${p}_销售额`]):null));o.push(baseOf(mk,s,p,'单量')??(legacy?num(legacy[`去年_${s}_${p}_单量`]):null));}));
+  if(!v.every(x=>x==null)){const S=sum(v),O=sum(o);return {S:S*tf,O:O*tf,A:O?S/O:null};}
+  const rows=DATA.rows.filter(x=>x.date.startsWith(mk)&&+x.date.slice(8,10)<=dayNum);
+  if(!rows.length) return null;
+  const S=sum(rows.map(x=>agg(x,sales,sts,pfs))),O=sum(rows.map(x=>agg(x,orders,sts,pfs)));
+  return {S,O,A:O?S/O:null};
+}
+let CMPV='S';
+function cmpTable(ctx){
+  const {month,dateStr,tf,mtdAgg}=ctx, dayNum=+dateStr.slice(8,10);
+  const pm=monthShift(month,-1), ly=monthShift(month,-12), legacy=DATA.targets[month];
+  const fmt=CMPV==='S'?money:CMPV==='O'?int:money2;
+  const pick=o=>o==null?null:(CMPV==='S'?o.S:CMPV==='O'?o.O:o.A);
+  let anyPm=false, anyLy=false;
+  const row=(st,pf)=>{
+    const sts=st?[st.key]:ST.map(s=>s.key), pfs=pf?[pf.key]:PF.map(p=>p.key);
+    const cur=mtdAgg(sts,pfs), a=periodRef(pm,sts,pfs,dayNum,tf), b=periodRef(ly,sts,pfs,dayNum,tf,legacy);
+    if(a) anyPm=true; if(b) anyLy=true;
+    const c=pick(cur), va=pick(a), vb=pick(b);
+    const lab=st?`${st.short} ${pf.short}`:T('对比_合计');
+    return `<tr class="${st?'':'tot'}"><th scope="row">${pf?`<i class="dot" style="background:${pf.color}"></i>`:''}${esc(lab)}</th>
+      <td><b>${fmt(c)}</b></td>
+      <td>${va==null?'—':`${fmt(va)} ${chip(c,va)}`}</td>
+      <td>${vb==null?'—':`${fmt(vb)} ${chip(c,vb)}`}</td></tr>`;
+  };
+  const body=ST.map(st=>PF.map(pf=>row(st,pf)).join('')).join('')+row(null,null);
+  const miss=(ok,mk)=>ok?'':`<small>${esc(T('对比_缺数据',{月:mk}))}</small>`;
+  return `<div class="scroll"><table class="cmpt">
+    <thead><tr><th></th><th>${esc(T('对比_本月'))}</th><th>${esc(T('对比_上月'))}${miss(anyPm,pm)}</th><th>${esc(T('对比_去年'))}${miss(anyLy,ly)}</th></tr></thead>
+    <tbody>${body}</tbody></table></div>`;
+}
+
 function render(dateStr){
   CUR=dateStr;
   const r=BYDATE[dateStr], p=BYDATE[shift(dateStr,-7)], dObj=new Date(dateStr+'T00:00:00Z');
   const tO=agg(r,orders), tS=agg(r,sales), pO=agg(p,orders), pS=agg(p,sales);
   const aovF=x=>{const o=agg(x,orders);return o?agg(x,sales)/o:null};
   const profit=num(r?.利润), pprofit=num(p?.利润);
+  const wd=i=>WDAY(new Date(i+'T00:00:00Z').getUTCDay());
+  const mdTxt=ds=>`${+ds.slice(5,7)}/${+ds.slice(8,10)}`;
 
+  // ---- 本月累计 ----
   const month=dateStr.slice(0,7);
-  const mtd=DATA.rows.filter(x=>x.date.startsWith(month)&&x.date<=dateStr);
-  const mS=sum(mtd.map(x=>agg(x,sales))), mO=sum(mtd.map(x=>agg(x,orders)));
+  const LUMP=lumpFor(dateStr);
+  const mtd=DATA.rows.filter(x=>x.date.startsWith(month)&&x.date<=dateStr&&(!LUMP||x.date>LUMP.截至));
+  const mtdAgg=(sts,pfs)=>{const S=sum(mtd.map(x=>agg(x,sales,sts,pfs)))+lumpAgg(LUMP,'销售额',sts,pfs), O=sum(mtd.map(x=>agg(x,orders,sts,pfs)))+lumpAgg(LUMP,'单量',sts,pfs); return {S,O,A:O?S/O:null};};
+  const M=mtdAgg(ST.map(s=>s.key),PF.map(p=>p.key));
   const mPv=mtd.map(x=>num(x.利润)).filter(v=>v!=null);
+  const mProfit=LUMP?(num(LUMP.利润)!=null?sum(mPv)+num(LUMP.利润):null):(mPv.length?sum(mPv):null);
   const target=tgtOf(month);
   const dim=new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).getUTCDate();
-  const timePct=dObj.getUTCDate()/dim*100, donePct=target?mS/target*100:null;
-  const lyS=lyTotal(month,'销售额'), lyO=lyTotal(month,'单量');
-  const lyLine=lyS!=null?T('本月_去年同期',{去年:money(lyS),增幅:target?signPct((target/lyS-1)*100):'—'}):T('本月_去年无数据');
-  const pmS=baseTotal(monthShift(month,-1),'销售额');
-  const pmLine=pmS!=null?T('本月_上月',{上月:money(pmS),增幅:target?signPct((target/pmS-1)*100):'—'}):'';
-  // 两店 × 双平台：销售额 / 单量 / 客单价 同期对比
-  const tf=timePct/100;
-  const lyCell=(st,pf)=>{
-    const sts=st?[st.key]:ST.map(s=>s.key), pfs=pf?[pf.key]:PF.map(p=>p.key);
-    const cS=sum(mtd.map(x=>agg(x,sales,sts,pfs))), cO=sum(mtd.map(x=>agg(x,orders,sts,pfs)));
-    const lv=[],lo=[]; sts.forEach(s=>pfs.forEach(p=>{lv.push(lyOf(month,s,p,'销售额'));lo.push(lyOf(month,s,p,'单量'));}));
-    const lS=lv.every(v=>v==null)?null:sum(lv), lO=lo.every(v=>v==null)?null:sum(lo);
-    const pS=lS!=null?lS*tf:null, pO=lO!=null?lO*tf:null;
-    const cA=cO?cS/cO:null, lA=lO?lS/lO:null;
-    const lab=st?`${st.short} ${pf.short}`:T('去年_合计');
-    const m3=(v,sub,c)=>`<span class="lyv"><b>${v}</b>${c}<small>${esc(sub)}</small></span>`;
-    return `<div class="lyr ${st?'':'tot'}"><span class="ly-l">${pf?`<i class="dot" style="background:${pf.color}"></i>`:''}${esc(lab)}</span>
-      ${m3(money(cS),T('去年_同进度',{值:money(pS)}),chip(cS,pS))}
-      ${m3(int(cO),T('去年_同进度',{值:int(pO)}),chip(cO,pO))}
-      ${m3(money2(cA),T('去年_客单价',{值:money2(lA)}),chip(cA,lA))}</div>`;
-  };
-  const lyHead=`<div class="lyr lyh"><span></span><span>${esc(T('去年_列_销售额'))}</span><span>${esc(T('去年_列_单量'))}</span><span>${esc(T('去年_列_客单价'))}</span></div>`;
-  const lyRows=lyS==null?'':lyHead+ST.map(st=>PF.map(pf=>lyCell(st,pf)).join('')).join('')+lyCell(null,null);
+  const timePct=dObj.getUTCDate()/dim*100, donePct=target?M.S/target*100:null, tf=timePct/100;
   const opts=DATA.rows.map(x=>x.date).sort().reverse().map(x=>`<option value="${x}" ${x===dateStr?'selected':''}>${x}</option>`).join('');
 
+  // ---- 当日：站点 × 平台 ----
   const maxSt=Math.max(...ST.map(st=>agg(r,sales,[st.key])??0))||1;
   const stationRows=ST.map(st=>{
     const tot=agg(r,sales,[st.key]);
@@ -439,79 +488,88 @@ function render(dateStr){
   }).join('');
   const pfShare=PF.map(pf=>{const v=agg(r,sales,undefined,[pf.key]);return `<span><i class="dot" style="background:${pf.color}"></i>${esc(pf.name)} <b>${tS?Math.round(v/tS*100):0}%</b> ${chip(v,agg(p,sales,undefined,[pf.key]))}</span>`}).join('');
 
+  // ---- 当日：人效 + 客诉 ----
   const oph=(x,st)=>{const h=num(x?.[`${st}_工时`]),o=agg(x,orders,[st]);return h&&o!=null?o/h:null};
   const labour=ST.map(st=>{
     const h=num(r?.[`${st.key}_工时`]), o=agg(r,orders,[st.key]), v=oph(r,st.key);
+    const c=num(r?.[`${st.key}_客诉单数`]);
     return `<div class="lab-st"><h3>${esc(st.short)}</h3>
-      <div style="display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:end">
-        <div><div class="stat"><span class="big">${fx(v)}</span><span class="u">${esc(T('人效_单位'))}</span>${chip(v,oph(p,st.key))}</div>
-        <div class="minor">${esc(T('人效_明细',{工时:fx(h),单均:h&&o?(h/o).toFixed(2):'—'}))}</div></div>
-        <div>${kpiSpark(series(dateStr,x=>oph(x,st.key)),'var(--ink2)',DAYS()-8)}</div>
-      </div></div>`;
+      <div class="stat"><span class="big">${fx(v)}</span><span class="u">${esc(T('人效_单位'))}</span>${chip(v,oph(p,st.key))}</div>
+      <div class="minor">${esc(T('人效_明细',{工时:fx(h),单均:h&&o?(h/o).toFixed(2):'—'}))}</div>
+      <div class="minor">${esc(T('客诉_标签',{站点:''}).trim())} <b class="cnum ${c>0?'bad':''}">${int(c)}</b> ${chipAbs(c,num(p?.[`${st.key}_客诉单数`]))}</div></div>`;
   }).join('');
 
-  const drP=PF.find(x=>x.key==='DR')||PF[0];   // 出餐时间、不准确率只看 Deliveroo
+  // ---- 近 7 天 ----
+  const drP=PF.find(x=>x.key==='DR')||PF[0];
   const prepItems=ST.map(st=>({lab:`${st.short} ${drP?.short??''}`,color:drP?.color,v:num(r?.[`${st.key}_DR_出餐7天`]),t:stdFor(dateStr,`${st.key}_DR_出餐标准`,'出餐_目标')}));
   const inaccItems=ST.map(st=>({lab:`${st.short} ${drP?.short??''}`,color:drP?.color,v:num(r?.[`${st.key}_DR_不准确率7天`]),t:stdFor(dateStr,`${st.key}_DR_不准确率标准`,'准确_警戒线')}));
-  const cmp=ST.map(st=>`<span>${esc(T('客诉_标签',{站点:st.short}))}<b>${int(num(r?.[`${st.key}_客诉单数`]))}</b></span>`).join('');
+
   const free=(v,key)=>v&&String(v).trim()?`<p class="free">${esc(v)}</p>`:`<p class="free empty">${esc(T(key))}</p>`;
-  const tog=[['ALL',T('利润_合计')],...ST.map(s=>[s.key,s.short])].map(([k,l])=>`<button type="button" data-v="${k}" aria-pressed="${VIEW===k}">${esc(l)}</button>`).join('');
+  const togWf=[['ALL',T('利润_合计')],...ST.map(s=>[s.key,s.short])].map(([k,l])=>`<button type="button" data-v="${k}" aria-pressed="${VIEW===k}">${esc(l)}</button>`).join('');
+  const togCmp=[['S',T('对比_销售额')],['O',T('对比_单量')],['A',T('对比_客单价')]].map(([k,l])=>`<button type="button" data-v="${k}" aria-pressed="${CMPV===k}">${esc(l)}</button>`).join('');
+  const sec=(title,range,note)=>`<div class="sec"><h2>${esc(title)}<span class="tag">${esc(range)}</span></h2><span class="note">${esc(note)}</span></div>`;
+  const ctx={month,dateStr,tf,mtdAgg};
 
   const app=document.getElementById('app'); app.removeAttribute('aria-busy');
   app.innerHTML=`
   <div class="head">
-    <div><p class="kicker">${esc(T('标题'))}</p><p class="date">${esc(T('日期格式',md(dateStr)))}<small>${esc(WDAY(dObj.getUTCDay()))}</small></p></div>
+    <div><p class="kicker">${esc(T('标题'))}</p><p class="date">${esc(T('日期格式',md(dateStr)))}<small>${esc(wd(dateStr))}</small></p></div>
     <label>${esc(T('日期标签'))} <select id="pick">${opts}</select></label>
   </div>
 
+  <div class="two grid-gap">
+    <div class="card focus"><h2>${esc(T('重点_标题'))}</h2>${free(r?.今日重点,'重点_空')}</div>
+    <div class="card"><h2>${esc(T('问题_标题'))}</h2>${free(r?.问题,'问题_空')}</div>
+  </div>
+
+  ${sec(T('区块_当日'),T('区块_日期',{...md(dateStr),星期:wd(dateStr)}),T('区块_当日_备注',{日期:mdTxt(shift(dateStr,-7))}))}
   <div class="kpis">
     ${kpiCard(T('KPI_销售额'),money(tS),tS,pS,series(dateStr,x=>agg(x,sales)),{},dateStr)}
     ${kpiCard(T('KPI_单量'),int(tO),tO,pO,series(dateStr,x=>agg(x,orders)),{},dateStr)}
     ${kpiCard(T('KPI_客单价'),money2(aovF(r)),aovF(r),aovF(p),series(dateStr,aovF),{},dateStr)}
     ${kpiCard(T('KPI_利润'),money(profit),profit,pprofit,series(dateStr,x=>num(x?.利润)),{color:profit<0?'var(--down)':'var(--up)',neg:profit<0},dateStr)}
   </div>
-
-  <div class="card">
-    <h2>${esc(T('本月_标题'))}<span class="note">${esc(T('本月_摘要',{销售额:money(mS),单量:int(mO),利润:mPv.length?money(sum(mPv)):'—'}))}</span></h2>
-    <div class="month">
-      <div class="ringbox">${target?ring(donePct,timePct):`<p class="free empty">${esc(T('本月_无目标'))}</p>`}
-        ${target?`<div class="cap">${esc(T('本月_目标说明',{目标:money(target)}))}<br>${esc(T('本月_时间进度',{进度:timePct.toFixed(0)}))}</div>`:''}<div class="cap ly-cap">${pmLine?esc(pmLine)+'<br>':''}${esc(lyLine)}</div></div>
-      <div><div id="mb"></div>
-        <div class="legend"><span><i style="background:var(--ink)"></i>${esc(T('图例_当天'))}</span>${target?`<span><i style="background:#9AA3AD"></i>${esc(T('图例_达标'))}</span><span><i class="line"></i>${esc(T('图例_目标线'))}</span>`:''}${lyS!=null?`<span><i class="line ly-line"></i>${esc(T('图例_去年线'))}</span>`:''}</div></div>
-    </div>
-    ${lyRows?`<div class="ly-box"><h3>${esc(T('去年_标题'))}<span class="note">${esc(T('去年_备注',{进度:timePct.toFixed(0)}))}</span></h3>${lyRows}</div>`:''}
-  </div>
-
   <div class="card">
     <h2>${esc(T('站点_标题'))}<span class="note">${esc(T('站点_备注'))}</span></h2>
     ${stationRows}
     <div class="sub" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line)">${pfShare}</div>
   </div>
-
-  <div class="card">
-    <h2>${esc(T('利润_标题'))}<span class="tog" role="group">${tog}</span></h2>
-    <div id="wf">${waterfall(r,VIEW)}</div>
+  <div class="two grid-gap">
+    <div class="card"><h2>${esc(T('利润_标题'))}<span class="tog" id="tog-wf" role="group">${togWf}</span></h2><div id="wf">${waterfall(r,VIEW)}</div></div>
+    <div class="card"><h2>${esc(T('人效_标题'))}</h2><div class="labgrid">${labour}</div></div>
   </div>
 
-  <div class="two grid-gap">
-    <div class="card"><h2>${esc(T('人效_标题'))}<span class="note">${esc(T('人效_备注',{天数:DAYS()}))}</span></h2>${labour}</div>
+  ${sec(T('区块_近7天'),T('区块_范围',{起:mdTxt(shift(dateStr,-6)),止:mdTxt(dateStr)}),T('区块_近7天_备注'))}
+  <div class="two">
     <div class="card"><h2>${esc(T('出餐_标题'))}<span class="note">${esc(T('出餐_备注'))}</span></h2>${hbars(prepItems,'',15)}</div>
+    <div class="card"><h2>${esc(T('准确_标题'))}<span class="note">${esc(T('准确_备注'))}</span></h2>${hbars(inaccItems,'%',5)}</div>
   </div>
 
-  <div class="two grid-gap">
-    <div class="card"><h2>${esc(T('准确_标题'))}<span class="note">${esc(T('准确_备注'))}</span></h2>${hbars(inaccItems,'%',5)}<div class="cmp">${cmp}</div></div>
-    <div class="card"><h2>${esc(T('问题_标题'))}</h2>${free(r?.问题,'问题_空')}</div>
+  ${sec(T('区块_本月'),T('区块_范围',{起:`${+month.slice(5,7)}/1`,止:mdTxt(dateStr)}),T('区块_本月_备注'))}
+  <div class="card">
+    <h2>${esc(T('本月_进度标题'))}<span class="note">${esc(T('本月_摘要',{销售额:money(M.S),单量:int(M.O),利润:mProfit==null?'—':money(mProfit)}))}</span></h2>
+    <div class="month">
+      <div class="ringbox">${target?ring(donePct,timePct):`<p class="free empty">${esc(T('本月_无目标'))}</p>`}
+        ${target?`<div class="cap">${esc(T('本月_目标说明',{目标:money(target)}))}<br>${esc(T('本月_时间进度',{进度:timePct.toFixed(0)}))}</div>`:''}</div>
+      <div><div id="mb"></div>
+        <div class="legend"><span><i style="background:var(--ink)"></i>${esc(T('图例_当天'))}</span>${target?`<span><i style="background:#9AA3AD"></i>${esc(T('图例_达标'))}</span><span><i class="line"></i>${esc(T('图例_目标线'))}</span>`:''}${LUMP?`<span>${esc(T('图例_补录',{起:1,止:+LUMP.截至.slice(8,10),值:money(lumpAgg(LUMP,'销售额'))}))}</span>`:''}</div></div>
+    </div>
   </div>
-
-  <div class="card focus"><h2>${esc(T('重点_标题'))}</h2>${free(r?.今日重点,'重点_空')}</div>
-
-  <p class="foot">${esc(T('页脚',{日期:shift(dateStr,-7)}))}</p>`;
+  <div class="card">
+    <h2>${esc(T('对比_标题'))}<span class="tog" id="tog-cmp" role="group">${togCmp}</span></h2>
+    <p class="cmp-note">${esc(T('对比_备注',{进度:timePct.toFixed(0)}))}</p>
+    <div id="cmp">${cmpTable(ctx)}</div>
+  </div>`;
 
   drawMonth(dateStr,target);
   document.getElementById('pick').addEventListener('change',e=>{render(e.target.value);history.replaceState(null,'','#'+e.target.value)});
-  document.querySelectorAll('.tog button').forEach(b=>b.addEventListener('click',()=>{
-    VIEW=b.dataset.v; document.querySelectorAll('.tog button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  document.querySelectorAll('#tog-wf button').forEach(b=>b.addEventListener('click',()=>{
+    VIEW=b.dataset.v; document.querySelectorAll('#tog-wf button').forEach(x=>x.setAttribute('aria-pressed',x===b));
     document.getElementById('wf').innerHTML=waterfall(BYDATE[CUR],VIEW);
+  }));
+  document.querySelectorAll('#tog-cmp button').forEach(b=>b.addEventListener('click',()=>{
+    CMPV=b.dataset.v; document.querySelectorAll('#tog-cmp button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    document.getElementById('cmp').innerHTML=cmpTable(ctx);
   }));
 }
 
