@@ -164,7 +164,10 @@ select:focus-visible,button:focus-visible{outline:2px solid var(--brand);outline
 .cs{background:#F6F7F8;border-radius:10px;padding:10px 12px}
 .cs-l{font-size:12.5px;color:var(--ink2)}
 .cs-v{font-family:var(--num);font-weight:700;font-size:24px;line-height:1.2;margin:2px 0 6px}
-.cs-ref{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:12px;color:var(--ink2);font-family:var(--num);padding:2px 0}
+.cs-ref{font-size:12px;color:var(--ink2);font-family:var(--num);padding:4px 0 2px;border-top:1px dashed var(--line)}
+.cs-n{display:block;font-size:11.5px;color:var(--ink3)}
+.cs-x{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.cs-x b{font-weight:600;font-size:13.5px;color:var(--ink)}
 .cs-ref .chip{margin:0;font-size:11.5px;padding:0 6px}
 .cs-ref em{font-style:normal;color:var(--warn);font-family:var(--txt);font-size:11.5px}
 .cmp-more{margin-top:10px}
@@ -210,7 +213,7 @@ const CONFIG = {
 };
 
 /* ---------- 预览用示例（由数据表的文案/维度生成，接表后不再使用） ---------- */
-const MOCK_CFG = {"text": {"标题": "英国外卖部 经营日报", "日期标签": "日期", "日期格式": "{月}月{日}日", "星期": "周日,周一,周二,周三,周四,周五,周六", "货币": "£", "KPI_销售额": "销售额", "KPI_单量": "单量", "KPI_客单价": "客单价", "KPI_利润": "利润", "对比说明": "比上{星期}", "无对比": "上周同日无数据", "趋势起点": "{月}/{日}", "趋势图例_对比": "上{星期}", "趋势图例_当天": "当天", "趋势天数": "14", "本月_标题": "本月", "本月_摘要": "累计 {销售额}，{单量} 单，利润 {利润}", "本月_目标完成": "目标完成", "本月_目标说明": "目标 {目标}", "本月_时间进度": "红标为时间进度 {进度}%", "本月_无目标": "未设月目标", "图例_当天": "当天", "图例_达标": "达到日均目标", "图例_目标线": "日均目标线", "站点_标题": "站点 × 平台", "站点_备注": "销售额（扣促销）", "单位_单": "单", "利润_标题": "利润构成", "利润_合计": "合计", "利润_销售额": "销售额", "利润_利润": "利润", "利润_无数据": "利润计算表还没有这一天的成本数据", "人效_标题": "人效与客诉", "人效_备注": "近 {天数} 天", "人效_单位": "单/工时", "人效_明细": "{工时} 工时，单均 {单均} h", "出餐_标题": "出餐时间", "出餐_备注": "近 7 天，分钟", "出餐_目标": "10", "准确_标题": "准确率", "准确_备注": "Deliveroo 近 7 天不准确率", "准确_警戒线": "3", "目标标签": "目标 {值}", "客诉_标签": "{站点} 客诉", "问题_标题": "问题与异常", "问题_空": "昨日无记录", "重点_标题": "今日重点", "重点_空": "未填写", "页脚": "涨跌对比上周同日（{日期}）", "本月_去年同期": "去年同期 {去年}，目标比去年 {增幅}", "本月_去年无数据": "未填去年同期", "图例_去年线": "去年日均", "去年_标题": "对比去年同期", "去年_备注": "销售额、单量对比去年全月 × 时间进度 {进度}%；客单价直接对比", "去年_去年": "去年全月 {值}", "去年_单量": "单量 {本月} / 去年 {去年}", "去年_合计": "两店合计", "去年_列_销售额": "销售额", "去年_列_单量": "单量", "去年_列_客单价": "客单价", "去年_同进度": "去年同期 {值}", "去年_客单价": "去年 {值}", "本月_上月": "上月实际 {上月}，目标比上月 {增幅}", "图例_补录": "{起}–{止}日补录 {值}，未分日显示", "区块_当日": "当日", "区块_近7天": "近 7 天", "区块_本月": "本月累计", "区块_日期": "{月}/{日} {星期}", "区块_范围": "{起}–{止}", "区块_当日_备注": "涨跌对比上周同日 {日期}", "区块_近7天_备注": "平台 7 天滚动值，对比标准", "区块_本月_备注": "对比目标、上月同期、去年同期", "本月_进度标题": "目标进度", "对比_标题": "同期对比", "对比_本月": "本月累计", "对比_上月": "上月同期", "对比_去年": "去年同期", "对比_备注": "上月、去年 = 全月 × 时间进度 {进度}%；客单价对比全月", "对比_缺数据": "{月} 未录入", "对比_合计": "两店合计", "对比_销售额": "销售额", "对比_单量": "单量", "对比_客单价": "客单价", "利润_口径": "（估算口径：销售额扣除平台佣金、VAT、食材包材成本、外包人工，及租金、水电等固定费用按日分摊；未含总部管理费、折旧及企业所得税）", "利润_口径_短": "（估算：已扣佣金、VAT、食材包材、外包人工、租金水电）", "对比_展开": "按站点、平台查看明细"}, "dims": [{"类型": "站点", "代码": "BC", "显示名": "Brent Cross", "简称": "BC", "颜色": ""}, {"类型": "站点", "代码": "SD", "显示名": "Shoreditch", "简称": "SD", "颜色": ""}, {"类型": "平台", "代码": "DR", "显示名": "Deliveroo", "简称": "Deliveroo", "颜色": "#00A99D"}, {"类型": "平台", "代码": "HP", "显示名": "HungryPanda", "简称": "Panda", "颜色": "#E0A000"}, {"类型": "成本项", "代码": "平台费", "显示名": "平台费", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "税", "显示名": "税", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "产品成本", "显示名": "食材包材", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "外包人工", "显示名": "外包人工", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "租金", "显示名": "租金", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "水电", "显示名": "水电", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "其他固定", "显示名": "其他固定", "简称": "", "颜色": ""}]};
+const MOCK_CFG = {"text": {"标题": "英国外卖部 经营日报", "日期标签": "日期", "日期格式": "{月}月{日}日", "星期": "周日,周一,周二,周三,周四,周五,周六", "货币": "£", "KPI_销售额": "销售额", "KPI_单量": "单量", "KPI_客单价": "客单价", "KPI_利润": "利润", "对比说明": "比上{星期}", "无对比": "上周同日无数据", "趋势起点": "{月}/{日}", "趋势图例_对比": "上{星期}", "趋势图例_当天": "当天", "趋势天数": "14", "本月_标题": "本月", "本月_摘要": "累计 {销售额}，{单量} 单，利润 {利润}", "本月_目标完成": "目标完成", "本月_目标说明": "目标 {目标}", "本月_时间进度": "红标为时间进度 {进度}%", "本月_无目标": "未设月目标", "图例_当天": "当天", "图例_达标": "达到日均目标", "图例_目标线": "日均目标线", "站点_标题": "站点 × 平台", "站点_备注": "销售额（扣促销）", "单位_单": "单", "利润_标题": "利润构成", "利润_合计": "合计", "利润_销售额": "销售额", "利润_利润": "利润", "利润_无数据": "利润计算表还没有这一天的成本数据", "人效_标题": "人效与客诉", "人效_备注": "近 {天数} 天", "人效_单位": "单/工时", "人效_明细": "{工时} 工时，单均 {单均} h", "出餐_标题": "出餐时间", "出餐_备注": "近 7 天，分钟", "出餐_目标": "10", "准确_标题": "准确率", "准确_备注": "Deliveroo 近 7 天不准确率", "准确_警戒线": "3", "目标标签": "目标 {值}", "客诉_标签": "{站点} 客诉", "问题_标题": "问题与异常", "问题_空": "昨日无记录", "重点_标题": "今日重点", "重点_空": "未填写", "页脚": "涨跌对比上周同日（{日期}）", "本月_去年同期": "去年同期 {去年}，目标比去年 {增幅}", "本月_去年无数据": "未填去年同期", "图例_去年线": "去年日均", "去年_标题": "对比去年同期", "去年_备注": "销售额、单量对比去年全月 × 时间进度 {进度}%；客单价直接对比", "去年_去年": "去年全月 {值}", "去年_单量": "单量 {本月} / 去年 {去年}", "去年_合计": "两店合计", "去年_列_销售额": "销售额", "去年_列_单量": "单量", "去年_列_客单价": "客单价", "去年_同进度": "去年同期 {值}", "去年_客单价": "去年 {值}", "本月_上月": "上月实际 {上月}，目标比上月 {增幅}", "图例_补录": "{起}–{止}日补录 {值}，未分日显示", "区块_当日": "当日", "区块_近7天": "近 7 天", "区块_本月": "本月累计", "区块_日期": "{月}/{日} {星期}", "区块_范围": "{起}–{止}", "区块_当日_备注": "涨跌对比上周同日 {日期}", "区块_近7天_备注": "平台 7 天滚动值，对比标准", "区块_本月_备注": "对比目标、上月同期、去年同期", "本月_进度标题": "目标进度", "对比_标题": "同期对比", "对比_本月": "本月累计", "对比_上月": "{月}/1–{月}/{日}", "对比_去年": "{年} {月}/1–{月}/{日}", "对比_备注": "对比往期同样日期段；无每日数据时按全月 × 天数比例估算（估），客单价对比全月", "对比_缺数据": "{月} 未录入", "对比_合计": "两店合计", "对比_销售额": "销售额", "对比_单量": "单量", "对比_客单价": "客单价", "利润_口径": "（估算口径：销售额扣除平台佣金、VAT、食材包材成本、外包人工，及租金、水电等固定费用按日分摊；未含总部管理费、折旧及企业所得税）", "利润_口径_短": "（估算：已扣佣金、VAT、食材包材、外包人工、租金水电）", "对比_展开": "按站点、平台查看明细", "对比_估算": "（估）"}, "dims": [{"类型": "站点", "代码": "BC", "显示名": "Brent Cross", "简称": "BC", "颜色": ""}, {"类型": "站点", "代码": "SD", "显示名": "Shoreditch", "简称": "SD", "颜色": ""}, {"类型": "平台", "代码": "DR", "显示名": "Deliveroo", "简称": "Deliveroo", "颜色": "#00A99D"}, {"类型": "平台", "代码": "HP", "显示名": "HungryPanda", "简称": "Panda", "颜色": "#E0A000"}, {"类型": "成本项", "代码": "平台费", "显示名": "平台费", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "税", "显示名": "税", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "产品成本", "显示名": "食材包材", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "外包人工", "显示名": "外包人工", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "租金", "显示名": "租金", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "水电", "显示名": "水电", "简称": "", "颜色": ""}, {"类型": "成本项", "代码": "其他固定", "显示名": "其他固定", "简称": "", "颜色": ""}]};
 function mockRows(){
   const rows=[]; let seed=7;
   const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
@@ -443,13 +446,19 @@ function kpiCard(label,value,cur,prev,vals,{color='var(--ink)',neg=false,note=''
 }
 
 // 同期参考值：优先「月度基准」全月 × 时间进度；没有就用那个月已录入的每日数据（1 号到同一天）
-function periodRef(mk,sts,pfs,dayNum,tf,legacy){
-  const v=[],o=[]; sts.forEach(s=>pfs.forEach(p=>{v.push(baseOf(mk,s,p,'销售额')??(legacy?num(legacy[`去年_${s}_${p}_销售额`]):null));o.push(baseOf(mk,s,p,'单量')??(legacy?num(legacy[`去年_${s}_${p}_单量`]):null));}));
-  if(!v.every(x=>x==null)){const S=sum(v),O=sum(o);return {S:S*tf,O:O*tf,A:O?S/O:null};}
+// 同期参考值：那个月有每日数据就用 1 号到同一天的实际累计；没有就用「月度基准」全月 × 天数比例估算
+function periodRef(mk,sts,pfs,dayNum,_tf,legacy){
   const rows=DATA.rows.filter(x=>x.date.startsWith(mk)&&+x.date.slice(8,10)<=dayNum);
-  if(!rows.length) return null;
-  const S=sum(rows.map(x=>agg(x,sales,sts,pfs))),O=sum(rows.map(x=>agg(x,orders,sts,pfs)));
-  return {S,O,A:O?S/O:null};
+  if(rows.length){const S=sum(rows.map(x=>agg(x,sales,sts,pfs))),O=sum(rows.map(x=>agg(x,orders,sts,pfs)));return {S,O,A:O?S/O:null,est:false};}
+  const v=[],o=[]; sts.forEach(s=>pfs.forEach(p=>{v.push(baseOf(mk,s,p,'销售额')??(legacy?num(legacy[`去年_${s}_${p}_销售额`]):null));o.push(baseOf(mk,s,p,'单量')??(legacy?num(legacy[`去年_${s}_${p}_单量`]):null));}));
+  if(v.every(x=>x==null)) return null;
+  const dimRef=new Date(Date.UTC(+mk.slice(0,4),+mk.slice(5,7),0)).getUTCDate(), f=Math.min(dayNum,dimRef)/dimRef;
+  const S=sum(v),O=sum(o); return {S:S*f,O:O*f,A:O?S/O:null,est:true};
+}
+// 同期列标题：直接写日期段，例 8/1–8/27、2025 9/1–9/27
+function refLabel(mk,dayNum,key){
+  const dimRef=new Date(Date.UTC(+mk.slice(0,4),+mk.slice(5,7),0)).getUTCDate(), m=+mk.slice(5,7);
+  return T(key,{年:mk.slice(0,4),月:m,日:Math.min(dayNum,dimRef)});
 }
 let CMPV='S';
 function cmpTable(ctx){
@@ -472,7 +481,7 @@ function cmpTable(ctx){
   const body=ST.map(st=>PF.map(pf=>row(st,pf)).join('')).join('')+row(null,null);
   const miss=(ok,mk)=>ok?'':`<small>${esc(T('对比_缺数据',{月:mk}))}</small>`;
   return `<div class="scroll"><table class="cmpt">
-    <thead><tr><th></th><th>${esc(T('对比_本月'))}</th><th>${esc(T('对比_上月'))}${miss(anyPm,pm)}</th><th>${esc(T('对比_去年'))}${miss(anyLy,ly)}</th></tr></thead>
+    <thead><tr><th></th><th>${esc(T('对比_本月'))} ${+month.slice(5,7)}/1–${+month.slice(5,7)}/${dayNum}</th><th>${esc(refLabel(pm,dayNum,'对比_上月'))}${miss(anyPm,pm)}</th><th>${esc(refLabel(ly,dayNum,'对比_去年'))}${miss(anyLy,ly)}</th></tr></thead>
     <tbody>${body}</tbody></table></div>`;
 }
 
@@ -483,9 +492,9 @@ function cmpStrip(ctx){
   const cur=mtdAgg(...all), a=periodRef(pm,...all,dayNum,tf), b=periodRef(ly,...all,dayNum,tf,legacy);
   const item=(label,k,fmt)=>{
     const line=(name,o,mk)=>o==null
-      ?`<div class="cs-ref"><span>${esc(name)}</span><em>${esc(T('对比_缺数据',{月:mk}))}</em></div>`
-      :`<div class="cs-ref"><span>${esc(name)} ${fmt(o[k])}</span>${chip(cur[k],o[k])}</div>`;
-    return `<div class="cs"><div class="cs-l">${esc(label)}</div><div class="cs-v">${fmt(cur[k])}</div>${line(T('对比_上月'),a,pm)}${line(T('对比_去年'),b,ly)}</div>`;
+      ?`<div class="cs-ref"><span class="cs-n">${esc(name)}</span><span class="cs-x"><em>${esc(T('对比_缺数据',{月:mk}))}</em></span></div>`
+      :`<div class="cs-ref"><span class="cs-n">${esc(name)}${o.est?esc(T('对比_估算')):''}</span><span class="cs-x"><b>${fmt(o[k])}</b>${chip(cur[k],o[k])}</span></div>`;
+    return `<div class="cs"><div class="cs-l">${esc(label)}</div><div class="cs-v">${fmt(cur[k])}</div>${line(refLabel(pm,dayNum,'对比_上月'),a,pm)}${line(refLabel(ly,dayNum,'对比_去年'),b,ly)}</div>`;
   };
   return `<div class="cstrip">${item(T('对比_销售额'),'S',money)}${item(T('对比_单量'),'O',int)}${item(T('对比_客单价'),'A',money2)}</div>`;
 }
@@ -549,11 +558,6 @@ function render(dateStr){
   <div class="head">
     <div><p class="kicker">${esc(T('标题'))}</p><p class="date">${esc(T('日期格式',md(dateStr)))}<small>${esc(wd(dateStr))}</small></p></div>
     <label>${esc(T('日期标签'))} <select id="pick">${opts}</select></label>
-  </div>
-
-  <div class="two grid-gap">
-    <div class="card focus"><h2>${esc(T('重点_标题'))}</h2>${free(r?.今日重点,'重点_空')}</div>
-    <div class="card"><h2>${esc(T('问题_标题'))}</h2>${free(r?.问题,'问题_空')}</div>
   </div>
 
   <div class="card goal">
