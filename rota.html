@@ -955,8 +955,9 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
     for (let i = dayHeaders.length - 1; i >= 0; i--) {
       if (dayHours[i] !== null && dayHours[i] > 0) { lastWorkedIdx = i; break; }
     }
-    const hasAdj   = myAdjs.length > 0 && Math.abs(adjSum) > 0.0001;
-    const foldable = hasAdj && lastWorkedIdx >= 0;
+    // 有调整就显示明细(即使正负抵消、净额为 0);只有净额非 0 才折进最后上班日
+    const hasAdj   = myAdjs.length > 0;
+    const foldable = hasAdj && Math.abs(adjSum) > 0.0001 && lastWorkedIdx >= 0;
 
     let dayRowsHTML = '';
     dayHeaders.forEach((h, i) => {
