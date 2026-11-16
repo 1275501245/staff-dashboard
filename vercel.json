@@ -4,8 +4,6 @@
     { "src": "/home", "dest": "/home.html" },
     { "src": "/index", "dest": "/index.html" },
     { "src": "/sites", "dest": "/sites.html" },
-    { "src": "/daily-report", "dest": "/daily-report.html" },
-    { "src": "/DailyReport", "dest": "/daily-report.html" },
     { "src": "/product-quality", "dest": "/product-quality.html" },
     { "src": "/prep", "dest": "/prep.html" },
     { "src": "/stocktake", "dest": "/stocktake.html" },
