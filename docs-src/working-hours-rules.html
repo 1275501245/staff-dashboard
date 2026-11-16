@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: A4; margin: 13mm 15mm 11mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Liberation Sans", Arial, "Noto Sans CJK SC", sans-serif; color: #1c1f23; font-size: 10pt; line-height: 1.35; margin: 0; }
+  .zh { color: #6b7280; font-size: 9pt; }
+  header { border-bottom: 3px solid #C8102E; padding-bottom: 10px; margin-bottom: 14px; }
+  h1 { font-size: 21pt; margin: 0; letter-spacing: -0.01em; }
+  h1 .zh { font-size: 13pt; font-weight: 600; margin-left: 6px; }
+  .meta { margin-top: 4px; color: #6b7280; font-size: 9pt; }
+  section { margin-bottom: 10px; page-break-inside: avoid; }
+  h2 { font-size: 12.5pt; margin: 0 0 6px; display: flex; align-items: baseline; gap: 8px; }
+  h2 .n { color: #C8102E; }
+  table { width: 100%; border-collapse: collapse; }
+  td { border-top: 1px solid #e5e7eb; padding: 4px 4px; vertical-align: top; }
+  tr:last-child td { border-bottom: 1px solid #e5e7eb; }
+  td.h { width: 92px; text-align: right; font-weight: 700; white-space: nowrap; }
+  .minus { color: #b23b3b; }
+  .plus { color: #1f7a48; }
+  .zero { color: #6b7280; }
+  .note { margin-top: 6px; font-size: 9pt; color: #4b5563; }
+  .note li { margin-bottom: 2px; }
+  ul { margin: 4px 0 0 16px; padding: 0; }
+  footer { margin-top: 10px; font-size: 8.5pt; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Working Hours Rules <span class="zh">工时计算规则</span></h1>
+  <div class="meta">HDL Delivery Kitchen · Effective from 16 Nov 2026 · Minimum unit 0.25h · 最小单位 0.25 小时</div>
+</header>
+
+<section>
+  <h2><span class="n">1</span> Refunds <span class="zh">退款</span></h2>
+  <table>
+    <tr><td>Valid refund (each order)<div class="zh">有效退款，每单</div></td><td class="h minus">−0.25h</td></tr>
+    <tr><td>Simple missing item, when the site's inaccuracy rate is above 4%<div class="zh">站点不准确率超过 4% 时，简单漏放（每单）</div></td><td class="h minus">−1h</td></tr>
+    <tr><td>Zero refunds in the week<div class="zh">一周零退款</div></td><td class="h plus">+0.5h</td></tr>
+  </table>
+  <ul class="note">
+    <li>Malicious or no-reason refunds are not counted against staff. <span class="zh">恶意退单、无理由退单不算员工。</span></li>
+    <li>The refund is counted for the staff on shift at the time of the order. Refunds are processed the following week. <span class="zh">按下单时间算当班员工，下一周结算。</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="n">2</span> Stock &amp; Food Safety <span class="zh">库存与食品安全</span></h2>
+  <table>
+    <tr><td>Expired product (including expired date labels) or severely spoiled food, each item<div class="zh">过期产品（含过期日期标签）或严重变质，每项</div></td><td class="h">1.5h</td></tr>
+    <tr><td>Not following FIFO, product not fully defrosted when needed, or fryer oil not changed, each item<div class="zh">未遵守先进先出、需要时未完全解冻、油锅的油未更换，每项</div></td><td class="h">1h</td></tr>
+  </table>
+  <ul class="note">
+    <li><b>Finder:</b> <span class="plus">+ the same hours</span>. Send a photo with the date found. <span class="zh">发现人加相同工时，需发照片并注明日期。</span></li>
+    <li><b>Previous shift at that site:</b> <span class="minus">− the same hours</span>, split equally if more than one person was on shift. <span class="zh">该站点上一班次的人扣相同工时，多人在班则平分。</span></li>
+    <li>Issues found by management: deduction only. <span class="zh">管理层发现的只扣不加。</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="n">3</span> Attendance <span class="zh">出勤</span></h2>
+  <table>
+    <tr><td>Missed shift (cover required), per shift<div class="zh">缺勤（需他人顶班），每班</div></td><td class="h minus">−1.5h</td></tr>
+    <tr><td>Covering a colleague's shift<div class="zh">替同事顶班</div></td><td class="h plus">+1.5h</td></tr>
+    <tr><td>Late, reported in advance, up to 15 mins<div class="zh">提前报备，迟到 15 分钟内</div></td><td class="h zero">0</td></tr>
+    <tr><td>15–30 mins late<div class="zh">迟到 15–30 分钟</div></td><td class="h minus">−0.25h</td></tr>
+    <tr><td>30 mins – 2 hours late<div class="zh">迟到 30 分钟 – 2 小时</div></td><td class="h minus">−0.5h</td></tr>
+    <tr><td>2–4 hours late<div class="zh">迟到 2–4 小时</div></td><td class="h minus">−1h</td></tr>
+    <tr><td>More than 4 hours late<div class="zh">迟到 4 小时以上</div></td><td class="h minus">−2h</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2><span class="n">4</span> How adjustments are recorded <span class="zh">记录方式</span></h2>
+  <ul class="note" style="font-size:10pt">
+    <li>All additions and deductions are recorded by management in the weekly hours record. Staff do not self-report. <span class="zh">所有加扣由管理层统一记录，员工不自行申报。</span></li>
+    <li>Weekly totals after adjustments are the basis for the hours sent to the agency. <span class="zh">调整后的每周工时为对外包公司结算的依据。</span></li>
+  </ul>
+</section>
+
+<footer>HDL Delivery Kitchen · Working Hours Rules · Updated 16 Nov 2026</footer>
+</body>
+</html>
