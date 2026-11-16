@@ -35,7 +35,7 @@
     { "src": "/working-handbook", "dest": "/working-handbook.html" },
     { "src": "/customer-refund-summary", "dest": "/customer-refund-summary.html" },
     { "src": "/CustomerRefundSummary", "dest": "/customer-refund-summary.html" },
-    { "src": "/hours-rules", "dest": "/hours-rules.html" },
-    { "src": "/working-hours-rules", "dest": "/hours-rules.html" }
+    { "src": "/hours-rules(\\.html)?", "status": 302, "headers": { "Location": "/working-hours-rules.pdf" } },
+    { "src": "/working-hours-rules", "status": 302, "headers": { "Location": "/working-hours-rules.pdf" } }
   ]
 }
