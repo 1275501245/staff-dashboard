@@ -34,6 +34,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .chip:active { background: #f0f0f0; }
 .chip .chip-link { color: #1F3864; font-weight: 700; }
 .chip .chip-out { color: #aaa; font-size: 11px; }
+.nav-list.pinned { background: #FFF6DC; border: 1.5px solid #E8B64C; }
+.nav-list.pinned .nav-item { border-bottom-color: #F6E3B0; }
+.nav-list.pinned .nav-icon { background: #FCE3A0; }
+.nav-list.pinned .nav-desc { color: #A57A1E; }
 </style>
 </head>
 <body>
@@ -46,6 +50,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </div>
 <script>
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
+// Categories shown first on the page, with the highlighted (yellow) card style.
+const PINNED = ['Kitchen SOP'];
 // Fallback icons only. Primary source is the Nav sheet's "Icon" column (col E).
 const ICONS = {
   'Sites':'📍', 'Rota':'🗓️', 'Daily Report':'📊', 'Working Hours Rule':'⏱️', 'Working Handbook':'📘',
@@ -74,7 +80,8 @@ function render(items) {
     if (!byCategory[item.category]) byCategory[item.category] = [];
     byCategory[item.category].push(item);
   });
-  document.getElementById('content').innerHTML = Object.entries(byCategory).map(([cat, items]) => {
+  const entries = Object.entries(byCategory).sort(([a], [b]) => (PINNED.includes(b) ? 1 : 0) - (PINNED.includes(a) ? 1 : 0));
+  document.getElementById('content').innerHTML = entries.map(([cat, items]) => {
     const isChipSection = items.every(it => it.url.startsWith('http'));
     if (isChipSection) return `
     <div class="section">
@@ -92,7 +99,7 @@ function render(items) {
     return `
     <div class="section">
       <div class="section-label">${cat}</div>
-      <div class="nav-list">
+      <div class="nav-list${PINNED.includes(cat) ? ' pinned' : ''}">
         ${items.map(item => item.url === '/coming-soon' ? `
           <div class="nav-item-disabled">
             <div class="nav-left">
