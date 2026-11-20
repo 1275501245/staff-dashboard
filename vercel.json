@@ -1,5 +1,6 @@
 {
   "routes": [
+    { "src": "/receiving-standard", "dest": "/receiving-standard.html" },
     { "src": "/", "dest": "/home.html" },
     { "src": "/home", "dest": "/home.html" },
     { "src": "/index", "dest": "/index.html" },
