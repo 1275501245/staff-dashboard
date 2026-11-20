@@ -59,7 +59,8 @@ async function fetchSites() {
     closing: r.c[8]?.v || '',
     break: r.c[9]?.v || '',
     active: r.c[10]?.v || '',
-  }));
+    show: r.c[11]?.v,
+  })).filter(s => !/^(no|false|0)$/i.test(String(s.show ?? '').trim()));  // Sites sheet col L "Show" = No hides a site; data stays
 }
 
 function formatTime(raw) {
