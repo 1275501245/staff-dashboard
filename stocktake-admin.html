@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#D7261E">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stock Check — Admin</title>
 <style>
@@ -50,6 +51,28 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
 .toast.show { opacity: 1; }
+</style>
+<link rel="stylesheet" href="/assets/hdl.css">
+<style id="hdl-override">
+/* ── HDL theme: family B (header/header-top/back) ── */
+* { -webkit-tap-highlight-color: transparent; }
+body { background: var(--cream) !important; color: var(--ink) !important; }
+.header { position: sticky; top: 0; z-index: 100; background: linear-gradient(150deg, #E8342B 0%, var(--red) 55%, var(--red-deep) 100%) !important; color: #fff; border-bottom: none !important; padding: 10px 14px !important; box-shadow: 0 4px 16px rgba(168,21,15,.16); }
+.header-top { gap: 10px !important; }
+.header-top::after { content: ''; width: 28px; height: 28px; background: url(/assets/hi-mark-white.png) center/contain no-repeat; margin-left: auto; flex-shrink: 0; }
+.back { background: rgba(255,255,255,.16) !important; color: #fff !important; }
+.header-title { color: #fff; font-weight: 700 !important; }
+.header-sub { color: rgba(255,255,255,.82) !important; }
+.state-box { color: var(--muted) !important; }
+.state-icon { display: none !important; }
+.supp-card, .item-card, .clear-section { border: none !important; box-shadow: var(--shadow); border-radius: 14px !important; }
+.supp-label, .section-label, .section-header, .bar-label { color: var(--muted) !important; }
+.toast { background: var(--ink) !important; }
+
+.filter-btn { background: rgba(255,255,255,.16) !important; border: none !important; color: #fff !important; }
+.filter-btn.active { background: #fff !important; color: var(--red) !important; font-weight: 700; }
+.date-heading { color: var(--ink) !important; }
+.clear-btn { border: none !important; background: var(--red-soft) !important; color: var(--red) !important; border-radius: 999px !important; font-weight: 700 !important; }
 </style>
 </head>
 <body>
@@ -230,7 +253,7 @@ async function init() {
     allData = await fetchSheet('Stocktake');
     render(allData);
   } catch(e) {
-    document.getElementById('body').innerHTML = `<div class="state-box">⚠️ Failed to load. Check Sheet sharing settings.</div>`;
+    document.getElementById('body').innerHTML = `<div class="state-box">Failed to load. Check Sheet sharing settings.</div>`;
   }
 }
 

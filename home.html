@@ -45,7 +45,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI'
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .tile { background: #fff; border-radius: 14px; padding: 12px; text-decoration: none; color: var(--ink); display: flex; align-items: center; gap: 10px; min-width: 0; position: relative; box-shadow: 0 1px 6px rgba(42,26,22,.04); transition: transform .12s; }
 .tile:active { transform: scale(.97); background: #FFF8F6; }
-.tile .ic { width: 36px; height: 36px; border-radius: 11px; background: var(--red-soft); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.tile .ic { width: 36px; height: 36px; border-radius: 11px; background: var(--red-soft); color: var(--red); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
 .tile .tx { min-width: 0; }
 .tile .nm { font-size: 13px; font-weight: 700; line-height: 1.25; }
 .tile .ds { font-size: 11px; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -53,7 +53,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI'
 .tile.off .soon { position: absolute; top: 6px; right: 8px; font-size: 9px; color: var(--muted); }
 .banner { display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-radius: 16px; text-decoration: none; color: #fff; background: linear-gradient(120deg, #F0483D 0%, var(--red) 55%, #B81A12 100%); box-shadow: 0 8px 22px rgba(168,21,15,.22); position: relative; overflow: hidden; margin-bottom: 8px; }
 .banner::after { content: ''; position: absolute; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,.08); right: -30px; bottom: -50px; }
-.banner .ic { width: 40px; height: 40px; border-radius: 13px; background: rgba(255,255,255,.95); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.banner .ic { width: 40px; height: 40px; border-radius: 13px; background: rgba(255,255,255,.95); color: var(--red); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
 .banner .nm { font-size: 16px; font-weight: 700; }
 .banner .ds { font-size: 12px; opacity: .85; margin-top: 2px; }
 .banner .go { margin-left: auto; background: #fff; color: var(--red); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; position: relative; z-index: 1; white-space: nowrap; }
@@ -75,17 +75,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI'
   <div id="content"><div class="loading">Loading...</div></div>
   <div class="foot"><img src="/assets/haidilao-logo-h-red.png" alt="海底捞火锅"></div>
 </div>
+<script src="/assets/hdl-icons.js"></script>
 <script>
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
 // Categories shown first on the page, with the highlighted (yellow) card style.
 const PINNED = ['Kitchen SOP'];
-// Fallback icons only. Primary source is the Nav sheet's "Icon" column (col E).
-const ICONS = {
-  'Sites':'📍', 'Rota':'🗓️', 'Daily Report':'📊', 'Working Hours Rule':'⏱️', 'Working Handbook':'📘',
-  'Menu Preparation Guide':'📖', 'Kitchen Standards':'🧾', 'Product Quality':'✅', 'Customer Refunds Summary':'💷',
-  'Stocktake Arrangement':'🗒️', 'Stocktake':'📦',
-  'Opening':'🌅', 'Closing':'🌙', 'Prep List':'🍱', 'Handover':'🤝', 'Deep Cleaning':'🧽'
-};
 
 async function fetchNav() {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Nav&headers=1`;
@@ -122,7 +116,7 @@ function render(items) {
         `).join('')}
       </div>
     </div>`;
-    const icon = it => it.icon || ICONS[it.name] || '📌';
+    const icon = it => HDL_ICON(it.name + ' ' + it.description, 19);
     const ext = it => it.url.startsWith('http') ? ' target="_blank" rel="noopener"' : '';
     if (PINNED.includes(cat)) return `
     <div class="section" style="padding-top:6px">

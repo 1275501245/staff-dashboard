@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#D7261E">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prep List — Haidilao</title>
 <style>
@@ -84,6 +85,33 @@ tr.done-row .itext{text-decoration:line-through}
 
 .state-msg{text-align:center;padding:60px 20px;color:#aaa;font-size:14px;line-height:1.6}
 .state-msg .emoji{font-size:32px;display:block;margin-bottom:10px}
+</style>
+<link rel="stylesheet" href="/assets/hdl.css">
+<style id="hdl-override">
+body { background: var(--cream) !important; }
+.site-screen-title { color: var(--ink); font-weight: 800 !important; }
+.site-screen-title::before { content: ''; display: block; width: 52px; height: 52px; margin: 0 auto 14px; border-radius: 50%; background: var(--red) url(/assets/hi-mark-white.png) center/34px no-repeat; }
+.site-screen-sub { color: var(--muted) !important; }
+.site-btn { border: none !important; box-shadow: var(--shadow); border-radius: 16px !important; font-weight: 700 !important; }
+.site-btn:hover { background: var(--red-tint) !important; }
+.site-dot.sh { background: #2F6FD6 !important; } .site-dot.ba { background: #E8862B !important; }
+.top-bar { position: sticky; top: 8px; z-index: 20; border: none !important; background: linear-gradient(150deg, #E8342B 0%, var(--red) 55%, var(--red-deep) 100%) !important; color: #fff; box-shadow: 0 6px 18px rgba(168,21,15,.18); border-radius: 16px !important; }
+.back-btn { color: #fff !important; background: rgba(255,255,255,.16) !important; border-radius: 999px !important; padding: 4px 10px !important; font-size: 12px !important; }
+.sync { color: rgba(255,255,255,.75) !important; }
+.reset-btn { color: #fff !important; border: none !important; background: rgba(255,255,255,.16) !important; border-radius: 999px !important; }
+.top-title { color: #fff; font-weight: 800 !important; } .top-sub { color: rgba(255,255,255,.8) !important; }
+.prog-track { background: rgba(255,255,255,.25) !important; } .prog-fill { background: #fff !important; } .prog-text { color: #fff !important; }
+.section, .csec { border: none !important; box-shadow: var(--shadow); border-radius: 14px !important; }
+.section-head, .csec-head, th { background: #fff !important; border-bottom-color: var(--line-soft) !important; }
+.section-name, .csec-name { color: var(--ink) !important; font-weight: 800 !important; }
+td, .irow { border-bottom-color: var(--line-soft) !important; }
+.mod-track { background: var(--red-soft) !important; } .mod-fill { background: var(--red) !important; }
+.cb { border-color: #DCCFCA !important; } .cb.checked { background: var(--red) !important; border-color: var(--red) !important; }
+.cb:hover { border-color: var(--red) !important; background: var(--red-tint) !important; }
+.qty { background: var(--cream) !important; border: none !important; color: #6B5A55 !important; }
+.grp { border: none !important; background: var(--cream); }
+.grp-head { border-bottom: none !important; }
+.state-msg .emoji { display: none !important; }
 </style>
 </head>
 <body>

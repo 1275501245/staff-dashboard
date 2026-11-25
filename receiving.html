@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="utf-8">
+<meta name="theme-color" content="#D7261E">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Receiving Upload · HDL Delivery Kitchen Sites</title>
 <style>
@@ -105,6 +106,29 @@
   .retry{margin-top:16px; padding:11px 22px; border:1.5px solid var(--ink2); background:#fff;
          border-radius:10px; font-weight:650; cursor:pointer}
 </style>
+<link rel="stylesheet" href="/assets/hdl.css">
+<style id="hdl-override">
+:root { --brand: #D7261E; --bg: #FBF6F0; --go: #D7261E; --go-d: #A8150F; --ink2: #5E4F4A; --line: #EFE4DF; --miss: #D7261E; }
+body { background: var(--cream) !important; }
+header { background: linear-gradient(150deg, #E8342B 0%, var(--red) 55%, var(--red-deep) 100%) !important; border-bottom: none !important; box-shadow: 0 4px 16px rgba(168,21,15,.16); padding: 12px 16px 12px 58px !important; position: sticky; }
+header::before { content: ''; position: absolute; left: 16px; top: 50%; width: 30px; height: 30px; margin-top: -15px; background: url(/assets/hi-mark-white.png) center/contain no-repeat; }
+.eyebrow { color: rgba(255,255,255,.75) !important; letter-spacing: .08em !important; font-size: 10px !important; }
+header h1 { font-size: 17px !important; } header .sub { color: rgba(255,255,255,.82) !important; }
+.card { border: none !important; box-shadow: var(--shadow); border-radius: 16px !important; }
+select, input[type=text], input[type=date] { background: var(--cream) !important; border-color: transparent !important; border-radius: 12px !important; }
+select:focus, input:focus { border-color: var(--red) !important; background: #fff !important; }
+.seg button { border: none !important; background: var(--cream) !important; border-radius: 999px !important; }
+.seg button.yes.on { background: var(--red) !important; color: #fff !important; }
+.seg button.no.on { background: var(--ink) !important; color: #fff !important; }
+.upload { border-left: none !important; border-radius: 12px !important; background: var(--amber-soft) !important; }
+.upload.optional { background: var(--cream) !important; }
+.drop { border-color: #E5C9C4 !important; border-radius: 12px !important; color: var(--red) !important; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.drop svg { color: var(--red); }
+.bar { border-top: none !important; }
+.submit { border-radius: 999px !important; background: #E3D7D3 !important; }
+.submit.ready { background: var(--red) !important; }
+.again, .retry { border: none !important; background: var(--red-soft) !important; color: var(--red) !important; border-radius: 999px !important; }
+</style>
 </head>
 <body>
 
@@ -141,7 +165,7 @@
     <div class="hint">Photo of the delivery note / invoice</div>
     <div class="upload">
       <span class="tag">Required · multiple allowed</span>
-      <div class="drop" data-for="receiving">📷 Take photo / choose image<small>Opens camera or photo library</small></div>
+      <div class="drop" data-for="receiving"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3L9.5 4.5h5L16.2 7h2.3A1.5 1.5 0 0 1 20 8.5v9.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18z"/><circle cx="12" cy="13" r="3.5"/></svg>Take photo / choose image<small>Opens camera or photo library</small></div>
       <input type="file" id="f-receiving" accept="image/*" multiple>
       <div class="thumbs" id="t-receiving"></div>
     </div>
@@ -153,7 +177,7 @@
     <div class="hint">Wide shot of all products together after they arrive</div>
     <div class="upload">
       <span class="tag">Required · multiple allowed</span>
-      <div class="drop" data-for="overall">📷 Take photo / choose image<small>Whole delivery in one shot — add more if needed</small></div>
+      <div class="drop" data-for="overall"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3L9.5 4.5h5L16.2 7h2.3A1.5 1.5 0 0 1 20 8.5v9.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18z"/><circle cx="12" cy="13" r="3.5"/></svg>Take photo / choose image<small>Whole delivery in one shot — add more if needed</small></div>
       <input type="file" id="f-overall" accept="image/*" multiple>
       <div class="thumbs" id="t-overall"></div>
     </div>
@@ -168,7 +192,7 @@
     </div>
     <div class="upload reveal" id="rev-frozen">
       <span class="tag">Required · multiple allowed</span>
-      <div class="drop" data-for="frozen">📷 Temperature check photos<small>Take a photo of each probe reading</small></div>
+      <div class="drop" data-for="frozen"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3L9.5 4.5h5L16.2 7h2.3A1.5 1.5 0 0 1 20 8.5v9.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18z"/><circle cx="12" cy="13" r="3.5"/></svg>Temperature check photos<small>Take a photo of each probe reading</small></div>
       <input type="file" id="f-frozen" accept="image/*" multiple>
       <div class="thumbs" id="t-frozen"></div>
     </div>
@@ -183,7 +207,7 @@
     </div>
     <div class="upload reveal" id="rev-pakchoi">
       <span class="tag">Required · multiple allowed</span>
-      <div class="drop" data-for="pakchoi">📷 Re-weigh photos<small>Photo of the scale reading</small></div>
+      <div class="drop" data-for="pakchoi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3L9.5 4.5h5L16.2 7h2.3A1.5 1.5 0 0 1 20 8.5v9.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18z"/><circle cx="12" cy="13" r="3.5"/></svg>Re-weigh photos<small>Photo of the scale reading</small></div>
       <input type="file" id="f-pakchoi" accept="image/*" multiple>
       <div class="thumbs" id="t-pakchoi"></div>
     </div>
@@ -198,7 +222,7 @@
     </div>
     <div class="upload optional reveal" id="rev-quality">
       <span class="tag">Optional · multiple allowed</span>
-      <div class="drop" data-for="quality">📷 Photos of the issue<small>Optional — attach if any</small></div>
+      <div class="drop" data-for="quality"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3L9.5 4.5h5L16.2 7h2.3A1.5 1.5 0 0 1 20 8.5v9.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18z"/><circle cx="12" cy="13" r="3.5"/></svg>Photos of the issue<small>Optional — attach if any</small></div>
       <input type="file" id="f-quality" accept="image/*" multiple>
       <div class="thumbs" id="t-quality"></div>
     </div>

@@ -2,6 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#D7261E">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Product Quality 出品质量检查项</title>
 <style>
@@ -22,6 +23,19 @@ h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
   .item-card { border: 1px solid #ddd; border-radius: 0; break-inside: avoid; margin-bottom: 6px; }
   .section-title { break-after: avoid; }
 }
+</style>
+<link rel="stylesheet" href="/assets/hdl.css">
+<style id="hdl-override">
+body { background: var(--cream) !important; }
+.container { padding: 0 0 40px !important; max-width: none !important; }
+.container > h1 { position: sticky; top: 0; z-index: 50; margin: 0 0 10px !important; padding: 12px 16px 12px 54px; font-size: 16px !important; font-weight: 700 !important; color: #fff; background: url(/assets/hi-mark-white.png) 16px center/28px no-repeat, linear-gradient(150deg, #E8342B 0%, var(--red) 55%, var(--red-deep) 100%); box-shadow: 0 4px 16px rgba(168,21,15,.16); }
+.subtitle, #content { max-width: 680px; margin-left: auto !important; margin-right: auto !important; padding: 0 12px; }
+.subtitle { color: var(--muted) !important; font-size: 11px !important; }
+.section-title { border-left: none !important; padding-left: 0 !important; display: flex; gap: 6px; align-items: center; }
+.section-title::before { content: ''; width: 3px; height: 14px; border-radius: 2px; background: var(--red); flex-shrink: 0; }
+.item-card { border: none !important; box-shadow: var(--shadow); border-radius: 14px !important; }
+.item-no { color: var(--red) !important; background: var(--red-soft); border-radius: 999px; padding: 2px 8px; }
+.item-text { color: #4A3B37 !important; }
 </style>
 </head>
 <body>

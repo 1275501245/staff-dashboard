@@ -1,0 +1,40 @@
+/* Haidilao staff dashboard — shared theme */
+:root {
+  --red: #D7261E; --red-deep: #A8150F; --red-soft: #FDECEA; --red-tint: #FFF6F5;
+  --cream: #FBF6F0; --ink: #2A1A16; --muted: #9A8580; --line: #F1E7E2; --line-soft: #F7F0EC;
+  --green: #2F8F4E; --green-soft: #E8F5EC; --amber: #B85A06; --amber-soft: #FFEFD9; --blue: #1D5FBF; --blue-soft: #E6EFFD;
+  --shadow: 0 1px 8px rgba(42,26,22,.05);
+  --font: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI', 'Microsoft YaHei', sans-serif;
+}
+html, body { background: var(--cream) !important; color: var(--ink); font-family: var(--font) !important; -webkit-tap-highlight-color: transparent; }
+
+/* top bar for secondary pages */
+.hdl-bar { position: sticky; top: 0; z-index: 200; background: linear-gradient(150deg, #E8342B 0%, var(--red) 55%, var(--red-deep) 100%); color: #fff; padding: 10px 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 16px rgba(168,21,15,.16); }
+.hdl-bar .hdl-back { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.16); color: #fff; text-decoration: none; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.hdl-bar .hdl-mark { width: 28px; flex-shrink: 0; }
+.hdl-bar .hdl-title { flex: 1; min-width: 0; font-size: 16px; font-weight: 700; letter-spacing: .2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hdl-bar .hdl-title small { display: block; font-size: 10px; font-weight: 500; opacity: .82; letter-spacing: .4px; }
+.hdl-bar .hdl-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.hdl-bar .hdl-pill { background: rgba(255,255,255,.16); color: #fff; border: none; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; text-decoration: none; }
+
+.hdl-wrap { max-width: 680px; margin: 0 auto; padding: 12px 12px 40px; }
+.hdl-sec { font-size: 13px; font-weight: 700; color: var(--ink); margin: 16px 4px 8px; display: flex; align-items: center; gap: 6px; }
+.hdl-sec::before { content: ''; width: 3px; height: 13px; border-radius: 2px; background: var(--red); flex-shrink: 0; }
+.hdl-card { background: #fff; border-radius: 16px; box-shadow: var(--shadow); }
+.hdl-sub { font-size: 11px; color: var(--muted); }
+
+.hdl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.hdl-tile { background: #fff; border-radius: 14px; padding: 12px; text-decoration: none; color: var(--ink); display: flex; align-items: center; gap: 10px; min-width: 0; box-shadow: var(--shadow); transition: transform .12s; position: relative; }
+.hdl-tile:active { transform: scale(.97); background: #FFF8F6; }
+.hdl-tile .nm { font-size: 13px; font-weight: 700; line-height: 1.25; }
+.hdl-tile .ds { font-size: 11px; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hdl-tile .tx { min-width: 0; }
+.hdl-tile .out { position: absolute; top: 8px; right: 10px; font-size: 11px; color: #D3C5C0; }
+.hdl-ic { width: 36px; height: 36px; border-radius: 11px; background: var(--red-soft); color: var(--red); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+.hdl-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; background: var(--red); color: #fff; text-decoration: none; }
+.hdl-btn.ghost { background: var(--red-soft); color: var(--red); }
+.hdl-btn:disabled { opacity: .45; cursor: default; }
+.hdl-state { text-align: center; padding: 48px 20px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+
+@media (max-width: 480px) { .hdl-bar .hdl-mark { display: none; } }

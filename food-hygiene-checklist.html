@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#D7261E">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Food Hygiene Checklist · 四色卡检查项目</title>
 <style>
@@ -46,6 +47,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
   padding:16px;color:#F5F0E8;font-size:12.5px;line-height:1.6;margin-bottom:10px}
 .lb-hint{text-align:center;color:rgba(245,240,232,.5);font-size:11px;margin-top:10px}
 @media (min-width:520px){.lb{padding:34px 20px 60px}}
+</style>
+<link rel="stylesheet" href="/assets/hdl.css">
+<style id="hdl-override">
+body { background: var(--cream) !important; }
+.page { padding: 0 0 56px !important; max-width: none !important; }
+.topbar { position: sticky; top: 0; z-index: 30; margin: 0 !important; padding: 10px 14px; background: linear-gradient(150deg, #E8342B 0%, var(--red) 55%, var(--red-deep) 100%); box-shadow: 0 4px 16px rgba(168,21,15,.16); display: flex; align-items: center; gap: 10px; }
+.topbar .back { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.16); color: #fff !important; font-size: 0 !important; justify-content: center; }
+.topbar .back::before { content: '‹'; font-size: 18px; }
+.topbar::after { content: 'Food Hygiene Checklist'; color: #fff; font-weight: 700; font-size: 16px; flex: 1; }
+.hd { display: none; }
+#content { max-width: 620px; margin: 12px auto 0; padding: 0 12px; }
+.cat-h { border-bottom: none !important; margin-bottom: 8px !important; }
+.cat-h::before { content: ''; width: 3px; height: 15px; border-radius: 2px; background: var(--red); }
+.sub-h::before { background: var(--red-soft) !important; }
+.it { border: none !important; box-shadow: var(--shadow); border-radius: 12px !important; }
+.it .pic { color: var(--red) !important; display: inline-flex; }
+.it.off { background: #F4ECE8 !important; box-shadow: none; }
 </style>
 </head>
 <body>
@@ -132,7 +150,7 @@ function itemHTML(t){
   if(!t.images.length)
     return `<div class="it off">${esc(t.item)}</div>`;
   IMG_STORE.push(t);
-  return `<button class="it" data-lb="${IMG_STORE.length-1}">${esc(t.item)}<span class="pic">📷 ›</span></button>`;
+  return `<button class="it" data-lb="${IMG_STORE.length-1}">${esc(t.item)}<span class="pic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3L9.5 4.5h5L16.2 7h2.3A1.5 1.5 0 0 1 20 8.5v9.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18z"/><circle cx="12" cy="13" r="3.5"/></svg>›</span></button>`;
 }
 
 function render(cats){
@@ -155,7 +173,7 @@ function openLB(idx){
     const r=toImgSrc(link);
     if(r.folder){
       const d=document.createElement("div"); d.className="lb-msg";
-      d.textContent="⚠️ 这是文件夹链接，请在 Sheet 里贴单张图片的链接（右键图片 → 共享 → 复制链接）";
+      d.textContent="这是文件夹链接，请在 Sheet 里贴单张图片的链接（右键图片 → 共享 → 复制链接）";
       body.appendChild(d); return;
     }
     const img=document.createElement("img");

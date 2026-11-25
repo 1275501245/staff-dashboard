@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#D7261E">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Common Refund Reasons · HDL Delivery Kitchen</title>
 <style>
@@ -80,6 +81,21 @@
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
   :focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+</style>
+<link rel="stylesheet" href="/assets/hdl.css">
+<style id="hdl-override">
+:root { --brand: #D7261E; --canvas: #FBF6F0; --line: #F1E7E2; --ink: #2A1A16; --muted: #9A8580; --faint: #B5A6A1; }
+body { padding: 0 0 64px !important; background: var(--cream) !important; }
+.wrap { max-width: none !important; }
+.wrap > header { position: sticky; top: 0; z-index: 10; padding: 12px 16px 12px 54px !important; background: url(/assets/hi-mark-white.png) 16px center/28px no-repeat, linear-gradient(150deg, #E8342B 0%, var(--red) 55%, var(--red-deep) 100%); box-shadow: 0 4px 16px rgba(168,21,15,.16); }
+.wrap > header h1 { font-size: 16px !important; font-weight: 700 !important; color: #fff; letter-spacing: .2px !important; }
+.controls, #content { max-width: 900px; margin-left: auto; margin-right: auto; padding-left: 12px; padding-right: 12px; }
+.controls { top: 52px !important; background: var(--cream) !important; }
+.chip { border: none !important; box-shadow: var(--shadow); }
+.cat-head .tag { border: none !important; }
+table, tbody tr { border: none !important; box-shadow: var(--shadow); }
+thead th { background: #fff !important; }
+.empty { border: none !important; box-shadow: var(--shadow); }
 </style>
 </head>
 <body>

@@ -24,7 +24,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI'
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .tile { background: #fff; border-radius: 14px; padding: 12px; text-decoration: none; color: var(--ink); display: flex; align-items: center; gap: 10px; min-width: 0; box-shadow: 0 1px 6px rgba(42,26,22,.04); transition: transform .12s; }
 .tile:active { transform: scale(.97); background: #FFF8F6; }
-.tile .ic { width: 36px; height: 36px; border-radius: 11px; background: var(--red-soft); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.tile .ic { width: 36px; height: 36px; border-radius: 11px; background: var(--red-soft); color: var(--red); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
 .tile .tx { min-width: 0; }
 .tile .nm { font-size: 13px; font-weight: 700; line-height: 1.25; }
 .tile .ds { font-size: 11px; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -47,20 +47,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI'
   <div class="section">
     <div class="section-label">Purchasing · 采购</div>
     <div class="grid">
-      <a class="tile" href="/suppliers"><div class="ic">🏪</div><div class="tx"><div class="nm">Suppliers</div><div class="ds">供应商管理</div></div></a>
-      <a class="tile" href="/stocktake-admin"><div class="ic">📋</div><div class="tx"><div class="nm">Inventory</div><div class="ds">库存盘点</div></div></a>
+      <a class="tile" href="/suppliers"><div class="ic" data-i="store"></div><div class="tx"><div class="nm">Suppliers</div><div class="ds">供应商管理</div></div></a>
+      <a class="tile" href="/stocktake-admin"><div class="ic" data-i="box"></div><div class="tx"><div class="nm">Inventory</div><div class="ds">库存盘点</div></div></a>
     </div>
   </div>
 
   <div class="section">
     <div class="section-label">System · 系统</div>
     <div class="grid">
-      <a class="tile" href="/accounts"><div class="ic">🔑</div><div class="tx"><div class="nm">Accounts</div><div class="ds">管理员账户</div></div></a>
-      <a class="tile" href="/home"><div class="ic">🏠</div><div class="tx"><div class="nm">Staff Home</div><div class="ds">员工首页</div></div></a>
+      <a class="tile" href="/accounts"><div class="ic" data-i="key"></div><div class="tx"><div class="nm">Accounts</div><div class="ds">管理员账户</div></div></a>
+      <a class="tile" href="/home"><div class="ic" data-i="home"></div><div class="tx"><div class="nm">Staff Home</div><div class="ds">员工首页</div></div></a>
     </div>
   </div>
 
   <div class="foot"><img src="/assets/haidilao-logo-h-red.png" alt="海底捞火锅"></div>
 </div>
+<script src="/assets/hdl-icons.js"></script>
+<script>document.querySelectorAll("[data-i]").forEach(e => e.innerHTML = HDL_ICON(e.dataset.i, 19));</script>
 </body>
 </html>

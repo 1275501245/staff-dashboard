@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#D7261E">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Handover</title>
 <style>
@@ -110,6 +111,39 @@ body {
   font-size: 13px; line-height: 1.55; color: #555;
 }
 </style>
+<link rel="stylesheet" href="/assets/hdl.css">
+<style id="hdl-override">
+/* ── HDL theme: family A (header/back-btn) ── */
+* { -webkit-tap-highlight-color: transparent; }
+body { background: var(--cream) !important; color: var(--ink) !important; }
+.header { position: sticky; top: 0; z-index: 100; margin: -16px -16px 14px !important; padding: 10px 14px !important; background: linear-gradient(150deg, #E8342B 0%, var(--red) 55%, var(--red-deep) 100%); color: #fff; box-shadow: 0 4px 16px rgba(168,21,15,.16); gap: 10px !important; }
+.header::after { content: ''; width: 28px; height: 28px; background: url(/assets/hi-mark-white.png) center/contain no-repeat; margin-left: auto; flex-shrink: 0; opacity: .95; }
+.back-btn { width: 30px !important; height: 30px !important; border: none !important; background: rgba(255,255,255,.16) !important; color: #fff !important; font-size: 16px !important; }
+.header-text h1 { font-size: 16px !important; color: #fff; }
+.header-text p { font-size: 11px !important; color: rgba(255,255,255,.82) !important; }
+.state-msg { color: var(--muted) !important; }
+.state-msg .emoji { display: none !important; }
+
+.progress-wrap { border: none !important; box-shadow: var(--shadow); border-radius: 14px !important; }
+.progress-track { background: var(--red-soft) !important; }
+.progress-fill { background: var(--red) !important; }
+.progress-label { color: var(--ink) !important; }
+.section-divider-line { background: var(--line) !important; }
+.section-divider-label, .section-divider-label.normal { background: var(--ink) !important; color: #fff !important; }
+.section-divider-label.urgent { background: var(--red) !important; }
+.category-card { border: none !important; box-shadow: var(--shadow); border-radius: 14px !important; }
+.urgent-card { background: var(--red-tint) !important; box-shadow: inset 3px 0 0 var(--red), var(--shadow) !important; }
+.urgent-card .cat-title { color: var(--red) !important; }
+.category-card.done, .urgent-card.done { background: var(--green-soft) !important; box-shadow: none !important; }
+.cat-count { color: var(--muted) !important; }
+.check-btn { border-color: #E0D3CE !important; }
+.category-card.done .check-btn { background: var(--green) !important; border-color: var(--green) !important; }
+.item-list { border-top-color: var(--line-soft) !important; }
+.item-row { color: #5E4F4A !important; border-bottom-color: var(--line-soft) !important; }
+.item-dot { background: #D9CBC6 !important; }
+.done-banner { background: linear-gradient(135deg, #F0483D, var(--red) 60%, #B81A12) !important; border-radius: 16px !important; }
+.intro-note { border: none !important; box-shadow: inset 3px 0 0 var(--red), var(--shadow) !important; color: #5E4F4A !important; }
+</style>
 </head>
 <body>
 
@@ -134,7 +168,7 @@ body {
 </div>
 
 <div id="content">
-  <div class="state-msg"><span class="emoji">⏳</span>Loading checklist…</div>
+  <div class="state-msg">Loading checklist…</div>
 </div>
 
 <script>
@@ -160,7 +194,7 @@ async function load() {
     render(rows);
   } catch (e) {
     document.getElementById('content').innerHTML =
-      '<div class="state-msg"><span class="emoji">⚠️</span>Failed to load checklist.<br>Check your connection and try again.</div>';
+      '<div class="state-msg">Failed to load checklist.<br>Check your connection and try again.</div>';
   }
 }
 
