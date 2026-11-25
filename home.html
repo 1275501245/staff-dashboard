@@ -16,9 +16,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI'
 .hero h1 { font-size: 19px; font-weight: 700; letter-spacing: .3px; }
 .hero p { font-size: 11px; opacity: .8; margin-top: 2px; letter-spacing: .5px; }
 .container { max-width: 480px; margin: -28px auto 0; padding: 0 12px; position: relative; z-index: 2; }
-.section { margin-bottom: 14px; }
-.section-label { font-size: 11px; color: var(--muted); letter-spacing: .5px; margin: 0 6px 6px; }
-.section:first-child .section-label { color: rgba(255,255,255,.85); }
+.section { margin-bottom: 18px; }
+.section-label { font-size: 13px; font-weight: 700; color: var(--ink); margin: 0 4px 8px; display: flex; align-items: center; gap: 6px; }
+.section-label::before { content: ''; width: 3px; height: 13px; border-radius: 2px; background: var(--red); }
 .nav-list { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 8px rgba(42,26,22,.04); }
 .nav-item, .nav-item-disabled { display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; text-decoration: none; color: var(--ink); position: relative; }
 .nav-item + .nav-item::before, .nav-item + .nav-item-disabled::before, .nav-item-disabled + .nav-item::before, .nav-item-disabled + .nav-item-disabled::before { content: ''; position: absolute; top: 0; left: 60px; right: 14px; height: 1px; background: var(--line); }
@@ -42,17 +42,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI'
 .nav-list.pinned .nav-icon { background: var(--red-soft); }
 .nav-list.pinned .nav-arrow { color: var(--red); }
 /* 海底捞 App 金刚区式宫格 */
-.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 4px; background: #fff; border-radius: 18px; padding: 16px 8px 14px; box-shadow: 0 1px 8px rgba(42,26,22,.04); }
-.tile { text-decoration: none; color: var(--ink); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 5px; position: relative; padding: 2px; border-radius: 12px; transition: transform .12s; }
-.tile:active { transform: scale(.94); }
-.tile .ic { width: 44px; height: 44px; border-radius: 14px; background: var(--red-soft); display: flex; align-items: center; justify-content: center; font-size: 21px; }
-.tile .nm { font-size: 12px; font-weight: 600; line-height: 1.2; }
-.tile .ds { font-size: 10px; color: var(--muted); line-height: 1.2; }
-.tile.off { opacity: .4; }
-.tile.off .soon { position: absolute; top: -4px; right: 0; font-size: 8px; color: #fff; background: #C9B9B4; border-radius: 999px; padding: 1px 5px; }
-.banner { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 18px; text-decoration: none; color: #fff; background: linear-gradient(120deg, #F0483D 0%, var(--red) 55%, #B81A12 100%); box-shadow: 0 8px 22px rgba(168,21,15,.22); position: relative; overflow: hidden; margin-bottom: 8px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tile { background: #fff; border-radius: 14px; padding: 12px; text-decoration: none; color: var(--ink); display: flex; align-items: center; gap: 10px; min-width: 0; position: relative; box-shadow: 0 1px 6px rgba(42,26,22,.04); transition: transform .12s; }
+.tile:active { transform: scale(.97); background: #FFF8F6; }
+.tile .ic { width: 36px; height: 36px; border-radius: 11px; background: var(--red-soft); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.tile .tx { min-width: 0; }
+.tile .nm { font-size: 13px; font-weight: 700; line-height: 1.25; }
+.tile .ds { font-size: 11px; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile.off { opacity: .45; }
+.tile.off .soon { position: absolute; top: 6px; right: 8px; font-size: 9px; color: var(--muted); }
+.banner { display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-radius: 16px; text-decoration: none; color: #fff; background: linear-gradient(120deg, #F0483D 0%, var(--red) 55%, #B81A12 100%); box-shadow: 0 8px 22px rgba(168,21,15,.22); position: relative; overflow: hidden; margin-bottom: 8px; }
 .banner::after { content: ''; position: absolute; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,.08); right: -30px; bottom: -50px; }
-.banner .ic { width: 48px; height: 48px; border-radius: 16px; background: rgba(255,255,255,.95); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+.banner .ic { width: 40px; height: 40px; border-radius: 13px; background: rgba(255,255,255,.95); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
 .banner .nm { font-size: 16px; font-weight: 700; }
 .banner .ds { font-size: 12px; opacity: .85; margin-top: 2px; }
 .banner .go { margin-left: auto; background: #fff; color: var(--red); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; position: relative; z-index: 1; white-space: nowrap; }
@@ -124,8 +125,7 @@ function render(items) {
     const icon = it => it.icon || ICONS[it.name] || '📌';
     const ext = it => it.url.startsWith('http') ? ' target="_blank" rel="noopener"' : '';
     if (PINNED.includes(cat)) return `
-    <div class="section">
-      <div class="section-label">${cat}</div>
+    <div class="section" style="padding-top:6px">
       ${items.map(it => `
         <a class="banner" href="${it.url}"${ext(it)}>
           <div class="ic">${icon(it)}</div>
@@ -138,9 +138,9 @@ function render(items) {
       <div class="section-label">${cat}</div>
       <div class="grid">
         ${items.map(it => it.url === '/coming-soon' ? `
-          <div class="tile off"><span class="soon">Soon</span><div class="ic">${icon(it)}</div><div class="nm">${it.name}</div><div class="ds">${it.description}</div></div>
+          <div class="tile off"><span class="soon">Soon</span><div class="ic">${icon(it)}</div><div class="tx"><div class="nm">${it.name}</div><div class="ds">${it.description}</div></div></div>
         ` : `
-          <a class="tile" href="${it.url}"${ext(it)}><div class="ic">${icon(it)}</div><div class="nm">${it.name}</div><div class="ds">${it.description}</div></a>
+          <a class="tile" href="${it.url}"${ext(it)}><div class="ic">${icon(it)}</div><div class="tx"><div class="nm">${it.name}</div><div class="ds">${it.description}</div></div></a>
         `).join('')}
       </div>
     </div>
