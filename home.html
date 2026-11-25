@@ -41,6 +41,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI'
 .nav-list.pinned { background: linear-gradient(135deg, #fff 0%, #FFF4F2 100%); box-shadow: 0 6px 20px rgba(168,21,15,.12); }
 .nav-list.pinned .nav-icon { background: var(--red-soft); }
 .nav-list.pinned .nav-arrow { color: var(--red); }
+/* 海底捞 App 金刚区式宫格 */
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 4px; background: #fff; border-radius: 18px; padding: 16px 8px 14px; box-shadow: 0 1px 8px rgba(42,26,22,.04); }
+.tile { text-decoration: none; color: var(--ink); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 5px; position: relative; padding: 2px; border-radius: 12px; transition: transform .12s; }
+.tile:active { transform: scale(.94); }
+.tile .ic { width: 44px; height: 44px; border-radius: 14px; background: var(--red-soft); display: flex; align-items: center; justify-content: center; font-size: 21px; }
+.tile .nm { font-size: 12px; font-weight: 600; line-height: 1.2; }
+.tile .ds { font-size: 10px; color: var(--muted); line-height: 1.2; }
+.tile.off { opacity: .4; }
+.tile.off .soon { position: absolute; top: -4px; right: 0; font-size: 8px; color: #fff; background: #C9B9B4; border-radius: 999px; padding: 1px 5px; }
+.banner { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 18px; text-decoration: none; color: #fff; background: linear-gradient(120deg, #F0483D 0%, var(--red) 55%, #B81A12 100%); box-shadow: 0 8px 22px rgba(168,21,15,.22); position: relative; overflow: hidden; margin-bottom: 8px; }
+.banner::after { content: ''; position: absolute; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,.08); right: -30px; bottom: -50px; }
+.banner .ic { width: 48px; height: 48px; border-radius: 16px; background: rgba(255,255,255,.95); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+.banner .nm { font-size: 16px; font-weight: 700; }
+.banner .ds { font-size: 12px; opacity: .85; margin-top: 2px; }
+.banner .go { margin-left: auto; background: #fff; color: var(--red); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; position: relative; z-index: 1; white-space: nowrap; }
 .foot { text-align: center; margin-top: 22px; }
 .foot img { width: 116px; opacity: .85; }
 </style>
@@ -106,32 +121,26 @@ function render(items) {
         `).join('')}
       </div>
     </div>`;
+    const icon = it => it.icon || ICONS[it.name] || '📌';
+    const ext = it => it.url.startsWith('http') ? ' target="_blank" rel="noopener"' : '';
+    if (PINNED.includes(cat)) return `
+    <div class="section">
+      <div class="section-label">${cat}</div>
+      ${items.map(it => `
+        <a class="banner" href="${it.url}"${ext(it)}>
+          <div class="ic">${icon(it)}</div>
+          <div><div class="nm">${it.name}</div><div class="ds">${it.description}</div></div>
+          <span class="go">进入 ›</span>
+        </a>`).join('')}
+    </div>`;
     return `
     <div class="section">
       <div class="section-label">${cat}</div>
-      <div class="nav-list${PINNED.includes(cat) ? ' pinned' : ''}">
-        ${items.map(item => item.url === '/coming-soon' ? `
-          <div class="nav-item-disabled">
-            <div class="nav-left">
-              <div class="nav-icon">${item.icon || ICONS[item.name] || '📌'}</div>
-              <div class="nav-text">
-                <div class="nav-name">${item.name}</div>
-                <div class="nav-desc">${item.description}</div>
-              </div>
-            </div>
-            <span class="coming-soon-tag">Coming soon</span>
-          </div>
+      <div class="grid">
+        ${items.map(it => it.url === '/coming-soon' ? `
+          <div class="tile off"><span class="soon">Soon</span><div class="ic">${icon(it)}</div><div class="nm">${it.name}</div><div class="ds">${it.description}</div></div>
         ` : `
-          <a class="nav-item" href="${item.url}"${item.url.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>
-            <div class="nav-left">
-              <div class="nav-icon">${item.icon || ICONS[item.name] || '📌'}</div>
-              <div class="nav-text">
-                <div class="nav-name">${item.name}</div>
-                <div class="nav-desc">${item.description}</div>
-              </div>
-            </div>
-            <div class="nav-arrow">›</div>
-          </a>
+          <a class="tile" href="${it.url}"${ext(it)}><div class="ic">${icon(it)}</div><div class="nm">${it.name}</div><div class="ds">${it.description}</div></a>
         `).join('')}
       </div>
     </div>
