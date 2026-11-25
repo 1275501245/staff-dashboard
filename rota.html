@@ -1,455 +1,152 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rota</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; background: #f5f5f5; }
+:root { --red:#D7261E; --red-deep:#A8150F; --red-soft:#FDECEA; --cream:#FBF6F0; --ink:#2A1A16; --muted:#9A8580; --line:#F1E7E2; --green:#2F8F4E; --green-soft:#E8F5EC; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif; background: var(--cream); color: var(--ink); padding-bottom: 32px; }
 
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: #fff;
-  border-bottom: 1px solid #e0e0e0;
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.topbar h1 { font-size: 15px; font-weight: 600; color: #111; flex: 1; }
-.pager { display: flex; align-items: center; gap: 10px; }
-.pager-btn {
-  width: 30px; height: 30px;
-  border-radius: 50%;
-  border: 1px solid #ddd;
-  background: #fff;
-  color: #333;
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
-  font-family: inherit;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s;
-}
-.pager-btn:hover:not(:disabled) { border-color: #111; }
-.pager-btn:disabled { opacity: 0.3; cursor: default; }
-.pager-label {
-  min-width: 150px;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: #111;
-  white-space: nowrap;
-}
-.pager-btn.active { background: #111; color: #fff; border-color: #111; }
-.sum-bar {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  margin: 4px 0 18px;
-}
-.sum-bar select {
-  padding: 6px 10px; border: 1px solid #ddd; border-radius: 8px;
-  font-size: 13px; font-family: inherit; background: #fff; cursor: pointer;
-}
-.sum-bar .sum-title { font-size: 14px; font-weight: 700; margin-right: 6px; }
-.sum-section-title {
-  font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #888;
-  text-transform: uppercase; margin: 22px 0 10px;
-}
-.sum-table {
-  width: 100%; border-collapse: collapse; background: #fff;
-  border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  font-size: 13px;
-}
-.sum-table th {
-  background: #1a1a1a; color: #fff; padding: 9px 12px; text-align: center;
-  font-weight: 600; white-space: nowrap;
-}
-.sum-table th:first-child { text-align: left; }
-.sum-table td {
-  padding: 8px 12px; text-align: center; border-bottom: 1px solid #f0f0f0; white-space: nowrap;
-}
-.sum-table td:first-child { text-align: left; font-weight: 600; }
-.sum-table tr:last-child td { border-bottom: none; }
-.sum-table .sum-adj-neg { color: #c62828; font-weight: 600; }
-.sum-table .sum-adj-pos { color: #2e7d32; font-weight: 600; }
-.sum-table .sum-total { font-weight: 700; background: #f7f5ff; color: #5b21b6; }
-.pager-tag {
-  display: block;
-  font-size: 10px;
-  font-weight: 500;
-  color: #7c3aed;
-  letter-spacing: 0.3px;
-}
+/* 顶栏 */
+.topbar { position: sticky; top: 0; z-index: 100; background: linear-gradient(150deg, #E8342B 0%, var(--red) 55%, var(--red-deep) 100%); color: #fff; padding: 10px 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 16px rgba(168,21,15,.18); }
+.topbar .back { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.16); color: #fff; text-decoration: none; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.topbar .mark { width: 30px; flex-shrink: 0; }
+.topbar h1 { font-size: 16px; font-weight: 700; flex: 1; letter-spacing: .3px; }
+.topbar h1 small { display: block; font-size: 10px; font-weight: 500; opacity: .8; letter-spacing: .5px; }
+.pager { display: flex; align-items: center; gap: 6px; }
+.pager-btn { width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(255,255,255,.16); color: #fff; font-size: 16px; line-height: 1; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; }
+.pager-btn:disabled { opacity: .35; cursor: default; }
+.pager-btn.active { background: #fff; color: var(--red); }
+.pager-label { min-width: 104px; text-align: center; font-size: 13px; font-weight: 700; white-space: nowrap; }
 
-.table-wrap {
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-table {
-  border-collapse: separate;
-  border-spacing: 0;
-  width: max-content;
-  min-width: 100%;
-}
-
-/* Sticky columns */
-td.col-site, th.col-site {
-  position: sticky;
-  left: 0;
-  z-index: 20;
-  min-width: 90px;
-  max-width: 90px;
-}
-td.col-name, th.col-name {
-  position: sticky;
-  left: 90px;
-  z-index: 20;
-  min-width: 80px;
-  max-width: 80px;
-}
-
-/* Sticky rows */
-thead tr th {
-  position: sticky;
-  z-index: 30;
-}
+/* 表格 */
+.table-wrap { overflow: auto; -webkit-overflow-scrolling: touch; margin: 12px 12px 0; border-radius: 16px; background: #fff; box-shadow: 0 1px 10px rgba(42,26,22,.05); }
+table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; }
+td.col-site, th.col-site { position: sticky; left: 0; z-index: 20; min-width: 86px; max-width: 86px; }
+td.col-name, th.col-name { position: sticky; left: 86px; z-index: 20; min-width: 78px; max-width: 78px; }
+thead tr th { position: sticky; z-index: 30; }
 thead tr:first-child th { top: 0; }
-thead tr:last-child th  { top: 36px; }
+thead tr:last-child th { top: 34px; }
+.sum-table thead tr:first-child th, .sum-table thead tr:last-child th { top: 0; }
+thead th.col-site, thead th.col-name { z-index: 40; }
+thead tr:first-child th { background: #fff; color: var(--ink); font-size: 11px; font-weight: 700; text-align: center; padding: 8px 10px; height: 34px; white-space: nowrap; }
+thead tr:last-child th { background: #fff; color: var(--muted); font-size: 10px; font-weight: 500; text-align: center; padding: 2px 10px 8px; height: 26px; border-bottom: 1px solid var(--line); }
+thead th.th-today { background: var(--red-soft) !important; color: var(--red) !important; }
+thead th.col-site-total { color: var(--red); }
+tbody td { font-size: 11px; padding: 8px 10px; border-bottom: 1px solid #F7F0EC; text-align: center; white-space: nowrap; background: #fff; min-width: 104px; font-variant-numeric: tabular-nums; }
+td.col-site { font-size: 11px; font-weight: 700; text-align: center; background: #fff; }
+td.col-site.site-shoreditch  { color: #1D5FBF; background: #F1F6FE; }
+td.col-site.site-battersea   { color: #C2620A; background: #FFF7EC; }
+td.col-site.site-towerbridge { color: #2E7D32; background: #F0F8F0; }
+td.col-site.site-piccadilly  { color: #00695C; background: #EEF8F6; }
+td.col-site.site-brentcross  { color: var(--red); background: #FFF3F2; }
+td.col-name { font-size: 12px; font-weight: 700; color: var(--ink); text-align: left; background: #fff; padding-left: 10px; }
+td.day-cell { color: var(--ink); }
+td.day-off { color: #CDBFBA; font-size: 10px; }
+td.day-dash { color: #E5DAD6; }
+td.day-today { background: #FFF6F5 !important; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
+.badge-shoreditch  { background: #E6EFFD; color: #1D5FBF; }
+.badge-battersea   { background: #FFEFD9; color: #B85A06; }
+.badge-towerbridge { background: #E1F3E3; color: #2E7D32; }
+.badge-piccadilly  { background: #DDF1EE; color: #00695C; }
+.badge-brentcross  { background: var(--red-soft); color: var(--red); }
+td.col-ind-total, td.col-ind-total-empty { font-size: 12px; font-weight: 700; color: var(--ink); min-width: 52px; }
+td.col-ind-total-empty { color: #E5DAD6; }
+td.col-site-total { min-width: 78px; font-weight: 800; text-align: center; vertical-align: middle; color: var(--red); background: #FFFAF9; }
+td.col-site-total-empty { min-width: 78px; background: #FFFAF9; }
+tr.site-separator td { border-top: 6px solid var(--cream); }
+.loading { padding: 40px; text-align: center; color: var(--muted); font-size: 13px; }
+.error { padding: 40px; text-align: center; color: var(--red); font-size: 13px; }
 
-/* Σ 合计表:thead 只有一行,同时命中 first/last-child,
-   会被上面 top:36px 的规则下移并盖住 tbody 第一行(Shoreditch/Surbhi 消失的原因) */
-.sum-table thead tr:first-child th,
-.sum-table thead tr:last-child th { top: 0; }
+/* 工时结算 */
+.cards-section { padding: 22px 12px 8px; }
+.sec-title { font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 7px; margin: 0 4px 4px; }
+.sec-title::before { content: ''; width: 3px; height: 15px; border-radius: 2px; background: var(--red); }
+.sec-sub { font-size: 11px; color: var(--muted); margin: 0 4px 12px 14px; }
+.site-sum { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 12px; padding-bottom: 2px; }
+.site-pill { flex: 1 0 auto; background: #fff; border-radius: 14px; padding: 10px 14px; box-shadow: 0 1px 8px rgba(42,26,22,.04); min-width: 104px; }
+.site-pill .k { font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+.site-pill .v { font-size: 20px; font-weight: 800; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.site-pill .v small { font-size: 11px; font-weight: 500; color: var(--muted); margin-left: 2px; }
+.site-pill.total { background: linear-gradient(135deg, #F0483D, var(--red) 60%, #B81A12); color: #fff; }
+.site-pill.total .v small { color: rgba(255,255,255,.8); }
+.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.dot.shoreditch { background: #2F6FD6; } .dot.battersea { background: #E8862B; } .dot.brentcross { background: var(--red); } .dot.towerbridge { background: #43A047; } .dot.piccadilly { background: #00897B; } .dot.other { background: #C9B9B4; }
 
-thead th.col-site { z-index: 40; }
-thead th.col-name { z-index: 40; }
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+.staff-card { background: #fff; border-radius: 18px; padding: 14px 14px 10px; box-shadow: 0 1px 10px rgba(42,26,22,.05); }
+.sc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.sc-name { font-size: 16px; font-weight: 800; }
+.sc-sites { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+.sc-total { text-align: right; }
+.sc-total .n { font-size: 26px; font-weight: 800; color: var(--red); line-height: 1; font-variant-numeric: tabular-nums; }
+.sc-total .u { font-size: 10px; color: var(--muted); margin-top: 3px; }
 
-/* Header row 1 */
-thead tr:first-child th {
-  background: #1a1a1a;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 600;
-  text-align: center;
-  padding: 8px 10px;
-  border-right: 1px solid #333;
-  height: 36px;
-  white-space: nowrap;
-}
-thead tr:first-child th.col-site,
-thead tr:first-child th.col-name {
-  background: #1a1a1a;
-}
-thead tr:first-child th.th-today {
-  background: #1a3a5c;
-  color: #7ec8f7;
-}
-thead tr:first-child th.col-site-total {
-  background: #1e1030;
-  color: #c4b5fd;
-  border-left: 2px solid #6d28d9;
-}
+/* 计算式 */
+.calc { display: flex; align-items: center; flex-wrap: nowrap; gap: 4px; margin-top: 12px; background: var(--cream); border-radius: 12px; padding: 6px; font-variant-numeric: tabular-nums; }
+.calc .op { color: var(--muted); font-size: 13px; font-weight: 700; }
+.calc .term { flex: 1 1 0; min-width: 0; display: inline-flex; flex-direction: column; align-items: center; line-height: 1.1; border-radius: 8px; padding: 4px 4px; background: #fff; }
+.calc .term b { font-size: 14px; }
+.calc .term i { font-style: normal; font-size: 9px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.calc .term.neg b { color: var(--red); } .calc .term.neg { background: #FFF1EF; }
+.calc .term.pos b { color: var(--green); } .calc .term.pos { background: var(--green-soft); }
+.calc .term.res { background: var(--red); } .calc .term.res b, .calc .term.res i { color: #fff; }
 
-/* Header row 2 (dates) */
-thead tr:last-child th {
-  background: #f0f0f0;
-  color: #666;
-  font-size: 10px;
-  font-weight: 500;
-  text-align: center;
-  padding: 5px 10px;
-  border-right: 1px solid #e0e0e0;
-  border-bottom: 2px solid #ccc;
-  height: 30px;
-}
-thead tr:last-child th.col-site,
-thead tr:last-child th.col-name {
-  background: #f0f0f0;
-}
-thead tr:last-child th.th-today {
-  background: #e3f2fd;
-  color: #0d47a1;
-}
-thead tr:last-child th.col-site-total {
-  background: #ede9fe;
-  color: #6d28d9;
-  border-left: 2px solid #c4b5fd;
-}
+/* 7 天条 */
+.week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 10px; }
+.wd { border-radius: 10px; padding: 5px 0 6px; text-align: center; background: #FAF6F3; position: relative; cursor: default; }
+.wd .d { font-size: 9px; color: var(--muted); }
+.wd .h { font-size: 13px; font-weight: 800; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.wd .t { font-size: 8px; color: var(--muted); margin-top: 1px; white-space: nowrap; }
+.wd.off .h { color: #D9CCC7; font-weight: 600; font-size: 11px; }
+.wd.shoreditch { background: #EEF4FE; } .wd.shoreditch .h { color: #1D5FBF; }
+.wd.battersea { background: #FFF4E6; } .wd.battersea .h { color: #B85A06; }
+.wd.brentcross { background: #FFF0EE; } .wd.brentcross .h { color: var(--red); }
+.wd.towerbridge { background: #EEF8EF; } .wd.towerbridge .h { color: #2E7D32; }
+.wd.today { box-shadow: inset 0 0 0 1.5px var(--red); }
+.wd .solo { position: absolute; top: 3px; right: 4px; width: 5px; height: 5px; border-radius: 50%; background: #E8862B; }
+.wd .ol { position: absolute; top: 2px; right: 3px; font-size: 7px; color: var(--muted); }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 10px; color: var(--muted); margin: 12px 6px 0; }
+.legend span { display: inline-flex; align-items: center; gap: 4px; }
 
-/* Body cells */
-tbody td {
-  font-size: 11px;
-  padding: 7px 10px;
-  border-right: 1px solid #e8e8e8;
-  border-bottom: 1px solid #f0f0f0;
-  text-align: center;
-  white-space: nowrap;
-  background: #fff;
-  min-width: 110px;
-}
-
-/* site label cell */
-td.col-site {
-  font-size: 10px;
-  font-weight: 700;
-  text-align: center;
-  border-right: 2px solid #ccc;
-  letter-spacing: 0.3px;
-  background: #fff;
-}
-td.col-site.site-shoreditch  { background: #e8f4ff; color: #1565C0; border-left: 3px solid #1E88E5; }
-td.col-site.site-battersea   { background: #fff8e1; color: #E65100; border-left: 3px solid #FB8C00; }
-td.col-site.site-towerbridge { background: #e8f5e9; color: #2E7D32; border-left: 3px solid #43A047; }
-td.col-site.site-piccadilly  { background: #e0f2f1; color: #00695C; border-left: 3px solid #00897B; }
-td.col-site.site-brentcross  { background: #ffe8e8; color: #B91C1C; border-left: 3px solid #EF4444; }
-
-/* name cell */
-td.col-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: #222;
-  text-align: left;
-  border-right: 2px solid #ddd;
-  background: #fafafa;
-  padding-left: 10px;
-}
-
-/* day cells */
-td.day-cell { color: #333; }
-td.day-off  { color: #bbb; font-style: italic; background: #fafafa; }
-td.day-dash { color: #ddd; background: #fafafa; }
-td.day-today { background: #e8f4ff !important; }
-
-/* cross-site badge */
-.badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-}
-.badge-shoreditch   { background: #dbeafe; color: #1d4ed8; }
-.badge-battersea    { background: #fef3c7; color: #b45309; }
-.badge-towerbridge  { background: #d1fae5; color: #065f46; }
-.badge-piccadilly   { background: #b2dfdb; color: #004D40; }
-.badge-brentcross   { background: #fee2e2; color: #b91c1c; }
-
-/* individual total cell */
-td.col-ind-total {
-  font-size: 11px;
-  font-weight: 600;
-  color: #555;
-  min-width: 55px;
-  background: #fafafa;
-}
-td.col-ind-total-empty {
-  min-width: 55px;
-  background: #fafafa;
-  color: #ddd;
-}
-
-/* site total cell */
-td.col-site-total {
-  min-width: 80px;
-  font-size: 15px;
-  font-weight: 700;
-  text-align: center;
-  vertical-align: middle;
-  background: #f5f3ff;
-  color: #5b21b6;
-  border-left: 2px solid #ddd6fe;
-}
-td.col-site-total-empty {
-  min-width: 80px;
-  background: #faf9ff;
-  border-left: 2px solid #ede9fe;
-}
-
-/* row alternate */
-tbody tr:nth-child(even) td { background: #fcfcfc; }
-tbody tr:nth-child(even) td.col-name { background: #f5f5f5; }
-tbody tr:nth-child(even) td.col-ind-total,
-tbody tr:nth-child(even) td.col-ind-total-empty { background: #f5f5f5; }
-tbody tr:nth-child(even) td.col-site-total { background: #f0ecff; }
-tbody tr:nth-child(even) td.col-site-total-empty { background: #f7f5ff; }
-tbody tr:nth-child(even) td.day-off,
-tbody tr:nth-child(even) td.day-dash { background: #f7f7f7; }
-
-/* site group row separator */
-tr.site-separator td { border-top: 3px solid #ddd; }
-
-.loading { padding: 40px; text-align: center; color: #999; font-size: 14px; }
-.error   { padding: 40px; text-align: center; color: #c00; font-size: 14px; }
-
-/* ── Staff Hours Cards ── */
-.cards-section {
-  padding: 24px 16px 32px;
-  border-top: 2px solid #e0e0e0;
-  margin-top: 2px;
-}
-.cards-section-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: #888;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  margin-bottom: 14px;
-}
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
-  gap: 10px;
-}
-.staff-card {
-  background: #fff;
-  border: 1px solid #e8e8e8;
-  border-radius: 10px;
-  overflow: hidden;
-}
-.staff-card-head {
-  padding: 10px 12px 8px;
-  border-bottom: 1px solid #f0f0f0;
-}
-.staff-card-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: #111;
-}
-.staff-card-sub {
-  font-size: 11px;
-  color: #999;
-  margin-top: 1px;
-}
-.card-day-rows { padding: 6px 0; }
-/* 每日行:四列网格,跨卡片纵向对齐(日期 | 站点 | 时间 | 人数),时间不换行 */
-.card-day-row {
-  display: grid;
-  grid-template-columns: 38px auto 1fr auto;
-  align-items: center;
-  column-gap: 7px;
-  padding: 4px 12px;
-  font-size: 11px;
-}
-.card-day-row.is-today { background: #e8f4ff; }
-.card-day-label { color: #999; }
-.card-day-site { justify-self: start; min-width: 0; }
-.card-day-site .badge { font-size: 9px; padding: 1px 6px; white-space: nowrap; }
-.card-day-val {
-  color: #222; font-weight: 500; text-align: right;
-  white-space: nowrap; font-variant-numeric: tabular-nums;
-}
-.card-day-val.is-off { color: #ccc; font-weight: 400; font-style: italic; }
-.card-day-val.is-today-val { color: #1565C0; }
-/* head-count chip: on-site staff that day at that site (salaried counted, online excluded) */
-.hc {
-  justify-self: end;
-  min-width: 15px;
-  text-align: center;
-  padding: 1px 5px;
-  border-radius: 8px;
-  font-size: 10px;
-  font-weight: 600;
-}
-.hc-solo  { background: #FAEEDA; color: #854F0B; }
-.hc-multi { background: #EAF3DE; color: #27500A; }
-.hc-online { background: #F1EFE8; color: #5F5E5A; }
-.staff-card-foot {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding: 7px 12px;
-  background: #fafafa;
-  border-top: 1px solid #f0f0f0;
-}
-.card-foot-label { font-size: 11px; color: #999; }
-.card-foot-right { text-align: right; }
-.card-foot-total { font-size: 14px; font-weight: 600; color: #111; }
-
-/* ── Adjustments (deductions / bonuses) inside cards ── */
-.card-adj-rows {
-  padding: 5px 12px 6px;
-  border-top: 1px dashed #eee;
-}
-.card-adj-title {
-  font-size: 9px;
-  font-weight: 600;
-  color: #aaa;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  margin-bottom: 3px;
-}
-.card-adj-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 11px;
-  padding: 1px 0;
-}
-.card-adj-note { color: #777; }
-.card-adj-val { font-weight: 600; white-space: nowrap; }
-.card-adj-val.adj-neg { color: #c62828; }
-.card-adj-val.adj-pos { color: #2e7d32; }
-
-/* ── 调整折进最后一天 + 明细默认收起 ── */
-.card-day-val.is-adjusted { border-bottom: 1px dotted #d4a017; }
-.adj-chip {
-  display: inline-block;
-  margin-left: 4px;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  color: #b26a00;
-  background: #fff4dc;
-  border: 1px solid #f0dca6;
-  border-radius: 4px;
-  padding: 0 3px;
-  vertical-align: 1px;
-  text-transform: uppercase;
-}
-.card-adj-details { border-top: 1px dashed #eee; }
-.card-adj-summary {
-  list-style: none;
-  cursor: pointer;
-  padding: 5px 12px;
-  font-size: 9px;
-  font-weight: 600;
-  color: #aaa;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  user-select: none;
-}
-.card-adj-summary::-webkit-details-marker { display: none; }
-.card-adj-summary:hover { color: #888; }
-.adj-caret {
-  display: inline-block;
-  font-size: 8px;
-  color: #bbb;
-  transition: transform 0.15s ease;
-}
-.card-adj-details[open] .adj-caret { transform: rotate(90deg); }
-.card-adj-body { padding: 0 12px 7px; }
-.card-adj-foldnote {
-  margin-top: 4px;
-  font-size: 9px;
-  color: #b26a00;
-  font-style: italic;
-}
-@media (prefers-reduced-motion: reduce){ .adj-caret { transition: none; } }
+.adj { margin-top: 8px; }
+.adj summary { list-style: none; cursor: pointer; font-size: 11px; color: var(--muted); padding: 4px 2px; }
+.adj summary::-webkit-details-marker { display: none; }
+.adj summary::after { content: ' ›'; }
+.adj[open] summary::after { content: ' ⌄'; }
+.adj-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 5px 2px; border-top: 1px solid #F7F0EC; }
+.adj-row span { color: #6B5A55; }
+.adj-row b.neg { color: var(--red); } .adj-row b.pos { color: var(--green); }
+@media (max-width: 480px) { .topbar .mark, .topbar h1 small { display: none; } .pager-label { min-width: 92px; font-size: 12px; } }
+/* Σ 多周合计 */
+.sum-wrap { padding: 4px 0 8px; }
+.sum-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 0 6px; padding: 0 4px; }
+.sum-bar .sum-title { font-size: 15px; font-weight: 800; margin-right: 4px; }
+.sum-bar select { padding: 7px 12px; border: none; border-radius: 999px; font-size: 12px; font-family: inherit; background: #fff; box-shadow: 0 1px 6px rgba(42,26,22,.06); color: var(--ink); cursor: pointer; }
+.sum-section-title { font-size: 13px; font-weight: 800; margin: 18px 4px 8px; display: flex; align-items: center; gap: 6px; }
+.sum-section-title::before { content: ''; width: 3px; height: 13px; border-radius: 2px; background: var(--red); }
+.table-scroll { overflow-x: auto; border-radius: 14px; box-shadow: 0 1px 10px rgba(42,26,22,.05); }
+.sum-table { width: 100%; border-collapse: collapse; background: #fff; font-size: 12px; font-variant-numeric: tabular-nums; }
+.sum-table th { background: #fff; color: var(--muted); padding: 10px 12px; text-align: center; font-weight: 600; white-space: nowrap; border-bottom: 1px solid var(--line); }
+.sum-table th:first-child { text-align: left; }
+.sum-table td { padding: 9px 12px; text-align: center; border-bottom: 1px solid #F7F0EC; white-space: nowrap; }
+.sum-table td:first-child { text-align: left; font-weight: 700; }
+.sum-table tr:last-child td { border-bottom: none; }
+.sum-table .sum-adj-neg { color: var(--red); font-weight: 700; }
+.sum-table .sum-adj-pos { color: var(--green); font-weight: 700; }
+.sum-table .sum-total { font-weight: 800; background: #FFF6F5; color: var(--red); }
+#content.sum-mode { padding: 0 4px; }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <h1>Rota</h1>
+  <a class="back" href="/home" aria-label="Back">‹</a>
+  <img class="mark" src="/assets/hi-mark-white.png" alt="">
+  <h1>Rota<small>排班 · 工时</small></h1>
   <div class="pager">
     <button class="pager-btn" id="pg-prev" onclick="shiftWeek(-1)" disabled>‹</button>
     <div class="pager-label" id="pg-label">…</div>
@@ -463,8 +160,11 @@ tr.site-separator td { border-top: 3px solid #ddd; }
 </div>
 
 <div id="cards-section" style="display:none;" class="cards-section">
-  <div class="cards-section-title">Hours this week</div>
+  <div class="sec-title">Hours this week · 本周工时</div>
+  <div class="sec-sub">Rota hours ± adjustments = hours paid · 排班工时 ± 奖惩 = 结算工时</div>
+  <div id="site-sum" class="site-sum"></div>
   <div id="cards-grid" class="cards-grid"></div>
+  <div class="legend"><span><i class="dot shoreditch"></i>Shoreditch</span><span><i class="dot brentcross"></i>Brent Cross</span><span><i class="dot battersea"></i>Battersea</span><span>Tap a day for shift times · 悬停/长按看时段</span></div>
 </div>
 
 <script>
@@ -790,7 +490,7 @@ function buildTable(rows, agency, todayIdx, adjustments) {
     });
     siteTotal = Math.round(siteTotal * 100) / 100;
     const siteTotalDisplay = siteTotal > 0
-      ? `<span style="font-size:18px;font-weight:700">${siteTotal}</span><br><span style="font-size:9px;font-weight:400;color:#7c3aed;letter-spacing:0.3px">hrs / week</span>`
+      ? `<span style="font-size:18px">${siteTotal}</span><br><span style="font-size:9px;font-weight:500;color:#9A8580">hrs / week</span>`
       : '–';
 
     group.rows.forEach((row, ri) => {
@@ -913,131 +613,97 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
   const grid = document.getElementById('cards-grid');
   grid.innerHTML = '';
 
-  // 每个日子列显示日期(DD/MM)而不是星期:优先用日期行,取不到就从本周一推算
   const dayLabels = dayHeaders.map((h, i) => {
     const fromSheet = parseSheetDate((rows[1] && rows[1][i + 2]) || '');
     const iso = fromSheet || isoAddDays(currentWeekStart, i);
-    return ddmmFromISO(iso) || DAY_NAMES[i] || h.slice(0, 3);
+    const dd = ddmmFromISO(iso);
+    return { dow: (DAY_NAMES[i] || h.slice(0, 3)), date: dd || '' };
   });
 
-  // Group adjustments by staff name
   const adjMap = new Map();
   (adjustments || []).forEach(adj => {
     if (!adjMap.has(adj.name)) adjMap.set(adj.name, []);
     adjMap.get(adj.name).push(adj);
   });
+  const r2 = n => Math.round(n * 100) / 100;
+  const siteKeyOf = s => (siteClass(s) || 'other').replace('site-', '');
 
-  staffMap.forEach((data, name) => {
+  // ── 站点合计(与上表 Site Hours 同一口径:按所在站点分组的排班工时 + 归属该站的调整) ──
+  const siteTotals = new Map();
+  {
+    let curSite = '';
+    for (const row of dataRows) {
+      const s = (row[0] || '').trim(); if (s) curSite = s;
+      const name = (row[1] || '').trim();
+      if (!name || !agency.has(name)) continue;
+      const k = siteLabel(curSite);
+      siteTotals.set(k, (siteTotals.get(k) || 0) + rowHoursOf(row, totalHoursIdx, dayEndIdx));
+    }
+    (adjustments || []).forEach(a => {
+      if (!agency.has(a.name)) return;
+      const k = siteLabel(a.site);
+      siteTotals.set(k, (siteTotals.get(k) || 0) + a.hours);
+    });
+  }
+  let grand = 0; siteTotals.forEach(v => grand += v);
+  document.getElementById('site-sum').innerHTML =
+    `<div class="site-pill total"><div class="k">All sites 合计</div><div class="v">${r2(grand)}<small>hrs</small></div></div>` +
+    [...siteTotals.entries()].map(([k, v]) =>
+      `<div class="site-pill"><div class="k"><i class="dot ${siteKeyOf(k)}"></i>${k}</div><div class="v">${r2(v)}<small>hrs</small></div></div>`).join('');
+
+  // ── 每人卡片:排班工时 ± 每条调整 = 结算工时 ──
+  const cards = [...staffMap.entries()].map(([name, data]) => {
+    const myAdjs = adjMap.get(name) || [];
+    const adjSum = myAdjs.reduce((t, a) => t + a.hours, 0);
+    const finalHours = r2(data.totalHours + adjSum);
+    return { name, data, myAdjs, finalHours };
+  }).sort((x, y) => y.finalHours - x.finalHours);
+
+  cards.forEach(({ name, data, myAdjs, finalHours }) => {
+    const sites = [...new Set(data.daySite.filter(Boolean).map(siteLabel))];
+    const sitesHTML = sites.map(sl => `<span class="badge ${badgeClass(sl)}">${sl}</span>`).join('');
+
+    // 计算式:排班 − 扣减合计 + 奖励合计 = 结算;明细收起在下方
+    const ded = r2(myAdjs.filter(a => a.hours < 0).reduce((t, a) => t - a.hours, 0));
+    const bon = r2(myAdjs.filter(a => a.hours > 0).reduce((t, a) => t + a.hours, 0));
+    let calc = `<span class="term"><b>${r2(data.totalHours)}</b><i>Rota 排班</i></span>`;
+    if (ded) calc += `<span class="op">−</span><span class="term neg"><b>${ded}</b><i>Deduct 扣减</i></span>`;
+    if (bon) calc += `<span class="op">+</span><span class="term pos"><b>${bon}</b><i>Bonus 奖励</i></span>`;
+    calc += `<span class="op">=</span><span class="term res"><b>${finalHours}</b><i>Paid 结算</i></span>`;
+    const adjList = myAdjs.length ? `<details class="adj"><summary>Adjustments 奖惩明细 · ${myAdjs.length}</summary>${
+      myAdjs.map(a => `<div class="adj-row"><span>${a.note || (a.hours < 0 ? 'Deduction' : 'Bonus')}</span><b class="${a.hours < 0 ? 'neg' : 'pos'}">${fmtSigned(a.hours)}</b></div>`).join('')
+    }</details>` : '';
+
+    // 7 天条
+    const week = dayHeaders.map((h, i) => {
+      const time = (data.days[i] || '').trim();
+      const lab = dayLabels[i];
+      const today = i === todayIdx ? ' today' : '';
+      if (!time) {
+        const off = (data.rawOff[i] || '').trim();
+        const txt = (!off || off === '-') ? '–' : (off.toLowerCase() === 'off' ? 'OFF' : off);
+        return `<div class="wd off${today}"><div class="d">${lab.dow}</div><div class="h">${txt}</div><div class="t">${lab.date}</div></div>`;
+      }
+      const site = data.daySite[i];
+      const m = time.match(TIME_RE_CAP);
+      const hrs = m ? parseFloat(m[1]) : '';
+      const range = stripOnline(time).replace(/[（(]\d+(?:\.\d+)?[)）].*$/, '').trim();
+      const online = data.dayOnline[i];
+      const c = online ? 0 : headCount(i, site);
+      const flag = online ? '<span class="ol">online</span>' : '';
+      return `<div class="wd ${siteKeyOf(site)}${today}" title="${siteLabel(site)} ${range}${online ? ' (online)' : ''}${c ? ' · ' + c + ' on site' : ''}">${flag}<div class="d">${lab.dow}</div><div class="h">${hrs}</div><div class="t">${lab.date}</div></div>`;
+    }).join('');
+
     const card = document.createElement('div');
     card.className = 'staff-card';
-
-    const myAdjs = adjMap.get(name) || [];
-    const adjSum = myAdjs.reduce((s, a) => s + a.hours, 0);
-    const finalHours = Math.round((data.totalHours + adjSum) * 100) / 100;
-
-    const totalStr = (data.totalHours > 0 || myAdjs.length) ? `${finalHours} hrs` : '–';
-    // 副标题:本周实际去过的站点(1 个显示站名,多个显示 "N sites")
-    const sites = [...new Set(data.daySite.filter(Boolean).map(siteLabel))];
-    const siteSummary = sites.length === 1 ? sites[0] : (sites.length > 1 ? `${sites.length} sites` : '');
-    // 每个上班的日子都显示所在站点 badge(单站/跨站一致)
-    const showBadges = true;
-    const subText = data.totalHours > 0
-      ? `${finalHours} hrs this week${siteSummary ? ' · ' + siteSummary : ''}`
-      : 'no hours recorded';
-
-    // 每一天括号里的工时数(取不到则为 null),用于决定折算落点与显示
-    const dayHours = data.days.map(v => {
-      const m = (v || '').toString().match(TIME_RE_CAP);
-      return m ? parseFloat(m[1]) : null;
-    });
-    // 最后一个"真正上班"的日子(有括号工时且 > 0),调整就折进这一天
-    let lastWorkedIdx = -1;
-    for (let i = dayHeaders.length - 1; i >= 0; i--) {
-      if (dayHours[i] !== null && dayHours[i] > 0) { lastWorkedIdx = i; break; }
-    }
-    // 有调整就显示明细(即使正负抵消、净额为 0);只有净额非 0 才折进最后上班日
-    const hasAdj   = myAdjs.length > 0;
-    const foldable = hasAdj && Math.abs(adjSum) > 0.0001 && lastWorkedIdx >= 0;
-
-    let dayRowsHTML = '';
-    dayHeaders.forEach((h, i) => {
-      const time  = (data.days[i] || '').trim();
-      const isToday = (i === todayIdx);
-      const todayRowCls = isToday ? ' is-today' : '';
-
-      // 四个网格单元:日期 | 站点 | 时间 | 人数(不上班时站点/人数留空占位,保持列对齐)
-      const dateCell = `<span class="card-day-label">${dayLabels[i]}</span>`;
-      let siteCell, valCell, chipCell;
-
-      if (!time) {
-        // 不上班:OFF / AL / –
-        const off = (data.rawOff[i] || '').trim();
-        const label = (!off || off === '-') ? '–' : (off.toLowerCase() === 'off' ? 'OFF' : off);
-        siteCell = '<span class="card-day-site"></span>';
-        valCell  = `<span class="card-day-val is-off">${label}</span>`;
-        chipCell = '<span></span>';
-      } else {
-        const site   = data.daySite[i];
-        const online = data.dayOnline[i];
-        siteCell = `<span class="card-day-site">${showBadges ? `<span class="badge ${badgeClass(site)}">${siteLabel(site)}</span>` : ''}</span>`;
-
-        // 时段显示(把净调整折进最后一个上班日;线上文字剥掉;调整日用虚线下划线提示,不再显示 ADJ 角标)
-        const adjustedDay = foldable && i === lastWorkedIdx;
-        let disp;
-        if (adjustedDay) {
-          const adjusted = Math.round((dayHours[i] + adjSum) * 100) / 100;
-          const prefix = stripOnline(time).replace(/[\uff08(]\d+(?:\.\d+)?[)\uff09].*$/, '').trim();
-          disp = prefix ? `${prefix}(${adjusted})` : `${adjusted}`;
-        } else {
-          disp = stripOnline(time);
-        }
-        const valCls = `card-day-val${isToday ? ' is-today-val' : ''}${adjustedDay ? ' is-adjusted' : ''}`;
-        const titleAttr = adjustedDay ? ` title="Includes adjustments ${fmtSigned(adjSum)}h"` : '';
-        valCell = `<span class="${valCls}"${titleAttr}>${disp}</span>`;
-
-        // 人数胶囊:线上 → online(不计人头);否则显示当天该站在店人数
-        if (online) {
-          chipCell = `<span class="hc hc-online">online</span>`;
-        } else {
-          const c = headCount(i, site);
-          chipCell = `<span class="hc ${c >= 2 ? 'hc-multi' : 'hc-solo'}">${c}</span>`;
-        }
-      }
-
-      dayRowsHTML += `<div class="card-day-row${todayRowCls}">${dateCell}${siteCell}${valCell}${chipCell}</div>`;
-    });
-
-    // 调整明细:默认收起,点开才展开;金额不在收起态显示
-    let adjHTML = '';
-    if (hasAdj) {
-      const lines = myAdjs.map(a => {
-        const cls = a.hours < 0 ? 'adj-neg' : 'adj-pos';
-        const note = a.note ? a.note : (a.hours < 0 ? 'Deduction' : 'Bonus');
-        return `<div class="card-adj-row"><span class="card-adj-note">${note}</span><span class="card-adj-val ${cls}">${fmtSigned(a.hours)}</span></div>`;
-      }).join('');
-      const foldNote = foldable
-        ? `Net ${fmtSigned(adjSum)}h folded into ${dayLabels[lastWorkedIdx]}`
-        : `Net ${fmtSigned(adjSum)}h applied to weekly total`;
-      adjHTML = `<details class="card-adj-details">`
-        + `<summary class="card-adj-summary"><span class="adj-caret">▸</span>Adjustments</summary>`
-        + `<div class="card-adj-body">${lines}<div class="card-adj-foldnote">${foldNote}</div></div>`
-        + `</details>`;
-    }
-
     card.innerHTML = `
-      <div class="staff-card-head">
-        <div class="staff-card-name">${name}</div>
-        <div class="staff-card-sub">${subText}</div>
+      <div class="sc-head">
+        <div><div class="sc-name">${name}</div><div class="sc-sites">${sitesHTML}</div></div>
+        <div class="sc-total"><div class="n">${finalHours}</div><div class="u">hrs paid</div></div>
       </div>
-      <div class="card-day-rows">${dayRowsHTML}</div>
-      ${adjHTML}
-      <div class="staff-card-foot">
-        <span class="card-foot-label">Total</span>
-        <div class="card-foot-right">
-          <div class="card-foot-total">${totalStr}</div>
-        </div>
-      </div>`;
-
+      <div class="calc">${calc}</div>
+      <div class="week">${week}</div>
+      ${adjList}`;
     grid.appendChild(card);
   });
 
@@ -1163,6 +829,7 @@ async function renderWeek(weekISO) {
   const dayHeaders = allHeaders.slice(2, dayEndIdx);
   const todayIdx = isCurrentWeek ? getTodayColIdx(dayHeaders) : -1;
 
+  el.className = '';
   el.innerHTML = buildTable(rows, agencySet, todayIdx, adjustments);
   buildCards(rows, agencySet, dayHeaders, dayEndIdx, todayIdx, adjustments);
   updatePager();
@@ -1185,6 +852,7 @@ function toggleSummary() {
 
 function renderSummaryShell(fromIdx, toIdx) {
   const el = document.getElementById('content');
+  el.className = 'sum-mode';
   const opts = weekList.map((w, i) =>
     '<option value="' + i + '">' + fmtDDMM(w.iso, 0) + ' – ' + fmtDDMM(w.iso, 6) + '</option>').join('');
   el.innerHTML =
