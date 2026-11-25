@@ -63,37 +63,38 @@ tr.site-separator td { border-top: 6px solid var(--cream); }
 
 /* 工时结算 */
 .cards-section { padding: 22px 12px 8px; }
-.sec-title { font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 7px; margin: 0 4px 4px; }
+.sec-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 7px; margin: 0 4px 4px; }
 .sec-title::before { content: ''; width: 3px; height: 15px; border-radius: 2px; background: var(--red); }
 .sec-sub { font-size: 11px; color: var(--muted); margin: 0 4px 12px 14px; }
 .site-sum { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 12px; padding-bottom: 2px; }
-.site-pill { flex: 1 0 auto; background: #fff; border-radius: 14px; padding: 10px 14px; box-shadow: 0 1px 8px rgba(42,26,22,.04); min-width: 104px; }
+.site-pill { flex: 1 0 auto; background: #fff; border-radius: 12px; padding: 8px 12px; box-shadow: 0 1px 8px rgba(42,26,22,.04); min-width: 104px; }
 .site-pill .k { font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
-.site-pill .v { font-size: 20px; font-weight: 800; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.site-pill .v { font-size: 16px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
 .site-pill .v small { font-size: 11px; font-weight: 500; color: var(--muted); margin-left: 2px; }
-.site-pill.total { background: linear-gradient(135deg, #F0483D, var(--red) 60%, #B81A12); color: #fff; }
-.site-pill.total .v small { color: rgba(255,255,255,.8); }
+.site-pill.total { background: #FFF1EF; color: var(--red); }
+
 .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
 .dot.shoreditch { background: #2F6FD6; } .dot.battersea { background: #E8862B; } .dot.brentcross { background: var(--red); } .dot.towerbridge { background: #43A047; } .dot.piccadilly { background: #00897B; } .dot.other { background: #C9B9B4; }
 
-.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
-.staff-card { background: #fff; border-radius: 18px; padding: 14px 14px 10px; box-shadow: 0 1px 10px rgba(42,26,22,.05); }
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; }
+.staff-card { background: #fff; border-radius: 14px; padding: 10px 12px 8px; box-shadow: 0 1px 10px rgba(42,26,22,.05); }
 .sc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.sc-name { font-size: 16px; font-weight: 800; }
-.sc-sites { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+.sc-name { font-size: 14px; font-weight: 700; }
+.sc-sites { display: flex; gap: 3px; margin-top: 3px; flex-wrap: wrap; }
+.sc-sites .badge { font-size: 9px; padding: 1px 6px; }
 .sc-total { text-align: right; }
-.sc-total .n { font-size: 26px; font-weight: 800; color: var(--red); line-height: 1; font-variant-numeric: tabular-nums; }
-.sc-total .u { font-size: 10px; color: var(--muted); margin-top: 3px; }
+.sc-total .n { font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.2; font-variant-numeric: tabular-nums; }
+.sc-total .u { font-size: 10px; color: var(--muted); margin-top: 1px; }
 
 /* 计算式 */
-.calc { display: flex; align-items: center; flex-wrap: nowrap; gap: 4px; margin-top: 12px; background: var(--cream); border-radius: 12px; padding: 6px; font-variant-numeric: tabular-nums; }
-.calc .op { color: var(--muted); font-size: 13px; font-weight: 700; }
-.calc .term { flex: 1 1 0; min-width: 0; display: inline-flex; flex-direction: column; align-items: center; line-height: 1.1; border-radius: 8px; padding: 4px 4px; background: #fff; }
-.calc .term b { font-size: 14px; }
+.calc { display: flex; align-items: center; flex-wrap: nowrap; gap: 3px; margin-top: 8px; background: var(--cream); border-radius: 10px; padding: 4px; font-variant-numeric: tabular-nums; }
+.calc .op { color: var(--muted); font-size: 11px; font-weight: 600; }
+.calc .term { flex: 1 1 0; min-width: 0; display: inline-flex; flex-direction: column; align-items: center; line-height: 1.1; border-radius: 7px; padding: 3px 3px; background: #fff; }
+.calc .term b { font-size: 12px; font-weight: 700; }
 .calc .term i { font-style: normal; font-size: 9px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .calc .term.neg b { color: var(--red); } .calc .term.neg { background: #FFF1EF; }
 .calc .term.pos b { color: var(--green); } .calc .term.pos { background: var(--green-soft); }
-.calc .term.res { background: var(--red); } .calc .term.res b, .calc .term.res i { color: #fff; }
+.calc .term.res { background: #FFF1EF; } .calc .term.res b { color: var(--red); } .calc .term.res i { color: #C98C86; }
 
 /* 7 天条 */
 .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 10px; }
@@ -113,26 +114,35 @@ tr.site-separator td { border-top: 6px solid var(--cream); }
 .legend span { display: inline-flex; align-items: center; gap: 4px; }
 
 .adj { margin-top: 8px; }
-.adj summary { list-style: none; cursor: pointer; font-size: 11px; color: var(--muted); padding: 4px 2px; }
+.adj summary { list-style: none; cursor: pointer; font-size: 10px; color: var(--muted); padding: 4px 2px; }
 .adj summary::-webkit-details-marker { display: none; }
 .adj summary::after { content: ' ›'; }
 .adj[open] summary::after { content: ' ⌄'; }
-.adj-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 5px 2px; border-top: 1px solid #F7F0EC; }
+.adj-row { display: flex; justify-content: space-between; gap: 10px; font-size: 11px; padding: 4px 2px; border-top: 1px solid #F7F0EC; }
 .adj-row span { color: #6B5A55; }
 .adj-row b.neg { color: var(--red); } .adj-row b.pos { color: var(--green); }
-@media (max-width: 480px) { .topbar .mark, .topbar h1 small { display: none; } .pager-label { min-width: 92px; font-size: 12px; } }
-.days { margin-top: 10px; }
-.dr { display: grid; grid-template-columns: 68px 30px 1fr auto; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 9px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.col-site .short { display: none; }
+@media (max-width: 480px) {
+  .topbar .mark, .topbar h1 small { display: none; } .pager-label { min-width: 92px; font-size: 12px; }
+  .table-wrap { margin: 10px 8px 0; }
+  td.col-site, th.col-site { min-width: 32px; max-width: 32px; padding-left: 2px; padding-right: 2px; font-size: 10px; }
+  td.col-name, th.col-name { left: 32px; min-width: 62px; max-width: 62px; padding-left: 6px; font-size: 11px; overflow: hidden; text-overflow: ellipsis; }
+  .col-site .full { display: none; } .col-site .short { display: inline; }
+  thead th.col-site { font-size: 0; } 
+  tbody td { min-width: 92px; padding: 7px 6px; }
+}
+.days { margin-top: 6px; }
+.dr { display: grid; grid-template-columns: 62px 26px 1fr auto; align-items: center; gap: 6px; padding: 3px 6px; border-radius: 7px; font-size: 11px; font-variant-numeric: tabular-nums; }
 .dr .dd { color: var(--muted); font-size: 11px; white-space: nowrap; }
 .dr .dd b { color: var(--ink); font-weight: 700; margin-right: 2px; }
-.dr .st { font-size: 10px; font-weight: 800; text-align: center; border-radius: 6px; padding: 2px 0; }
+.dr .st { font-size: 9px; font-weight: 700; text-align: center; border-radius: 6px; padding: 2px 0; }
 .dr .st.shoreditch { background: #E6EFFD; color: #1D5FBF; }
 .dr .st.battersea { background: #FFEFD9; color: #B85A06; }
 .dr .st.brentcross { background: var(--red-soft); color: var(--red); }
 .dr .st.towerbridge { background: #E1F3E3; color: #2E7D32; }
 .dr .st.other { background: var(--cream); color: var(--muted); }
-.dr .tm { font-weight: 600; white-space: nowrap; }
-.dr .hr { font-weight: 800; text-align: right; }
+.dr .tm { font-weight: 500; white-space: nowrap; }
+.dr .hr { font-weight: 600; text-align: right; }
 .dr .olt { font-size: 9px; color: var(--muted); margin-left: 5px; font-weight: 500; }
 .dr.off .tm { color: #D3C5C0; font-weight: 500; font-size: 11px; }
 .dr.off .dd b { color: #BCAEA9; }
@@ -523,7 +533,8 @@ function buildTable(rows, agency, todayIdx, adjustments) {
 
       tbody += `<tr${isSeparator ? ' class="site-separator"' : ''}>`;
       if (isFirst) {
-        tbody += `<td class="col-site ${sc}" rowspan="${group.rows.length}">${siteDisplay}</td>`;
+        const SHORT_SITE = { 'site-shoreditch': 'SD', 'site-brentcross': 'BC', 'site-battersea': 'BT', 'site-towerbridge': 'TB', 'site-piccadilly': 'PC' };
+        tbody += `<td class="col-site ${sc}" rowspan="${group.rows.length}"><span class="full">${siteDisplay}</span><span class="short">${SHORT_SITE[sc] || siteDisplay.slice(0, 2)}</span></td>`;
       }
       tbody += `<td class="col-name">${name}</td>`;
 
@@ -718,7 +729,6 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
     card.innerHTML = `
       <div class="sc-head">
         <div><div class="sc-name">${name}</div><div class="sc-sites">${sitesHTML}</div></div>
-        <div class="sc-total"><div class="n">${finalHours}</div><div class="u">hrs paid</div></div>
       </div>
       <div class="calc">${calc}</div>
       <div class="days">${week}</div>
