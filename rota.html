@@ -467,8 +467,6 @@ function buildTable(rows, agency, todayIdx, adjustments) {
     const cls = (i === todayIdx) ? ' th-today' : '';
     thead += `<th class="col-day${cls}">${h}</th>`;
   });
-  thead += '<th class="col-ind-total">Hrs</th>';
-  thead += '<th class="col-site-total">Site Hours</th>';
   thead += '</tr><tr>';
   thead += '<th class="col-site"></th>';
   thead += '<th class="col-name"></th>';
@@ -476,8 +474,6 @@ function buildTable(rows, agency, todayIdx, adjustments) {
     const cls = (i === todayIdx) ? ' th-today' : '';
     thead += `<th class="col-day${cls}">${d}</th>`;
   });
-  thead += '<th class="col-ind-total">hrs</th>';
-  thead += '<th class="col-site-total">hrs</th>';
   thead += '</tr></thead>';
 
   // Group rows by site
@@ -542,15 +538,6 @@ function buildTable(rows, agency, todayIdx, adjustments) {
         tbody += renderCell(val, di === todayIdx);
       });
 
-      if (indHours) {
-        tbody += `<td class="col-ind-total">${indHours}</td>`;
-      } else {
-        tbody += `<td class="col-ind-total-empty">–</td>`;
-      }
-
-      if (isFirst) {
-        tbody += `<td class="col-site-total" rowspan="${group.rows.length}">${siteTotalDisplay}</td>`;
-      }
 
       tbody += '</tr>';
     });
