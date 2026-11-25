@@ -1,156 +1,292 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Account Info — Admin</title>
+<meta name="theme-color" content="#D7261E">
+<meta name="robots" content="noindex, nofollow">
+<title>管理员账户 · Haidilao</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: #f5f5f7; color: #1c1c1e; min-height: 100vh; padding-bottom: 40px; }
-  .header { background: #fff; padding: 20px; border-bottom: 1px solid #e5e5ea; position: sticky; top: 0; z-index: 100; }
-  .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
-  .back-btn { width: 32px; height: 32px; border-radius: 50%; background: #f2f2f7; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; text-decoration: none; color: #1c1c1e; flex-shrink: 0; }
-  .header-title { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
-  .header-sub { font-size: 13px; color: #8e8e93; margin-top: 4px; margin-left: 44px; }
-  .content { max-width: 720px; margin: 0 auto; padding: 24px 16px 0; }
-  .account-card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-  .account-name { font-size: 18px; font-weight: 700; letter-spacing: -0.2px; margin-bottom: 2px; }
-  .account-url { font-size: 13px; color: #007aff; text-decoration: none; word-break: break-all; }
-  .account-url:hover { text-decoration: underline; }
-  .details-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px 24px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #f2f2f7; }
-  .detail-item { display: flex; flex-direction: column; gap: 2px; }
-  .detail-label { font-size: 11px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.3px; }
-  .detail-value { font-size: 15px; font-weight: 600; color: #1c1c1e; word-break: break-all; }
-  .empty-state { text-align: center; padding: 60px 20px; color: #aeaeb2; font-size: 14px; }
+  :root {
+    --red: #D7261E;
+    --red-deep: #A8150F;
+    --red-soft: #FDECEA;
+    --cream: #FBF6F0;
+    --ink: #2A1A16;
+    --muted: #9A8580;
+    --line: #F3E8E2;
+    --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI', 'Helvetica Neue', sans-serif;
+    background: var(--cream); color: var(--ink); min-height: 100vh; padding-bottom: 48px;
+  }
+
+  /* ---------- 顶部红色品牌区 ---------- */
+  .hero {
+    position: relative; overflow: hidden;
+    background: linear-gradient(150deg, #E8342B 0%, var(--red) 45%, var(--red-deep) 100%);
+    color: #fff; padding: 18px 20px 64px;
+    border-radius: 0 0 32px 32px;
+  }
+  .hero::before, .hero::after {
+    content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.07);
+  }
+  .hero::before { width: 260px; height: 260px; right: -80px; top: -110px; }
+  .hero::after  { width: 160px; height: 160px; right: 40px; top: 70px; background: rgba(255,255,255,.05); }
+  .hero-inner { position: relative; max-width: 720px; margin: 0 auto; z-index: 1; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; }
+  .back {
+    width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.16);
+    display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; font-size: 18px;
+  }
+  .hi-badge {
+    width: 36px; height: 36px; border-radius: 50%; background: #fff; color: var(--red);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; letter-spacing: -.5px; font-style: italic;
+  }
+  .hero h1 { font-size: 26px; font-weight: 700; letter-spacing: .5px; }
+  .hero .sub { font-size: 13px; opacity: .8; margin-top: 6px; }
+
+  /* ---------- 搜索 ---------- */
+  .content { max-width: 720px; margin: -34px auto 0; padding: 0 16px; position: relative; z-index: 2; }
+  .search {
+    display: flex; align-items: center; gap: 10px; background: var(--card);
+    border-radius: 18px; padding: 14px 16px; box-shadow: 0 8px 24px rgba(168,21,15,.10);
+  }
+  .search svg { flex-shrink: 0; color: var(--muted); }
+  .search input { flex: 1; border: none; outline: none; font-size: 15px; background: transparent; color: var(--ink); }
+  .search input::placeholder { color: #C4B3AE; }
+
+  .count { font-size: 12px; color: var(--muted); margin: 22px 4px 10px; letter-spacing: .3px; }
+
+  /* ---------- 账户卡片 ---------- */
+  .card {
+    background: var(--card); border-radius: 22px; padding: 18px 18px 8px; margin-bottom: 14px;
+    box-shadow: 0 2px 14px rgba(42,26,22,.05);
+  }
+  .card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 18px; color: #fff;
+  }
+  .title { flex: 1; min-width: 0; }
+  .name { font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .domain { font-size: 12px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .open {
+    flex-shrink: 0; background: var(--red-soft); color: var(--red); text-decoration: none;
+    font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 999px;
+  }
+  .open:active { background: var(--red); color: #fff; }
+
+  .field {
+    display: flex; align-items: center; gap: 10px; padding: 12px 0;
+    border-top: 1px solid var(--line);
+  }
+  .field:first-of-type { border-top: none; }
+  .f-main { flex: 1; min-width: 0; }
+  .f-label { font-size: 11px; color: var(--muted); letter-spacing: .3px; margin-bottom: 3px; }
+  .f-value { font-size: 15px; font-weight: 600; word-break: break-all; font-variant-numeric: tabular-nums; }
+  .f-value.masked { letter-spacing: 2px; color: #6B5A55; }
+  .ibtn {
+    width: 34px; height: 34px; border-radius: 50%; border: none; background: var(--cream);
+    color: #8A7470; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
+  }
+  .ibtn:active { background: var(--red-soft); color: var(--red); }
+  .ibtn.done { background: var(--red); color: #fff; }
+
+  .state { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; line-height: 1.7; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--red); margin: 0 3px; animation: b 1s infinite ease-in-out; }
+  .dot:nth-child(2) { animation-delay: .15s; } .dot:nth-child(3) { animation-delay: .3s; }
+  @keyframes b { 0%,80%,100% { transform: scale(.5); opacity: .4; } 40% { transform: scale(1); opacity: 1; } }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 32px; transform: translate(-50%, 20px); opacity: 0;
+    background: var(--ink); color: #fff; font-size: 14px; padding: 10px 18px; border-radius: 999px;
+    transition: all .25s ease; pointer-events: none; z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  .foot { text-align: center; font-size: 11px; color: #C4B3AE; margin-top: 24px; letter-spacing: .5px; }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-top">
-    <a href="/admin" class="back-btn">←</a>
-    <div class="header-title">Account Info</div>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="topbar">
+      <a href="/admin" class="back" aria-label="返回">‹</a>
+      <div class="hi-badge">Hi</div>
+    </div>
+    <h1>管理员账户</h1>
+    <div class="sub" id="sub">Admin Accounts · 加载中</div>
   </div>
-  <div class="header-sub" id="last-updated">账号信息</div>
-</div>
+</header>
 
-<div class="content" id="accounts-root">
-  <div class="empty-state">Loading...</div>
-</div>
+<main class="content">
+  <label class="search">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="搜索平台 / 账号" autocomplete="off">
+  </label>
+  <div class="count" id="count"></div>
+  <div id="root"><div class="state"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
+  <div class="foot">HAIDILAO MINI HOT POT · 仅限管理员</div>
+</main>
+
+<div class="toast" id="toast">已复制</div>
 
 <script>
 // ============================================================
-// 数据直接来自 Google 表格的 Accounts 分页（列: A=Platform, B=URL, C=Details）
-// 不经过 Apps Script 后端，所以不存在后端缓存 —— 改表即时生效。
-//
-// 【默认】用 gviz 读实时数据。前提：表格需设为「知道链接的任何人 → 检视者」。
-//
-// 【可选·更安全】若不想公开整张表，只想公开 Accounts 这一页，可用
-// 「文件 → 共享 → 发布到网络 → 选 Accounts → CSV → 发布」得到一个 CSV 链接，
-// 把下面 DATA_URL 整行替换成那个链接即可（CSV / gviz 两种格式本页都能自动识别）。
+// 数据来自 Google 表格 Accounts 分页（A=Platform, B=URL, C=Details）
+// Details 格式："Login: xxx | Password: yyy"，改表即时生效。
+// 支持 gviz JSON 或「发布到网络」CSV 两种 DATA_URL。
 // ============================================================
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
 const SHEET_NAME = 'Accounts';
 const DATA_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&headers=1`;
 
-// 把 Details 单元格 "Login: xxx | Password: yyy" 拆成 [{label, value}, ...]
+const SECRET_RE = /pass|pwd|密码|pin|code|secret|key/i;
+const PALETTE = ['#D7261E', '#E8662B', '#8C4A32', '#C2412F', '#B5651D', '#6E3B2E'];
+
+const ICON = {
+  copy: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="3"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>',
+  check: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  eye: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeOff: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.6 10.6 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6C3.9 8.4 2 12 2 12s3.6 7 10 7c1.8 0 3.3-.5 4.6-1.2"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>'
+};
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
 function parseDetails(str) {
   if (!str) return [];
   return str.split('|').map(pair => {
-    const idx = pair.indexOf(':');
-    if (idx === -1) return { label: '', value: pair.trim() };
-    return { label: pair.slice(0, idx).trim(), value: pair.slice(idx + 1).trim() };
+    const i = pair.indexOf(':');
+    if (i === -1) return { label: '', value: pair.trim() };
+    return { label: pair.slice(0, i).trim(), value: pair.slice(i + 1).trim() };
   }).filter(d => d.value);
 }
 
-// 解析 gviz JSON 返回（/*O_o*/ google.visualization.Query.setResponse({...});）
 function parseGviz(text) {
-  const start = text.indexOf('{');
-  const end = text.lastIndexOf('}');
-  const json = JSON.parse(text.slice(start, end + 1));
-  const rows = (json.table && json.table.rows) || [];
-  return rows.map(r => {
+  const json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
+  return ((json.table && json.table.rows) || []).map(r => {
     const c = r.c || [];
     const cell = i => (c[i] && c[i].v != null) ? String(c[i].v) : '';
     return { platform: cell(0), url: cell(1), details: cell(2) };
   });
 }
 
-// 解析「发布到网络」的 CSV（带引号、逗号、换行都能处理）
 function parseCSV(text) {
-  const rows = [];
-  let field = '', row = [], inQuotes = false;
+  const rows = []; let field = '', row = [], q = false;
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
-    if (inQuotes) {
-      if (ch === '"') {
-        if (text[i + 1] === '"') { field += '"'; i++; }
-        else inQuotes = false;
-      } else field += ch;
-    } else {
-      if (ch === '"') inQuotes = true;
-      else if (ch === ',') { row.push(field); field = ''; }
-      else if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
-      else if (ch === '\r') { /* ignore */ }
-      else field += ch;
-    }
+    if (q) { if (ch === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else q = false; } else field += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === ',') { row.push(field); field = ''; }
+    else if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+    else if (ch !== '\r') field += ch;
   }
   if (field !== '' || row.length) { row.push(field); rows.push(row); }
-  return rows.slice(1).map(r => ({
-    platform: (r[0] || '').trim(),
-    url: (r[1] || '').trim(),
-    details: (r[2] || '').trim()
-  }));
+  return rows.slice(1).map(r => ({ platform: (r[0] || '').trim(), url: (r[1] || '').trim(), details: (r[2] || '').trim() }));
 }
 
-function render(accounts) {
-  const root = document.getElementById('accounts-root');
-  if (!accounts.length) {
-    root.innerHTML = '<div class="empty-state">No accounts yet</div>';
-    return;
+function domainOf(url) {
+  try { return new URL(/^https?:\/\//.test(url) ? url : 'https://' + url).hostname.replace(/^www\./, ''); }
+  catch (e) { return url; }
+}
+function hrefOf(url) { return /^https?:\/\//i.test(url) ? url : 'https://' + url; }
+function colorOf(name) { let h = 0; for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return PALETTE[h % PALETTE.length]; }
+
+let ALL = [];
+const VALUES = []; // 真实值只放内存，DOM 里不写明文密码
+
+function render(list) {
+  const root = document.getElementById('root');
+  document.getElementById('count').textContent = list.length ? `共 ${list.length} 个账户` : '';
+  if (!list.length) { root.innerHTML = `<div class="state">${ALL.length ? '没有匹配的账户' : '还没有账户'}</div>`; return; }
+  VALUES.length = 0;
+  root.innerHTML = list.map(acc => {
+    const fields = parseDetails(acc.details).map(d => {
+      const id = VALUES.push(d.value) - 1;
+      const secret = SECRET_RE.test(d.label);
+      return `<div class="field">
+        <div class="f-main">
+          ${d.label ? `<div class="f-label">${esc(d.label)}</div>` : ''}
+          <div class="f-value${secret ? ' masked' : ''}" data-v="${id}" data-secret="${secret ? 1 : 0}">${secret ? '••••••••' : esc(d.value)}</div>
+        </div>
+        ${secret ? `<button class="ibtn" data-act="eye" data-v="${id}" aria-label="显示">${ICON.eye}</button>` : ''}
+        <button class="ibtn" data-act="copy" data-v="${id}" aria-label="复制">${ICON.copy}</button>
+      </div>`;
+    }).join('');
+    const initial = esc((acc.platform.trim()[0] || '?').toUpperCase());
+    return `<section class="card">
+      <div class="card-head">
+        <div class="avatar" style="background:${colorOf(acc.platform)}">${initial}</div>
+        <div class="title">
+          <div class="name">${esc(acc.platform)}</div>
+          ${acc.url ? `<div class="domain">${esc(domainOf(acc.url))}</div>` : ''}
+        </div>
+        ${acc.url ? `<a class="open" href="${esc(hrefOf(acc.url))}" target="_blank" rel="noopener">打开</a>` : ''}
+      </div>
+      ${fields}
+    </section>`;
+  }).join('');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 1400);
+}
+
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch (e) {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch (_) {}
+    ta.remove(); return ok;
   }
-  root.innerHTML = '';
-  accounts.forEach(acc => {
-    const card = document.createElement('div');
-    card.className = 'account-card';
-
-    let html = `<div class="account-name">${acc.platform}</div>`;
-    if (acc.url) {
-      html += `<a class="account-url" href="${acc.url}" target="_blank">${acc.url}</a>`;
-    }
-
-    const details = parseDetails(acc.details);
-    if (details.length) {
-      html += '<div class="details-grid">';
-      details.forEach(d => {
-        html += `<div class="detail-item">
-          ${d.label ? `<div class="detail-label">${d.label}</div>` : ''}
-          <div class="detail-value">${d.value}</div>
-        </div>`;
-      });
-      html += '</div>';
-    }
-
-    card.innerHTML = html;
-    root.appendChild(card);
-  });
 }
+
+document.getElementById('root').addEventListener('click', async e => {
+  const btn = e.target.closest('.ibtn'); if (!btn) return;
+  const id = btn.dataset.v, val = VALUES[id];
+  if (btn.dataset.act === 'copy') {
+    if (await copyText(val)) {
+      btn.classList.add('done'); btn.innerHTML = ICON.check; toast('已复制');
+      setTimeout(() => { btn.classList.remove('done'); btn.innerHTML = ICON.copy; }, 1200);
+    } else toast('复制失败，请长按手动复制');
+  } else {
+    const el = btn.parentElement.querySelector('.f-value');
+    const hidden = el.classList.toggle('masked');
+    el.textContent = hidden ? '••••••••' : val;
+    btn.innerHTML = hidden ? ICON.eye : ICON.eyeOff;
+  }
+});
+
+document.getElementById('q').addEventListener('input', e => {
+  const k = e.target.value.trim().toLowerCase();
+  render(!k ? ALL : ALL.filter(a => (a.platform + ' ' + a.url + ' ' + a.details.replace(/password\s*:[^|]*/ig, '')).toLowerCase().includes(k)));
+});
 
 fetch(`${DATA_URL}&t=${Date.now()}`, { cache: 'no-store' })
   .then(r => r.text())
   .then(text => {
-    const looksGviz = text.indexOf('google.visualization') !== -1 || text.trim().startsWith('/*O_o*/');
-    const accounts = (looksGviz ? parseGviz(text) : parseCSV(text)).filter(a => a.platform);
-    render(accounts);
-    document.getElementById('last-updated').textContent =
-      `账号信息 · Last updated: ${new Date().toLocaleString('en-GB')}`;
+    const gviz = text.indexOf('google.visualization') !== -1 || text.trim().startsWith('/*O_o*/');
+    ALL = (gviz ? parseGviz(text) : parseCSV(text)).filter(a => a.platform);
+    render(ALL);
+    document.getElementById('sub').textContent =
+      `Admin Accounts · 更新于 ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
   })
   .catch(() => {
-    document.getElementById('accounts-root').innerHTML =
-      '<div class="empty-state">Failed to load — 请确认表格已设为「知道链接的任何人可检视」，或已发布到网络</div>';
+    document.getElementById('root').innerHTML =
+      '<div class="state">加载失败<br>请确认表格已设为「知道链接的任何人可查看」或已发布到网络</div>';
+    document.getElementById('sub').textContent = 'Admin Accounts';
   });
 </script>
 </body>
