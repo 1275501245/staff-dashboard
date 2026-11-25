@@ -11,131 +11,89 @@
 <title>管理员账户 · Haidilao</title>
 <style>
   :root {
-    --red: #D7261E;
-    --red-deep: #A8150F;
-    --red-soft: #FDECEA;
-    --cream: #FBF6F0;
-    --ink: #2A1A16;
-    --muted: #9A8580;
-    --line: #F3E8E2;
-    --card: #FFFFFF;
+    --red: #D7261E; --red-deep: #A8150F; --red-soft: #FDECEA;
+    --cream: #FBF6F0; --ink: #2A1A16; --muted: #9A8580; --line: #F4EBE6; --card: #fff;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI', 'Helvetica Neue', sans-serif;
-    background: var(--cream); color: var(--ink); min-height: 100vh; padding-bottom: 48px;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; padding-bottom: 32px; font-size: 14px; }
 
-  /* ---------- 顶部红色品牌区 ---------- */
-  .hero {
-    position: relative; overflow: hidden;
-    background: linear-gradient(150deg, #E8342B 0%, var(--red) 45%, var(--red-deep) 100%);
-    color: #fff; padding: 18px 20px 64px;
-    border-radius: 0 0 32px 32px;
-  }
-  .hero::before, .hero::after {
-    content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.07);
-  }
-  .hero::before { width: 260px; height: 260px; right: -80px; top: -110px; }
-  .hero::after  { width: 160px; height: 160px; right: 40px; top: 70px; background: rgba(255,255,255,.05); }
-  .hero-inner { position: relative; max-width: 720px; margin: 0 auto; z-index: 1; }
-  .topbar { display: flex; align-items: center; margin-bottom: 20px; }
-  .back {
-    width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.16);
-    display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; font-size: 18px;
-  }
-  .brand { display: flex; align-items: center; gap: 14px; }
-  .brand img { width: 58px; height: auto; flex-shrink: 0; }
-  .hero h1 { font-size: 26px; font-weight: 700; letter-spacing: .5px; }
-  .hero .sub { font-size: 13px; opacity: .8; margin-top: 6px; }
+  /* 顶部 */
+  .hero { background: linear-gradient(150deg, #E8342B 0%, var(--red) 50%, var(--red-deep) 100%); color: #fff; padding: 12px 16px 40px; border-radius: 0 0 24px 24px; position: relative; overflow: hidden; }
+  .hero::after { content: ''; position: absolute; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,.07); right: -60px; top: -90px; }
+  .hero-inner { max-width: 640px; margin: 0 auto; display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+  .back { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,.16); display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; font-size: 18px; flex-shrink: 0; }
+  .hero img { width: 40px; flex-shrink: 0; }
+  .hero h1 { font-size: 19px; font-weight: 700; letter-spacing: .5px; }
+  .hero .sub { font-size: 11px; opacity: .8; margin-top: 2px; }
 
-  /* ---------- 搜索 ---------- */
-  .content { max-width: 720px; margin: -34px auto 0; padding: 0 16px; position: relative; z-index: 2; }
-  .search {
-    display: flex; align-items: center; gap: 10px; background: var(--card);
-    border-radius: 18px; padding: 14px 16px; box-shadow: 0 8px 24px rgba(168,21,15,.10);
-  }
-  .search svg { flex-shrink: 0; color: var(--muted); }
-  .search input { flex: 1; border: none; outline: none; font-size: 15px; background: transparent; color: var(--ink); }
+  .content { max-width: 640px; margin: -26px auto 0; padding: 0 12px; position: relative; z-index: 2; }
+  .search { display: flex; align-items: center; gap: 8px; background: var(--card); border-radius: 14px; padding: 11px 14px; box-shadow: 0 6px 20px rgba(168,21,15,.10); }
+  .search svg { color: var(--muted); flex-shrink: 0; }
+  .search input { flex: 1; border: none; outline: none; font-size: 14px; background: transparent; color: var(--ink); }
   .search input::placeholder { color: #C4B3AE; }
 
-  .count { font-size: 12px; color: var(--muted); margin: 22px 4px 10px; letter-spacing: .3px; }
+  .sec { font-size: 11px; color: var(--muted); letter-spacing: .5px; margin: 16px 6px 6px; }
 
-  /* ---------- 账户卡片 ---------- */
-  .card {
-    background: var(--card); border-radius: 22px; padding: 18px 18px 8px; margin-bottom: 14px;
-    box-shadow: 0 2px 14px rgba(42,26,22,.05);
-  }
-  .card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-  .avatar {
-    width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 18px; color: #fff;
-  }
-  .title { flex: 1; min-width: 0; }
-  .name { font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .domain { font-size: 12px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .open {
-    flex-shrink: 0; background: var(--red-soft); color: var(--red); text-decoration: none;
-    font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 999px;
-  }
+  /* 卡片 */
+  .card { background: var(--card); border-radius: 16px; padding: 12px 14px; margin-bottom: 8px; box-shadow: 0 1px 8px rgba(42,26,22,.04); }
+  .head { display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #fff; }
+  .name { flex: 1; min-width: 0; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .links { display: flex; gap: 6px; flex-shrink: 0; }
+  .open { background: var(--red-soft); color: var(--red); text-decoration: none; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
   .open:active { background: var(--red); color: #fff; }
+  .tag { background: var(--cream); color: var(--muted); font-size: 11px; padding: 4px 9px; border-radius: 999px; }
 
-  .field {
-    display: flex; align-items: center; gap: 10px; padding: 12px 0;
-    border-top: 1px solid var(--line);
-  }
-  .field:first-of-type { border-top: none; }
-  .f-main { flex: 1; min-width: 0; }
-  .f-label { font-size: 11px; color: var(--muted); letter-spacing: .3px; margin-bottom: 3px; }
-  .f-value { font-size: 15px; font-weight: 600; word-break: break-all; font-variant-numeric: tabular-nums; }
-  .f-value.masked { letter-spacing: 2px; color: #6B5A55; }
-  .ibtn {
-    width: 34px; height: 34px; border-radius: 50%; border: none; background: var(--cream);
-    color: #8A7470; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
-  }
+  .body { margin-top: 8px; }
+  .line { display: flex; align-items: center; gap: 8px; min-height: 30px; }
+  .lab { width: 34px; flex-shrink: 0; font-size: 11px; color: var(--muted); }
+  .val { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+  .val.masked { letter-spacing: 1.5px; color: #6B5A55; }
+  .ibtn { width: 28px; height: 28px; border-radius: 50%; border: none; background: transparent; color: #B09C97; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
   .ibtn:active { background: var(--red-soft); color: var(--red); }
   .ibtn.done { background: var(--red); color: #fff; }
 
-  .state { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; line-height: 1.7; }
-  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--red); margin: 0 3px; animation: b 1s infinite ease-in-out; }
+  .shared { background: var(--cream); border-radius: 10px; padding: 2px 10px; margin-top: 8px; }
+  .shared .lab { width: auto; margin-right: 4px; }
+  .row { display: flex; gap: 10px; padding: 6px 0; border-top: 1px solid var(--line); }
+  .row:first-child { border-top: none; }
+  .st { width: 34px; flex-shrink: 0; padding-top: 6px; }
+  .chip { display: inline-block; font-size: 11px; font-weight: 700; color: var(--red); background: var(--red-soft); border-radius: 6px; padding: 2px 6px; }
+  .code { display: block; font-size: 10px; color: #C4B3AE; margin-top: 3px; }
+  .row .lines { flex: 1; min-width: 0; }
+
+  .prompt { font-size: 13px; color: #6B5A55; line-height: 1.6; margin-top: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
+  .prompt.open-all { -webkit-line-clamp: unset; }
+
+  .state { text-align: center; padding: 48px 20px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--red); margin: 0 3px; animation: b 1s infinite ease-in-out; }
   .dot:nth-child(2) { animation-delay: .15s; } .dot:nth-child(3) { animation-delay: .3s; }
   @keyframes b { 0%,80%,100% { transform: scale(.5); opacity: .4; } 40% { transform: scale(1); opacity: 1; } }
 
-  .toast {
-    position: fixed; left: 50%; bottom: 32px; transform: translate(-50%, 20px); opacity: 0;
-    background: var(--ink); color: #fff; font-size: 14px; padding: 10px 18px; border-radius: 999px;
-    transition: all .25s ease; pointer-events: none; z-index: 999;
-  }
+  .toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); opacity: 0; background: var(--ink); color: #fff; font-size: 13px; padding: 9px 16px; border-radius: 999px; transition: all .25s; pointer-events: none; z-index: 999; }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
-
-  .foot { text-align: center; font-size: 11px; color: #C4B3AE; margin-top: 28px; letter-spacing: .5px; }
-  .foot img { display: block; width: 132px; margin: 0 auto 8px; opacity: .85; }
+  .foot { text-align: center; font-size: 11px; color: #C4B3AE; margin-top: 22px; }
+  .foot img { display: block; width: 116px; margin: 0 auto 6px; opacity: .85; }
 </style>
 </head>
 <body>
 
 <header class="hero">
   <div class="hero-inner">
-    <div class="topbar">
-      <a href="/admin" class="back" aria-label="返回">‹</a>
-    </div>
-    <div class="brand">
-      <img src="/assets/hi-mark-white.png" alt="Haidilao">
-      <div>
-        <h1>管理员账户</h1>
-        <div class="sub" id="sub">Admin Accounts · 加载中</div>
-      </div>
+    <a href="/admin" class="back" aria-label="返回">‹</a>
+    <img src="/assets/hi-mark-white.png" alt="Haidilao">
+    <div>
+      <h1>管理员账户</h1>
+      <div class="sub" id="sub">Admin Accounts · 加载中</div>
     </div>
   </div>
 </header>
 
 <main class="content">
   <label class="search">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-    <input id="q" type="search" placeholder="搜索平台 / 账号" autocomplete="off">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="搜索系统 / 站点 / 账号" autocomplete="off">
   </label>
-  <div class="count" id="count"></div>
   <div id="root"><div class="state"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
   <div class="foot"><img src="/assets/haidilao-logo-h-red.png" alt="海底捞火锅">仅限管理员</div>
 </main>
@@ -144,150 +102,229 @@
 
 <script>
 // ============================================================
-// 数据来自 Google 表格 Accounts 分页（A=Platform, B=URL, C=Details）
-// Details 格式："Login: xxx | Password: yyy"，改表即时生效。
-// 支持 gviz JSON 或「发布到网络」CSV 两种 DATA_URL。
+// 数据：Google 表格 Accounts 分页（A=Platform, B=URL, C=Details）
+// 页面自动整合：
+//   · 「系统 — 站点」同名行合并成一张卡，各站点一行
+//   · 同一张卡里所有站点都相同的网址 / 密码，只在卡片顶部显示一次
+//   · 账号+密码完全相同的不同系统（如 邮箱 与 报销）合并成一张卡，多个「打开」按钮
+//   · Details 里多行「站点 (GBxx) 账号：… | Password: …」自动拆成站点行
+//   · 已关闭站点（HIDE_STATIONS）不显示；没有账号字段的长文本归入「常用指令」
 // ============================================================
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
 const SHEET_NAME = 'Accounts';
 const DATA_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&headers=1`;
 
-const SECRET_RE = /pass|pwd|密码|pin|code|secret|key/i;
+const HIDE_STATIONS = /tower\s*bridge|GB13|2216/i;
+const STATIONS = [
+  [/shoreditch|GB12|2215/i, 'SD', 'Shoreditch'],
+  [/brent\s*cross|GB15|2218/i, 'BC', 'Brent Cross'],
+  [/battersea|GB16|2219/i, 'BT', 'Battersea'],
+  [/tower\s*bridge|GB13|2216/i, 'TB', 'Tower Bridge']
+];
+const SECTIONS = [
+  ['外卖平台', /deliveroo|hungry\s*panda|uber|just\s*eat|fantuan|饭团/i],
+  ['供应链 · 库存', /入库|盘点|生鲜|supply|fresh|开货|SAP/i],
+  ['公司系统', /./]
+];
 const PALETTE = ['#D7261E', '#E8662B', '#8C4A32', '#C2412F', '#B5651D', '#6E3B2E'];
 
 const ICON = {
-  copy: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="3"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>',
-  check: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
-  eye: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
-  eyeOff: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.6 10.6 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6C3.9 8.4 2 12 2 12s3.6 7 10 7c1.8 0 3.3-.5 4.6-1.2"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>'
+  copy: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="3"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>',
+  check: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  eye: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeOff: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.6 10.6 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6C3.9 8.4 2 12 2 12s3.6 7 10 7c1.8 0 3.3-.5 4.6-1.2"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>'
 };
-
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-function parseDetails(str) {
-  if (!str) return [];
-  return str.split('|').map(pair => {
-    const i = pair.indexOf(':');
-    if (i === -1) return { label: '', value: pair.trim() };
-    return { label: pair.slice(0, i).trim(), value: pair.slice(i + 1).trim() };
-  }).filter(d => d.value);
-}
-
+/* ---------- 读取 ---------- */
 function parseGviz(text) {
   const json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
   return ((json.table && json.table.rows) || []).map(r => {
-    const c = r.c || [];
-    const cell = i => (c[i] && c[i].v != null) ? String(c[i].v) : '';
-    return { platform: cell(0), url: cell(1), details: cell(2) };
+    const c = r.c || []; const cell = i => (c[i] && c[i].v != null) ? String(c[i].v) : '';
+    return { platform: cell(0).trim(), url: cell(1).trim(), details: cell(2).trim() };
   });
 }
-
 function parseCSV(text) {
-  const rows = []; let field = '', row = [], q = false;
+  const rows = []; let f = '', row = [], q = false;
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
-    if (q) { if (ch === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else q = false; } else field += ch; }
-    else if (ch === '"') q = true;
-    else if (ch === ',') { row.push(field); field = ''; }
-    else if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
-    else if (ch !== '\r') field += ch;
+    if (q) { if (ch === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += ch; }
+    else if (ch === '"') q = true; else if (ch === ',') { row.push(f); f = ''; }
+    else if (ch === '\n') { row.push(f); rows.push(row); row = []; f = ''; } else if (ch !== '\r') f += ch;
   }
-  if (field !== '' || row.length) { row.push(field); rows.push(row); }
+  if (f !== '' || row.length) { row.push(f); rows.push(row); }
   return rows.slice(1).map(r => ({ platform: (r[0] || '').trim(), url: (r[1] || '').trim(), details: (r[2] || '').trim() }));
 }
 
-function domainOf(url) {
-  try { return new URL(/^https?:\/\//.test(url) ? url : 'https://' + url).hostname.replace(/^www\./, ''); }
-  catch (e) { return url; }
+/* ---------- 规整 ---------- */
+function stationOf(s) { for (const [re, abbr, full] of STATIONS) if (re.test(s)) return { abbr, full, code: (s.match(/GB\d+/i) || [''])[0].toUpperCase() }; return null; }
+
+// 标签统一：账号 / 邮箱 / 密码 / 库管 / 审批 ...
+function normLabel(l, v) {
+  const s = l.replace(/账号$/, '').trim();
+  if (/pass|pwd|密码|^pin$/i.test(l)) return { key: 'pw', label: '密码', secret: true };
+  if (/^name$/i.test(s) && /@/.test(v)) return { key: 'mail', label: '邮箱' };
+  if (/login|account|账号|^name$|^id$/i.test(l) && !s.replace(/login|account|name|id/i, '')) return { key: 'acc', label: '账号' };
+  if (/login|account|^$/i.test(s)) return { key: 'acc', label: '账号' };
+  return { key: 'x:' + s, label: s.slice(0, 4) };
 }
-function hrefOf(url) { return /^https?:\/\//i.test(url) ? url : 'https://' + url; }
-function colorOf(name) { let h = 0; for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return PALETTE[h % PALETTE.length]; }
+function parseFields(str) {
+  return str.split('|').map(p => {
+    const m = p.match(/^\s*([^:：]{1,20})[:：]\s*(.+?)\s*$/);
+    if (!m) return null;
+    const n = normLabel(m[1].trim(), m[2]);
+    return { ...n, value: m[2] };
+  }).filter(Boolean);
+}
+const isCred = f => f.length && f.some(x => x.key === 'pw' || x.key === 'acc');
 
-let ALL = [];
-const VALUES = []; // 真实值只放内存，DOM 里不写明文密码
+function build(raw) {
+  const groups = new Map(); const prompts = [];
+  raw.filter(r => r.platform).forEach(r => {
+    const [title, st] = r.platform.split(/\s+[—–-]\s+/);
+    const isUrl = /^https?:|\.\w{2,}/i.test(r.url);
+    const lines = r.details.split(/\n+/).filter(Boolean);
+    // 多行「站点 (GBxx) 账号：…」拆成站点行
+    const perLine = lines.length > 1 && lines.every(l => stationOf(l));
+    const fieldsAll = perLine ? null : parseFields(r.details.replace(/\n/g, ' | '));
+    if (!perLine && r.details && !isCred(fieldsAll)) { prompts.push({ title: r.platform, text: r.details }); return; }
 
-function render(list) {
-  const root = document.getElementById('root');
-  document.getElementById('count').textContent = list.length ? `共 ${list.length} 个账户` : '';
-  if (!list.length) { root.innerHTML = `<div class="state">${ALL.length ? '没有匹配的账户' : '还没有账户'}</div>`; return; }
+    const key = title.trim();
+    if (!groups.has(key)) groups.set(key, { title: key, links: [], tag: '', rows: [], order: groups.size });
+    const g = groups.get(key);
+    if (isUrl && !g.links.some(l => l.url === r.url)) g.links.push({ name: '打开', url: r.url });
+    if (!isUrl && r.url) g.tag = r.url.replace(/端/, '');
+
+    if (perLine) lines.forEach(l => { const s = stationOf(l); g.rows.push({ st: s, fields: parseFields(l.replace(/^.*?\)\s*/, '')) }); });
+    else g.rows.push({ st: st ? stationOf(st) : null, fields: fieldsAll });
+  });
+
+  let list = [...groups.values()];
+  // 去掉已关闭站点
+  list.forEach(g => g.rows = g.rows.filter(r => !(r.st && HIDE_STATIONS.test(r.st.full + r.st.code))));
+  list = list.filter(g => g.rows.length || g.links.length);
+
+  // 账号+密码一模一样的不同系统 → 合并
+  const sig = g => g.rows.length === 1 && !g.rows[0].st
+    ? ['acc', 'pw'].map(k => (g.rows[0].fields.find(f => f.key === k) || {}).value || '').join('\u0001') : null;
+  const merged = [];
+  list.forEach(g => {
+    const s = sig(g); const host = s && !s.startsWith('\u0001') && merged.find(m => sig(m) === s);
+    if (host) {
+      if (!host.names) { host.names = [host.title]; host.links.forEach(l => l.name = host.title); }
+      host.names.push(g.title); host.title = host.names.join(' · ');
+      g.links.forEach(l => host.links.push({ name: g.title, url: l.url }));
+      g.rows[0].fields.forEach(f => { if (!host.rows[0].fields.some(h => h.key === f.key)) host.rows[0].fields.push(f); });
+    } else merged.push(g);
+  });
+
+  // 所有站点都相同的字段 → 提到卡片顶部
+  merged.forEach(g => {
+    g.shared = [];
+    if (g.rows.length > 1) {
+      const first = g.rows[0].fields;
+      first.forEach(f => {
+        if (g.rows.every(r => r.fields.some(x => x.key === f.key && x.value === f.value))) {
+          g.shared.push(f); g.rows.forEach(r => r.fields = r.fields.filter(x => !(x.key === f.key && x.value === f.value)));
+        }
+      });
+    }
+    const order = { SD: 1, BC: 2, BT: 3, TB: 4 };
+    g.rows.sort((a, b) => ((a.st && order[a.st.abbr]) || 0) - ((b.st && order[b.st.abbr]) || 0));
+    g.search = [g.title, g.tag, ...g.rows.flatMap(r => [r.st ? r.st.full + ' ' + r.st.abbr + ' ' + r.st.code : '', ...r.fields.filter(f => !f.secret).map(f => f.value)]),
+      ...g.shared.filter(f => !f.secret).map(f => f.value)].join(' ').toLowerCase();
+    g.section = SECTIONS.find(([, re]) => re.test(g.title))[0];
+  });
+  return { groups: merged, prompts };
+}
+
+/* ---------- 渲染 ---------- */
+const VALUES = [];
+function lineHtml(f) {
+  const id = VALUES.push(f.value) - 1;
+  return `<div class="line">
+    <span class="lab">${esc(f.label)}</span>
+    <span class="val${f.secret ? ' masked' : ''}">${f.secret ? '••••••••' : esc(f.value)}</span>
+    ${f.secret ? `<button class="ibtn" data-act="eye" data-v="${id}">${ICON.eye}</button>` : ''}
+    <button class="ibtn" data-act="copy" data-v="${id}">${ICON.copy}</button>
+  </div>`;
+}
+function colorOf(n) { let h = 0; for (const c of n) h = (h * 31 + c.charCodeAt(0)) >>> 0; return PALETTE[h % PALETTE.length]; }
+function hrefOf(u) { return /^https?:\/\//i.test(u) ? u : 'https://' + u; }
+
+function cardHtml(g) {
+  const links = g.links.map(l => `<a class="open" href="${esc(hrefOf(l.url))}" target="_blank" rel="noopener">${esc(g.links.length > 1 ? l.name : '打开')} ↗</a>`).join('');
+  const tag = g.tag ? `<span class="tag">${esc(g.tag)}</span>` : '';
+  let body = '';
+  if (g.rows.length === 1 && !g.rows[0].st) body = g.rows[0].fields.map(lineHtml).join('');
+  else {
+    if (g.shared.length) body += `<div class="shared">${g.shared.map(f => lineHtml({ ...f, label: '统一' + f.label })).join('')}</div>`;
+    body += g.rows.map(r => `<div class="row">
+      <div class="st">${r.st ? `<span class="chip">${r.st.abbr}</span>${r.st.code ? `<span class="code">${r.st.code}</span>` : ''}` : ''}</div>
+      <div class="lines">${r.fields.map(lineHtml).join('')}</div>
+    </div>`).join('');
+  }
+  const ini = esc((g.title.match(/[A-Za-z一-龥]/) || ['?'])[0].toUpperCase());
+  return `<section class="card">
+    <div class="head"><div class="avatar" style="background:${colorOf(g.title)}">${ini}</div>
+      <div class="name">${esc(g.title)}</div><div class="links">${tag}${links}</div></div>
+    ${body ? `<div class="body">${body}</div>` : ''}
+  </section>`;
+}
+
+let DATA = { groups: [], prompts: [] };
+function render(k) {
   VALUES.length = 0;
-  root.innerHTML = list.map(acc => {
-    const fields = parseDetails(acc.details).map(d => {
-      const id = VALUES.push(d.value) - 1;
-      const secret = SECRET_RE.test(d.label);
-      return `<div class="field">
-        <div class="f-main">
-          ${d.label ? `<div class="f-label">${esc(d.label)}</div>` : ''}
-          <div class="f-value${secret ? ' masked' : ''}" data-v="${id}" data-secret="${secret ? 1 : 0}">${secret ? '••••••••' : esc(d.value)}</div>
-        </div>
-        ${secret ? `<button class="ibtn" data-act="eye" data-v="${id}" aria-label="显示">${ICON.eye}</button>` : ''}
-        <button class="ibtn" data-act="copy" data-v="${id}" aria-label="复制">${ICON.copy}</button>
-      </div>`;
-    }).join('');
-    const initial = esc((acc.platform.trim()[0] || '?').toUpperCase());
-    return `<section class="card">
-      <div class="card-head">
-        <div class="avatar" style="background:${colorOf(acc.platform)}">${initial}</div>
-        <div class="title">
-          <div class="name">${esc(acc.platform)}</div>
-          ${acc.url ? `<div class="domain">${esc(domainOf(acc.url))}</div>` : ''}
-        </div>
-        ${acc.url ? `<a class="open" href="${esc(hrefOf(acc.url))}" target="_blank" rel="noopener">打开</a>` : ''}
-      </div>
-      ${fields}
-    </section>`;
+  const root = document.getElementById('root');
+  const gs = DATA.groups.filter(g => !k || g.search.includes(k));
+  const ps = DATA.prompts.filter(p => !k || (p.title + p.text).toLowerCase().includes(k));
+  if (!gs.length && !ps.length) { root.innerHTML = `<div class="state">${DATA.groups.length ? '没有匹配的账户' : '还没有账户'}</div>`; return; }
+  let html = '';
+  SECTIONS.forEach(([name]) => {
+    const list = gs.filter(g => g.section === name);
+    if (list.length) html += `<div class="sec">${name}</div>` + list.map(cardHtml).join('');
+  });
+  if (ps.length) html += `<div class="sec">常用指令</div>` + ps.map(p => {
+    const id = VALUES.push(p.text) - 1;
+    return `<section class="card"><div class="head"><div class="name">${esc(p.title)}</div>
+      <button class="ibtn" data-act="copy" data-v="${id}">${ICON.copy}</button></div>
+      <div class="prompt">${esc(p.text)}</div></section>`;
   }).join('');
+  root.innerHTML = html;
 }
 
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 1400);
-}
-
+function toast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 1300); }
 async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); return true; }
-  catch (e) {
+  try { await navigator.clipboard.writeText(text); return true; } catch (e) {
     const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select();
-    let ok = false; try { ok = document.execCommand('copy'); } catch (_) {}
-    ta.remove(); return ok;
+    document.body.appendChild(ta); ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (_) {} ta.remove(); return ok;
   }
 }
-
 document.getElementById('root').addEventListener('click', async e => {
+  const pr = e.target.closest('.prompt'); if (pr) { pr.classList.toggle('open-all'); return; }
   const btn = e.target.closest('.ibtn'); if (!btn) return;
-  const id = btn.dataset.v, val = VALUES[id];
+  const val = VALUES[btn.dataset.v];
   if (btn.dataset.act === 'copy') {
-    if (await copyText(val)) {
-      btn.classList.add('done'); btn.innerHTML = ICON.check; toast('已复制');
-      setTimeout(() => { btn.classList.remove('done'); btn.innerHTML = ICON.copy; }, 1200);
-    } else toast('复制失败，请长按手动复制');
+    if (await copyText(val)) { btn.classList.add('done'); btn.innerHTML = ICON.check; toast('已复制'); setTimeout(() => { btn.classList.remove('done'); btn.innerHTML = ICON.copy; }, 1100); }
+    else toast('复制失败，请长按手动复制');
   } else {
-    const el = btn.parentElement.querySelector('.f-value');
-    const hidden = el.classList.toggle('masked');
-    el.textContent = hidden ? '••••••••' : val;
-    btn.innerHTML = hidden ? ICON.eye : ICON.eyeOff;
+    const el = btn.parentElement.querySelector('.val'); const hid = el.classList.toggle('masked');
+    el.textContent = hid ? '••••••••' : val; btn.innerHTML = hid ? ICON.eye : ICON.eyeOff;
   }
 });
-
-document.getElementById('q').addEventListener('input', e => {
-  const k = e.target.value.trim().toLowerCase();
-  render(!k ? ALL : ALL.filter(a => (a.platform + ' ' + a.url + ' ' + a.details.replace(/password\s*:[^|]*/ig, '')).toLowerCase().includes(k)));
-});
+document.getElementById('q').addEventListener('input', e => render(e.target.value.trim().toLowerCase()));
 
 fetch(`${DATA_URL}&t=${Date.now()}`, { cache: 'no-store' })
   .then(r => r.text())
   .then(text => {
     const gviz = text.indexOf('google.visualization') !== -1 || text.trim().startsWith('/*O_o*/');
-    ALL = (gviz ? parseGviz(text) : parseCSV(text)).filter(a => a.platform);
-    render(ALL);
-    document.getElementById('sub').textContent =
-      `Admin Accounts · 更新于 ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+    DATA = build(gviz ? parseGviz(text) : parseCSV(text));
+    render('');
+    document.getElementById('sub').textContent = `${DATA.groups.length} 个系统 · 更新于 ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
   })
-  .catch(() => {
-    document.getElementById('root').innerHTML =
-      '<div class="state">加载失败<br>请确认表格已设为「知道链接的任何人可查看」或已发布到网络</div>';
+  .catch(err => {
+    console.error(err);
+    document.getElementById('root').innerHTML = '<div class="state">加载失败<br>请确认表格已设为「知道链接的任何人可查看」或已发布到网络</div>';
     document.getElementById('sub').textContent = 'Admin Accounts';
   });
 </script>
