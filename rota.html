@@ -121,6 +121,23 @@ tr.site-separator td { border-top: 6px solid var(--cream); }
 .adj-row span { color: #6B5A55; }
 .adj-row b.neg { color: var(--red); } .adj-row b.pos { color: var(--green); }
 @media (max-width: 480px) { .topbar .mark, .topbar h1 small { display: none; } .pager-label { min-width: 92px; font-size: 12px; } }
+.days { margin-top: 10px; }
+.dr { display: grid; grid-template-columns: 68px 30px 1fr auto; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 9px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.dr .dd { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.dr .dd b { color: var(--ink); font-weight: 700; margin-right: 2px; }
+.dr .st { font-size: 10px; font-weight: 800; text-align: center; border-radius: 6px; padding: 2px 0; }
+.dr .st.shoreditch { background: #E6EFFD; color: #1D5FBF; }
+.dr .st.battersea { background: #FFEFD9; color: #B85A06; }
+.dr .st.brentcross { background: var(--red-soft); color: var(--red); }
+.dr .st.towerbridge { background: #E1F3E3; color: #2E7D32; }
+.dr .st.other { background: var(--cream); color: var(--muted); }
+.dr .tm { font-weight: 600; white-space: nowrap; }
+.dr .hr { font-weight: 800; text-align: right; }
+.dr .olt { font-size: 9px; color: var(--muted); margin-left: 5px; font-weight: 500; }
+.dr.off .tm { color: #D3C5C0; font-weight: 500; font-size: 11px; }
+.dr.off .dd b { color: #BCAEA9; }
+.dr.today { background: #FFF3F1; }
+.dr.today .dd b { color: var(--red); }
 /* Σ 多周合计 */
 .sum-wrap { padding: 4px 0 8px; }
 .sum-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 0 6px; padding: 0 4px; }
@@ -164,7 +181,7 @@ tr.site-separator td { border-top: 6px solid var(--cream); }
   <div class="sec-sub">Rota hours ± adjustments = hours paid · 排班工时 ± 奖惩 = 结算工时</div>
   <div id="site-sum" class="site-sum"></div>
   <div id="cards-grid" class="cards-grid"></div>
-  <div class="legend"><span><i class="dot shoreditch"></i>Shoreditch</span><span><i class="dot brentcross"></i>Brent Cross</span><span><i class="dot battersea"></i>Battersea</span><span>Tap a day for shift times · 悬停/长按看时段</span></div>
+  <div class="legend"><span><i class="dot shoreditch"></i>Shoreditch</span><span><i class="dot brentcross"></i>Brent Cross</span><span><i class="dot battersea"></i>Battersea</span></div>
 </div>
 
 <script>
@@ -674,24 +691,26 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
       myAdjs.map(a => `<div class="adj-row"><span>${a.note || (a.hours < 0 ? 'Deduction' : 'Bonus')}</span><b class="${a.hours < 0 ? 'neg' : 'pos'}">${fmtSigned(a.hours)}</b></div>`).join('')
     }</details>` : '';
 
-    // 7 天条
+    // 每日明细:日期 | 站点 | 时段 | 工时
+    const fmtRange = r => r.replace(/(\d{1,2})(\d{2})\s*-\s*(\d{1,2})(\d{2})/, (m, a, b, c, d) => `${a.padStart(2,'0')}:${b}–${c.padStart(2,'0')}:${d}`);
+    const SHORT = { shoreditch: 'SD', brentcross: 'BC', battersea: 'BT', towerbridge: 'TB', piccadilly: 'PC' };
     const week = dayHeaders.map((h, i) => {
       const time = (data.days[i] || '').trim();
       const lab = dayLabels[i];
       const today = i === todayIdx ? ' today' : '';
+      const dcell = `<span class="dd"><b>${lab.dow}</b> ${lab.date}</span>`;
       if (!time) {
         const off = (data.rawOff[i] || '').trim();
         const txt = (!off || off === '-') ? '–' : (off.toLowerCase() === 'off' ? 'OFF' : off);
-        return `<div class="wd off${today}"><div class="d">${lab.dow}</div><div class="h">${txt}</div><div class="t">${lab.date}</div></div>`;
+        return `<div class="dr off${today}">${dcell}<span></span><span class="tm">${txt}</span><span></span></div>`;
       }
       const site = data.daySite[i];
+      const key = siteKeyOf(site);
       const m = time.match(TIME_RE_CAP);
       const hrs = m ? parseFloat(m[1]) : '';
-      const range = stripOnline(time).replace(/[（(]\d+(?:\.\d+)?[)）].*$/, '').trim();
-      const online = data.dayOnline[i];
-      const c = online ? 0 : headCount(i, site);
-      const flag = online ? '<span class="ol">online</span>' : '';
-      return `<div class="wd ${siteKeyOf(site)}${today}" title="${siteLabel(site)} ${range}${online ? ' (online)' : ''}${c ? ' · ' + c + ' on site' : ''}">${flag}<div class="d">${lab.dow}</div><div class="h">${hrs}</div><div class="t">${lab.date}</div></div>`;
+      const range = fmtRange(stripOnline(time).replace(/[（(]\d+(?:\.\d+)?[)）].*$/, '').trim());
+      const online = data.dayOnline[i] ? '<span class="olt">online</span>' : '';
+      return `<div class="dr${today}">${dcell}<span class="st ${key}">${SHORT[key] || siteLabel(site)}</span><span class="tm">${range}${online}</span><span class="hr">${hrs}h</span></div>`;
     }).join('');
 
     const card = document.createElement('div');
@@ -702,7 +721,7 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
         <div class="sc-total"><div class="n">${finalHours}</div><div class="u">hrs paid</div></div>
       </div>
       <div class="calc">${calc}</div>
-      <div class="week">${week}</div>
+      <div class="days">${week}</div>
       ${adjList}`;
     grid.appendChild(card);
   });

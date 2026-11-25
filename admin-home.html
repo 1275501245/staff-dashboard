@@ -1,102 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#D7261E">
+<meta name="robots" content="noindex, nofollow">
 <title>Admin — Haidilao</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; }
-.container { max-width: 480px; margin: 0 auto; padding: 32px 16px 60px; }
-.header { margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid #efefef; }
-.header h1 { font-size: 20px; font-weight: 600; }
-.header p { font-size: 12px; color: #aaa; margin-top: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
-.section { margin-bottom: 28px; }
-.section-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding: 0 2px; }
-.nav-list { background: white; border-radius: 16px; border: 1px solid #efefef; overflow: hidden; }
-.nav-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #f5f5f5; text-decoration: none; color: #1a1a1a; }
-.nav-item:last-child { border-bottom: none; }
-.nav-left { display: flex; align-items: center; gap: 14px; }
-.nav-icon { width: 36px; height: 36px; border-radius: 9px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
-.nav-text { display: flex; flex-direction: column; gap: 2px; }
-.nav-name { font-size: 14px; font-weight: 500; }
-.nav-desc { font-size: 12px; color: #aaa; }
-.nav-arrow { font-size: 20px; color: #ccc; }
+:root { --red:#D7261E; --red-deep:#A8150F; --red-soft:#FDECEA; --cream:#FBF6F0; --ink:#2A1A16; --muted:#9A8580; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; padding-bottom: 32px; }
+.hero { background: linear-gradient(150deg, #E8342B 0%, var(--red) 50%, var(--red-deep) 100%); color: #fff; padding: 18px 16px 44px; border-radius: 0 0 24px 24px; position: relative; overflow: hidden; }
+.hero::after { content: ''; position: absolute; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,.07); right: -60px; top: -90px; }
+.hero-inner { max-width: 480px; margin: 0 auto; display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+.hero img { width: 44px; flex-shrink: 0; }
+.hero h1 { font-size: 19px; font-weight: 700; letter-spacing: .3px; }
+.hero p { font-size: 11px; opacity: .8; margin-top: 2px; letter-spacing: .5px; }
+.container { max-width: 480px; margin: -28px auto 0; padding: 0 12px; position: relative; z-index: 2; }
+.section { margin-bottom: 18px; }
+.section:first-child { padding-top: 40px; }
+.section-label { font-size: 13px; font-weight: 700; margin: 0 4px 8px; display: flex; align-items: center; gap: 6px; }
+.section-label::before { content: ''; width: 3px; height: 13px; border-radius: 2px; background: var(--red); }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tile { background: #fff; border-radius: 14px; padding: 12px; text-decoration: none; color: var(--ink); display: flex; align-items: center; gap: 10px; min-width: 0; box-shadow: 0 1px 6px rgba(42,26,22,.04); transition: transform .12s; }
+.tile:active { transform: scale(.97); background: #FFF8F6; }
+.tile .ic { width: 36px; height: 36px; border-radius: 11px; background: var(--red-soft); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.tile .tx { min-width: 0; }
+.tile .nm { font-size: 13px; font-weight: 700; line-height: 1.25; }
+.tile .ds { font-size: 11px; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.foot { text-align: center; margin-top: 22px; }
+.foot img { width: 116px; opacity: .85; }
 </style>
 </head>
 <body>
+<header class="hero">
+  <div class="hero-inner">
+    <img src="/assets/hi-mark-white.png" alt="Haidilao">
+    <div>
+      <h1>Haidilao Mini Hot Pot</h1>
+      <p>ADMIN DASHBOARD · 管理后台</p>
+    </div>
+  </div>
+</header>
+
 <div class="container">
-  <div class="header">
-    <h1>Haidilao Mini Hot Pot</h1>
-    <p>Admin Dashboard</p>
-  </div>
-
   <div class="section">
-    <div class="section-label">Purchasing — 采购</div>
-    <div class="nav-list">
-      <a class="nav-item" href="/orders">
-        <div class="nav-left">
-          <div class="nav-icon">📦</div>
-          <div class="nav-text">
-            <div class="nav-name">Orders</div>
-            <div class="nav-desc">开货单管理</div>
-          </div>
-        </div>
-        <div class="nav-arrow">›</div>
-      </a>
-      <a class="nav-item" href="/suppliers">
-        <div class="nav-left">
-          <div class="nav-icon">🏪</div>
-          <div class="nav-text">
-            <div class="nav-name">Supplier Management</div>
-            <div class="nav-desc">供应商管理</div>
-          </div>
-        </div>
-        <div class="nav-arrow">›</div>
-      </a>
-      <a class="nav-item" href="/stocktake-admin">
-        <div class="nav-left">
-          <div class="nav-icon">📋</div>
-          <div class="nav-text">
-            <div class="nav-name">Inventory Overview</div>
-            <div class="nav-desc">库存盘点</div>
-          </div>
-        </div>
-        <div class="nav-arrow">›</div>
-      </a>
+    <div class="section-label">Purchasing · 采购</div>
+    <div class="grid">
+      <a class="tile" href="/suppliers"><div class="ic">🏪</div><div class="tx"><div class="nm">Suppliers</div><div class="ds">供应商管理</div></div></a>
+      <a class="tile" href="/stocktake-admin"><div class="ic">📋</div><div class="tx"><div class="nm">Inventory</div><div class="ds">库存盘点</div></div></a>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-label">Operations — 运营</div>
-    <div class="nav-list">
-      <a class="nav-item" href="/operations-rota">
-        <div class="nav-left">
-          <div class="nav-icon">📅</div>
-          <div class="nav-text">
-            <div class="nav-name">Operations Rota</div>
-          </div>
-        </div>
-        <div class="nav-arrow">›</div>
-      </a>
+    <div class="section-label">System · 系统</div>
+    <div class="grid">
+      <a class="tile" href="/accounts"><div class="ic">🔑</div><div class="tx"><div class="nm">Accounts</div><div class="ds">管理员账户</div></div></a>
+      <a class="tile" href="/home"><div class="ic">🏠</div><div class="tx"><div class="nm">Staff Home</div><div class="ds">员工首页</div></div></a>
     </div>
   </div>
 
-  <div class="section">
-    <div class="section-label">System — 系统</div>
-    <div class="nav-list">
-      <a class="nav-item" href="/accounts">
-        <div class="nav-left">
-          <div class="nav-icon">🔑</div>
-          <div class="nav-text">
-            <div class="nav-name">Account Info</div>
-            <div class="nav-desc">账号信息</div>
-          </div>
-        </div>
-        <div class="nav-arrow">›</div>
-      </a>
-    </div>
-  </div>
+  <div class="foot"><img src="/assets/haidilao-logo-h-red.png" alt="海底捞火锅"></div>
 </div>
 </body>
 </html>
