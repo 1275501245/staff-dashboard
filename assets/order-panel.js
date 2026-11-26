@@ -139,6 +139,7 @@
       });
       L.push('');
     });
+    L.push('Please check, thank you!');
     return L.join('\n').trim();
   }
 
