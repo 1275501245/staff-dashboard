@@ -70,6 +70,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </style>
 <link rel="stylesheet" href="/assets/hdl.css">
 <style id="hdl-override">
+.body, .site-bar, .date-row, .filter-row { max-width: 760px; margin-left: auto !important; margin-right: auto !important; }
+.header-top, .header > *:not(.header-top) { max-width: 760px; margin-left: auto; margin-right: auto; }
 /* ── HDL theme: family B (header/header-top/back) ── */
 * { -webkit-tap-highlight-color: transparent; }
 body { background: var(--cream) !important; color: var(--ink) !important; }
@@ -92,7 +94,7 @@ body { background: var(--cream) !important; color: var(--ink) !important; }
 .site-btn.active { background: var(--red) !important; color: #fff !important; }
 .unit-input { background: var(--cream) !important; border-color: transparent !important; }
 .unit-input.active { border-color: var(--red) !important; background: #fff !important; }
-.submit-bar { border-top: none !important; box-shadow: 0 -4px 16px rgba(42,26,22,.06); }
+.submit-bar { border-top: none !important; box-shadow: 0 -4px 16px rgba(42,26,22,.06); padding-left: max(16px, calc(50% - 364px)) !important; padding-right: max(16px, calc(50% - 364px)) !important; }
 .submit-btn { background: var(--red) !important; border-radius: 999px !important; }
 .submit-btn:disabled { background: #E3D7D3 !important; }
 .reset-btn { background: var(--cream) !important; border: none !important; border-radius: 999px !important; color: var(--muted) !important; }

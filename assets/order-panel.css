@@ -38,3 +38,8 @@
 .op-toast { position: fixed; left: 50%; bottom: 84px; transform: translate(-50%, 16px); opacity: 0; background: var(--ink); color: #fff; font-size: 13px; padding: 9px 16px; border-radius: 999px; transition: all .25s; z-index: 600; pointer-events: none; white-space: nowrap; }
 .op-toast.show { opacity: 1; transform: translate(-50%, 0); }
 .order-btn { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 10px 14px 4px; border: none; border-radius: 999px; background: var(--red); color: #fff; font: inherit; font-size: 14px; font-weight: 800; padding: 11px; cursor: pointer; width: calc(100% - 28px); }
+
+@media (min-width: 700px) {
+  .op { left: 50%; right: auto; width: 560px; margin-left: -280px; top: 24px; bottom: 24px; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(42,26,22,.25); transform: translateY(120%); }
+  .op.on { transform: none; box-shadow: 0 0 0 100vmax rgba(42,26,22,.35), 0 20px 60px rgba(42,26,22,.25); }
+}
