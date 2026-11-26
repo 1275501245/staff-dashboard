@@ -148,6 +148,35 @@ tr.site-separator td { border-top: 6px solid var(--cream); }
 .dr.off .dd b { color: #BCAEA9; }
 .dr.today { background: #FFF3F1; }
 .dr.today .dd b { color: var(--red); }
+
+/* Duties 站位 */
+.dw-wk { background: #fff; border-radius: 16px; box-shadow: 0 1px 10px rgba(42,26,22,.05); overflow-x: auto; margin-top: 8px; }
+.dw-wk table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+.dw-wk th, .dw-wk td { position: static !important; min-width: 0 !important; max-width: none !important; height: auto !important; border-bottom: 1px solid #F7F0EC !important; padding: 8px 4px !important; font-size: 11px !important; text-align: center !important; white-space: normal !important; vertical-align: top; background: transparent !important; }
+.dw-wk thead th { font-weight: 700 !important; color: var(--ink) !important; } .dw-wk thead th small { display: block; font-weight: 500; color: var(--muted); font-size: 10px; }
+.dw-wk th.s { width: 34px; }
+@media (max-width: 600px) { .dw-wk th, .dw-wk td { padding: 7px 1px !important; font-size: 10px !important; } .dw-wk td b { font-size: 9.5px; letter-spacing: -.3px; white-space: nowrap; overflow: visible; } .dw-mini { font-size: 9px; } .dw-wk thead th small { font-size: 9px; } } .dw-wk tbody th.s { vertical-align: middle; }
+.dw-wk tr:last-child td, .dw-wk tr:last-child th { border-bottom: none !important; }
+.dw-wk .td { background: #FFF6F4 !important; } .dw-wk thead th.td { color: var(--red) !important; }
+.dw-wk td b { display: block; font-weight: 600; font-size: 11px; overflow: hidden; text-overflow: ellipsis; }
+.dw-mini { display: block; color: var(--red); font-size: 10px; font-weight: 600; margin-top: 2px; }
+.dw-key { font-size: 10px; color: var(--muted); margin: 6px 2px 0; } .dw-key .dw-mini { display: inline; }
+.dw-off { color: #D3C5C0; }
+.dw-st { display: inline-block; width: 26px; text-align: center; font-size: 10px; font-weight: 700; border-radius: 6px; padding: 2px 0; }
+.dw-st.shoreditch { background: #E6EFFD; color: #1D5FBF; } .dw-st.battersea { background: #FFEFD9; color: #B85A06; } .dw-st.brentcross { background: var(--red-soft); color: var(--red); }
+.dd-days { display: flex; gap: 6px; overflow-x: auto; margin: 8px 0 10px; }
+.dd-day { flex: 1 0 auto; min-width: 46px; border: none; background: #fff; border-radius: 12px; padding: 6px 8px; font: inherit; font-size: 12px; font-weight: 700; color: var(--ink); box-shadow: 0 1px 6px rgba(42,26,22,.05); cursor: pointer; }
+.dd-day small { display: block; font-size: 10px; font-weight: 500; color: var(--muted); }
+.dd-day.on { background: var(--red); color: #fff; } .dd-day.on small { color: rgba(255,255,255,.85); }
+.dd-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.dd-site { background: #fff; border-radius: 16px; padding: 12px 14px; box-shadow: 0 1px 10px rgba(42,26,22,.05); }
+.dd-h { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.dd-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; } .dd-row + .dd-row { border-top: 1px solid #F7F0EC; }
+.dd-lb { flex-shrink: 0; width: 82px; font-size: 10px; font-weight: 700; color: var(--muted); padding-top: 2px; } .dd-lb.g { color: var(--green); } .dd-lb.r { color: var(--red); }
+.dd-tx .dd-b2 { display: block; margin-top: 6px; } .dd-tx b { display: block; }
+.dd-tx { flex: 1; min-width: 0; font-size: 13px; } .dd-tx b { font-weight: 700; } .dd-tx small { display: block; color: var(--muted); font-size: 11px; margin-top: 1px; }
+.dd-row em { flex-shrink: 0; font-style: normal; font-size: 10px; font-weight: 700; color: #fff; background: var(--red); border-radius: 999px; padding: 2px 8px; }
+.dd-ppl { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; font-weight: 600; } .dd-ppl i { font-style: normal; color: var(--muted); font-weight: 400; font-size: 11px; }
 /* Σ 多周合计 */
 .sum-wrap { padding: 4px 0 8px; }
 .sum-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 0 6px; padding: 0 4px; }
@@ -186,6 +215,7 @@ tr.site-separator td { border-top: 6px solid var(--cream); }
   <div id="content" class="loading">Loading rota…</div>
 </div>
 
+<div id="duties" class="cards-section duties" style="display:none;"></div>
 <div id="cards-section" style="display:none;" class="cards-section">
   <div class="sec-title">Hours this week · 本周工时</div>
   <div class="sec-sub">Rota hours ± adjustments = hours paid · 排班工时 ± 奖惩 = 结算工时</div>
@@ -194,6 +224,8 @@ tr.site-separator td { border-top: 6px solid var(--cream); }
   <div class="legend"><span><i class="dot shoreditch"></i>Shoreditch</span><span><i class="dot brentcross"></i>Brent Cross</span><span><i class="dot battersea"></i>Battersea</span></div>
 </div>
 
+<script src="/assets/hdl-icons.js"></script>
+<script src="/assets/duties.js"></script>
 <script>
 const SHEET_ID = '189O3dYKEwvR1zMxBs--eVM8VpK_w2AEV6IzUJ-JoAmc';
 // 班表数据:单一 Rota tab,里面按「表头行(B列=Name) → 日期行 → 排班行」纵向堆叠多个周块。
@@ -625,6 +657,11 @@ function buildCards(rows, agency, dayHeaders, dayEndIdx, todayIdx, adjustments) 
 
   if (staffMap.size === 0) return;
 
+  {
+    const dates = dayHeaders.map((h, i) => parseSheetDate((rows[1] && rows[1][i + 2]) || '') || isoAddDays(currentWeekStart, i));
+    HDL_DUTIES.render(staffMap, dates, todayIdx);
+  }
+
   const grid = document.getElementById('cards-grid');
   grid.innerHTML = '';
 
@@ -847,6 +884,7 @@ async function renderWeek(weekISO) {
 
   el.className = '';
   el.innerHTML = buildTable(rows, agencySet, todayIdx, adjustments);
+  await HDL_DUTIES.load(fetchSheet);
   buildCards(rows, agencySet, dayHeaders, dayEndIdx, todayIdx, adjustments);
   updatePager();
 }
