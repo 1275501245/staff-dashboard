@@ -128,19 +128,18 @@
   function supTitle() { return S.sup.SupplierName + (S.sup.SupplierCN ? ' ' + S.sup.SupplierCN : ''); }
 
   function buildText() {
-    const L = [`${supTitle()} — Order 开货单`, `Date 日期: ${nice(S.date)}`, ''];
+    const d = new Date(S.date + 'T00:00');
+    const day = `${DOW[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}`;
+    const L = [];
     orderedSites().forEach(site => {
-      const a = addrOf(site);
-      L.push(`【${a.name}】${a.address}`);
-      let i = 1;
+      L.push(`${site} · ${day}`);
       S.prods.forEach(p => {
         const v = q(site, p.MyName); if (!v) return;
-        L.push(`${i++}. ${pName(p)}${cnShort(p) ? ' ' + cnShort(p) : ''} × ${v} ${p.Unit || ''}`.trim());
+        L.push(`${pName(p)} ${pCN(p)} × ${v} ${p.Unit || ''}`.trim());
       });
       L.push('');
     });
-    L.push('Thank you 谢谢 — HDL Delivery Kitchen 海底捞外卖');
-    return L.join('\n');
+    return L.join('\n').trim();
   }
 
   async function sendText() {
