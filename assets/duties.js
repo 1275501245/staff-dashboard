@@ -73,7 +73,7 @@
           <div class="dd-site">
             <div class="dd-h"><span class="dot ${k}"></span>${siteLabel(k)}</div>
             <div class="dd-row"><span class="dd-lb g">Opening 开早</span><div class="dd-tx"><b>Menu on/off check</b><small>上下架检查</small><b class="dd-b2">Food safety check</b><small>食安检查</small></div></div>
-            ${(c.monthly || c.stk.length) ? `<div class="dd-row"><span class="dd-lb r">Stocktake 盘点</span><div class="dd-tx"><b>${esc(stkEN(c))}</b><small>${esc(stkCN(c))}</small></div><em>DDL ${DDL}</em></div>` : ''}
+            ${(c.monthly || c.stk.length) ? `<div class="dd-row"><span class="dd-lb r">Stocktake 盘点</span><div class="dd-tx"><b>${esc(stkEN(c))}</b><small>${esc(stkCN(c))}</small></div><em>DDL ${DDL}</em></div>` : `<div class="dd-row"><span class="dd-lb r">Stocktake 盘点</span><div class="dd-tx dd-none"><b>None today</b><small>今日暂无</small></div></div>`}
           </div>`; }).join('') || '<div class="dw-off" style="padding:16px;text-align:center">No shifts 无排班</div>';
         host.querySelector('.dd-days').innerHTML = week.map((x, i) => `<button class="dd-day${i === state.idx ? ' on' : ''}" data-i="${i}">${DOW_KEY[x.wd]}<small>${x.d.getDate()}/${x.d.getMonth() + 1}</small></button>`).join('');
         host.querySelector('.dd-grid').innerHTML = cards;
