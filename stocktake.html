@@ -38,6 +38,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .item-card { background: #fff; border: 1px solid #efefef; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 8px; }
 .item-row { display: flex; align-items: center; gap: 8px; }
 .item-name { font-size: 14px; font-weight: 500; color: #1a1a1a; }
+.item-name .cn { color: #9A8580; margin-left: 4px; }
 .unit-inputs { display: flex; gap: 10px; }
 .unit-box { display: flex; align-items: center; gap: 4px; }
 .unit-label { font-size: 11px; color: #aaa; white-space: nowrap; }
@@ -259,7 +260,7 @@ function renderItems() {
     if (!suppProds.length) return;
     hasProducts = true;
 
-    html += `<div class="supp-section"><div class="supp-label">${suppName}</div>`;
+    html += `<div class="supp-section"><div class="supp-label">${suppName}${SUPP_CN[suppName] ? ' ' + SUPP_CN[suppName] : ''}</div>`;
 
     suppProds.forEach(p => {
       const name = p['MyName'];
@@ -290,7 +291,7 @@ function renderItems() {
       }
 
       html += `<div class="item-card">
-        <div class="item-name">${name}</div>
+        <div class="item-name">${p['NameEN'] || name}${p['NameCN'] ? ` <span class="cn">${p['NameCN']}</span>` : ''}</div>
         <div class="unit-inputs">${unitBoxes}</div>
       </div>`;
     });
@@ -390,13 +391,16 @@ async function submitData() {
   btn.disabled = false; btn.textContent = 'Submit';
 }
 
+const SUPP_CN = {};
 async function init() {
   const today = todayStr();
   document.getElementById('date-picker').value = today;
   document.getElementById('date-label').textContent = formatLabel(today);
   document.getElementById('hdr-sub').textContent = formatLabel(today);
   try {
-    [schedule, products] = await Promise.all([fetchSheet('SupplierSchedule'), fetchSheet('Products')]);
+    let supps;
+    [schedule, products, supps] = await Promise.all([fetchSheet('SupplierSchedule'), fetchSheet('Products'), fetchSheet('Suppliers').catch(() => [])]);
+    supps.forEach(r => { if (r['SupplierName']) SUPP_CN[r['SupplierName']] = r['SupplierCN'] || ''; });
   } catch(e) {
     document.getElementById('body').innerHTML = `<div class="state-box"><div class="state-title">Failed to load</div></div>`;
     return;
